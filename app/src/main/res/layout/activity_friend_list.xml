@@ -2,7 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
         android:id="@+id/tv_header_afl"
@@ -31,7 +32,10 @@
         app:layout_constraintBottom_toTopOf="@+id/et_search_friend_afl"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_header_afl"/>
+        app:layout_constraintTop_toBottomOf="@+id/tv_header_afl"
+        tools:listitem="@layout/item_chat_message_layout"
+        tools:itemCount="4"
+        />
 
     <EditText
         android:id="@+id/et_search_friend_afl"
