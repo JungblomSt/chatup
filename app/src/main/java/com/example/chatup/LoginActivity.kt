@@ -1,69 +1,88 @@
 package com.example.chatup
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.chatup.databinding.ActivityLoginBinding
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 
 class LoginActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityLoginBinding
-    lateinit var auth: FirebaseAuth
+    lateinit var authViewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        auth = Firebase.auth
+        authViewModel = ViewModelProvider(this).get(AuthViewModel::class.java)
 
         binding.btnRegisterAl.setOnClickListener {
-            signUp()
+            if (checkValidInput()) {
+                register()
+            }
 
         }
         binding.btnLoginAl.setOnClickListener {
-            signIn()
+            if (checkValidInput()) {
+                login()
+            }
         }
     }
 
-    fun signIn() {
-        val email = binding.etEmailAl.text.toString()
-        val password = binding.etPasswordAl.text.toString()
-
-        if (email.isEmpty() || password.isEmpty()) {
-            return
-        }
-
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener {task ->
-                if (task.isSuccessful){
-                    Log.d("!!!", "login success")
-                } else{
-                    Log.d("!!!", "user not logged in ${task.exception}")
-                }
-            }
-
+    fun clearFields(){
+        binding.etPasswordAl.text.clear()
+        binding.etEmailAl.text.clear()
     }
 
-    fun signUp() {
+    fun checkValidInput(): Boolean{
+        var check = true
+
+        if (binding.etPasswordAl.text.isBlank()){
+            check = false
+            Toast.makeText(this, "password cannot be blank", Toast.LENGTH_SHORT).show()
+        }
+        if (binding.etEmailAl.text.isBlank()){
+            check = false
+            Toast.makeText(this, "email cannot be blank", Toast.LENGTH_SHORT).show()
+        }
+        if (binding.etPasswordAl.text.length < 6){
+            check = false
+            Toast.makeText(this, "password must contain more than 6 characters", Toast.LENGTH_SHORT).show()
+        }
+
+        return check
+
+    }
+    fun login() {
         val email = binding.etEmailAl.text.toString()
         val password = binding.etPasswordAl.text.toString()
 
-        if (email.isEmpty() || password.isEmpty()) {
-            return
-        }
+        authViewModel.login(email, password, {
+            clearFields()
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }, {
+            Toast.makeText(this, it.message.toString(), Toast.LENGTH_SHORT).show()
+        })
+    }
 
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener {task ->
-                if (task.isSuccessful){
-                    Log.d("!!!", "create success")
-                } else{
-                    Log.d("!!!", "user not created ${task.exception}")
-                }
+    fun register() {
+        val email = binding.etEmailAl.text.toString()
+        val password = binding.etPasswordAl.text.toString()
+
+        authViewModel.register(email, password) {
+            if (it.isSuccessful){
+                clearFields()
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }else {
+                Toast.makeText(this, it.exception?.message.toString(), Toast.LENGTH_SHORT).show()
+
             }
-
+        }
     }
 }
