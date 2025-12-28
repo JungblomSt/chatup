@@ -5,6 +5,3 @@ data class ChatMessage(
     val receiverId : String = "",
     val chatMessage : String = "",
     val timeStamp : Long = System.currentTimeMillis())
-
-
-

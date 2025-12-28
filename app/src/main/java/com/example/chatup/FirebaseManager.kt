@@ -18,17 +18,23 @@ class FirebaseManager {
     private lateinit var currentUser : FirebaseUser
 
 
-    fun sendChatMessage (chatText : String, receiveId : String) {
+    fun sendChatMessage (chatText : String, receiverId : String) {
 
         currentUser = Firebase.auth.currentUser ?: return
 
+        val conversationId = getConversationId(currentUser.uid, receiverId)
+
         val chatMessage = ChatMessage (
-            sendId = currentUser.uid,
-            receiveId = receiveId,
+            senderId = currentUser.uid,
+            receiverId = receiverId,
             chatMessage = chatText,
             timeStamp = System.currentTimeMillis()
         )
 
+    }
+
+    private fun getConversationId (user1Id : String, user2Id : String) : String {
+        return listOf(user1Id, user2Id).sorted().joinToString("_")
     }
 
 }
