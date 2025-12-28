@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.chatup.databinding.ActivityLoginBinding
+import com.example.chatup.viewmodel.AuthViewModel
 
 class LoginActivity : AppCompatActivity() {
 

@@ -1,4 +1,4 @@
-package com.example.chatup
+package com.example.chatup.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Task
