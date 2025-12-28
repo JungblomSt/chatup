@@ -33,6 +33,14 @@ class FirebaseManager {
 
     }
 
+    /**
+     * Creates a unique and consistent conversation ID for a chat between two users.
+     * The two user IDs are sorted alphabetically so the order is always the same, no matter which user sends or receives a message.
+     * The sorted IDs are then joined into a single string using an underscore.
+     *
+     * @param u1 the first user ID
+     * @param u2 the second user ID
+     */
     private fun getConversationId (user1Id : String, user2Id : String) : String {
         return listOf(user1Id, user2Id).sorted().joinToString("_")
     }
