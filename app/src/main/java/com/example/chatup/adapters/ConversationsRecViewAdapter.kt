@@ -4,13 +4,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatup.databinding.ItemConversationListLayoutBinding
+import com.example.chatup.ConversationList
 
 class ConversationsRecViewAdapter : RecyclerView.Adapter<ConversationsRecViewAdapter.ConversationsViewHolder>() {
 
     // Todo se över namnet "conversations" om det är tydligt nog eller blandas ihop med en chat conversation
-    // <Strings> läggs sålänge för att slippa varningar,  antar att det får specificera en skapad class sen istället
-    val conversationsList = emptyList<String>()
 
+    private var conversationsList: List<ConversationList> = emptyList()
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -24,7 +24,9 @@ class ConversationsRecViewAdapter : RecyclerView.Adapter<ConversationsRecViewAda
         holder: ConversationsViewHolder,
         position: Int
     ) {
-        TODO("Not yet implemented")
+        val conversation = conversationsList[position]
+        holder.binding.tvChatName.text = conversation.chatName
+        holder.binding.tvMessageIml.text = conversation.lastMessage
     }
 
     override fun getItemCount(): Int {
