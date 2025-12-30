@@ -1,8 +1,11 @@
 package com.example.chatup
 
+import android.os.Message
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.chatup.data.ChatMessage
+import com.example.chatup.data.User
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
@@ -19,7 +22,72 @@ class FirebaseManager {
 
     private lateinit var currentUser : FirebaseUser
 
+    /**
+     * Fetches all users from the Firestore 'users' collection.
+     * This function is used to display a list of all users for starting new conversations.
+     *
+     * @param onComplete Callback invoked when the list of users has been successfully fetched.
+     *                   Returns a List<User> containing all users in the database.
+     * @param onException Callback invoked if there is an error while fetching users.
+     *                    Returns the Exception for logging or UI handling.
+     */
+    fun getAllUsers (onComplete : (List<User>) -> Unit , onException : (Exception) -> Unit) {
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { snapshots ->
+                val userList = snapshots.documents.mapNotNull { doc ->
+                    doc.toObject(User::class.java)?.copy(id = doc.id)
+                }
+                onComplete(userList)
 
+            } .addOnFailureListener { e ->
+                onException(e)
+            }
+    }
+
+
+    /**
+     * Sets up a real-time listener for messages in a specific conversation.
+     *
+     * @param conversationId The Firestore document ID representing the conversation.
+     *                       Used to locate the correct subcollection of messages.
+     * @param onUpdate Callback invoked whenever messages are added, modified, or removed
+     *                 in this conversation. Returns a List<ChatMessage> representing the current messages.
+     */
+    fun snapShotListener (conversationId : String, onUpdate : (List<ChatMessage>) -> Unit) {
+
+        currentUser = Firebase.auth.currentUser ?: return
+
+        db.collection("conversation")
+            .document(conversationId)
+            .collection("messages")
+            .orderBy("timestamp")
+            .addSnapshotListener { snapshot , e ->
+                if ( e != null ) {
+                    Log.e("!!!",e.message.toString())
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null){
+                    val chatMessage = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(ChatMessage::class.java)
+                    }
+                    onUpdate(chatMessage)
+                }
+            }
+    }
+
+
+    /**
+     * Sends a chat message to a specific user.
+     * Ensures the sender is authenticated.
+     * Creates or updates the conversation metadata.
+     * Stores the message inside the conversation's messages collection.
+     *
+     * @param chatText The message content that will be sent.
+     * @param receiverId The unique user ID (uid) of the message receiver.
+     *
+     */
     fun sendChatMessage (chatText : String, receiverId : String) {
 
         currentUser = Firebase.auth.currentUser ?: return
@@ -33,6 +101,7 @@ class FirebaseManager {
             timeStamp = System.currentTimeMillis()
         )
 
+        // Update or create conversation metadata
         db.collection("conversation")
             .document(conversationId)
             .set(
@@ -44,6 +113,7 @@ class FirebaseManager {
                 SetOptions.merge()
             )
 
+        // Add the message to the conversation
         db.collection("conversation")
             .document(conversationId)
             .collection("messages")
