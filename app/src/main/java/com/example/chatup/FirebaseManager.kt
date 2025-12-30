@@ -1,4 +1,4 @@
-package com.example.chatup.activitys
+package com.example.chatup
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -6,6 +6,7 @@ import com.example.chatup.data.ChatMessage
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 
 class FirebaseManager {
@@ -32,6 +33,21 @@ class FirebaseManager {
             timeStamp = System.currentTimeMillis()
         )
 
+        db.collection("conversation")
+            .document(conversationId)
+            .set(
+                mapOf(
+                    "users" to listOf(currentUser.uid, receiverId),
+                    "lastMessage" to chatText,
+                    "lastUpdated" to System.currentTimeMillis()
+                ),
+                SetOptions.merge()
+            )
+
+        db.collection("conversation")
+            .document(conversationId)
+            .collection("messages")
+            .add(chatMessage)
     }
 
     /**
@@ -39,8 +55,8 @@ class FirebaseManager {
      * The two user IDs are sorted alphabetically so the order is always the same, no matter which user sends or receives a message.
      * The sorted IDs are then joined into a single string using an underscore.
      *
-     * @param u1 the first user ID
-     * @param u2 the second user ID
+     * @param user1Id the first user ID
+     * @param user2Id the second user ID
      */
     private fun getConversationId (user1Id : String, user2Id : String) : String {
         return listOf(user1Id, user2Id).sorted().joinToString("_")
