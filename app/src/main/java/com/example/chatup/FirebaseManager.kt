@@ -12,9 +12,9 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 
-class FirebaseManager {
+object FirebaseManager {
 
-    private val db = Firebase.firestore
+    private val db by lazy { Firebase.firestore }
 
     private val _chatMessage = MutableLiveData<List<ChatMessage>>()
 
