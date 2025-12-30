@@ -1,7 +1,8 @@
-package com.example.chatup
+package com.example.chatup.activitys
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.chatup.data.ChatMessage
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
@@ -24,7 +25,7 @@ class FirebaseManager {
 
         val conversationId = getConversationId(currentUser.uid, receiverId)
 
-        val chatMessage = ChatMessage (
+        val chatMessage = ChatMessage(
             senderId = currentUser.uid,
             receiverId = receiverId,
             chatMessage = chatText,
