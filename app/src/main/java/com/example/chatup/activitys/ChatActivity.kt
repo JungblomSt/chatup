@@ -1,21 +1,24 @@
 package com.example.chatup.activitys
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.example.chatup.R
+import com.example.chatup.databinding.ActivityChatBinding
+import com.example.chatup.viewmodel.ChatViewModel
 
 class ChatActivity : AppCompatActivity() {
+
+    private lateinit var binding : ActivityChatBinding
+
+    private lateinit var chatViewModel : ChatViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_chat)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        binding = ActivityChatBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
+
     }
 }
