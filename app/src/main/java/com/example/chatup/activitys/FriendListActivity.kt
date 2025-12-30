@@ -1,6 +1,7 @@
 package com.example.chatup.activitys
 
 import android.R
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -25,11 +26,20 @@ class FriendListActivity : AppCompatActivity() {
         setContentView(binding.root)
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
 
+        loadUsers()
         initAdapter()
 
     }
 
-    private fun initAdapter() : ArrayAdapter<String> {
+
+
+    /*
+    Todo ändra " temporärt innan vi lägger till vänner via email lägg till alla i register "
+
+    TODO Lägga till att man lägger till vänner via ex email istället för att hämta all users ifrån db
+       Todo Möjligen ta hela user objektet istället för bara <String>
+     */
+    private fun initAdapter() {
         adapter = ArrayAdapter(
             this,
             R.layout.simple_list_item_1,
@@ -37,7 +47,17 @@ class FriendListActivity : AppCompatActivity() {
         )
         binding.lvFriendsListAfl.adapter = adapter
 
-        return adapter
+        binding.lvFriendsListAfl.setOnItemClickListener { _, _, pos , _ ->
+            val selectedUser = friendList[pos]
+            chatViewModel.setOtherUserId(selectedUser)
+
+            val intent = Intent(this, ChatActivity::class.java)
+            intent.putExtra("userId" , selectedUser.id)
+            startActivity(intent)
+
+        }
+
+
     }
 
     fun loadUsers () {
