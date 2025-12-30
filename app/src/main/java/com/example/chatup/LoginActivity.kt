@@ -32,11 +32,34 @@ class LoginActivity : AppCompatActivity() {
                 login()
             }
         }
+        binding.btnForgotPasswordAl.setOnClickListener {
+            val email = binding.etForgotEmailAl.text.toString().trim()
+            authViewModel.resetPassword(email)
+
+        }
+        authViewModel.resetPasswordResult.observe(this) { result ->
+            result
+                .onSuccess {
+                    Toast.makeText(
+                        this,
+                        it,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .onFailure {
+                    Toast.makeText(
+                        this,
+                        it.message ?: "Fel uppstod",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        }
     }
 
     fun clearFields(){
         binding.etPasswordAl.text.clear()
         binding.etEmailAl.text.clear()
+        binding.etForgotEmailAl.text.clear()
     }
 
     fun checkValidInput(): Boolean{
@@ -44,15 +67,15 @@ class LoginActivity : AppCompatActivity() {
 
         if (binding.etPasswordAl.text.isBlank()){
             check = false
-            Toast.makeText(this, "password cannot be blank", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "lösenordet måste inehålla minst 6 tecken", Toast.LENGTH_SHORT).show()
         }
         if (binding.etEmailAl.text.isBlank()){
             check = false
-            Toast.makeText(this, "email cannot be blank", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Uppge en epostadress", Toast.LENGTH_SHORT).show()
         }
         if (binding.etPasswordAl.text.length < 6){
             check = false
-            Toast.makeText(this, "password must contain more than 6 characters", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "lösenordet måste inehålla minst 6 tecken", Toast.LENGTH_SHORT).show()
         }
 
         return check
