@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.chatup.FirebaseManager
 import com.example.chatup.data.User
 import com.example.chatup.databinding.ActivityFriendListBinding
 import com.example.chatup.viewmodel.ChatViewModel
@@ -26,12 +25,12 @@ class FriendListActivity : AppCompatActivity() {
         setContentView(binding.root)
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
 
-        loadUsers()
+        chatViewModel.loadAllUsers()
+
+
         initAdapter()
-
+        loadUsers()
     }
-
-
 
     /*
     Todo ändra " temporärt innan vi lägger till vänner via email lägg till alla i register "
@@ -61,6 +60,7 @@ class FriendListActivity : AppCompatActivity() {
     }
 
     fun loadUsers () {
+
         chatViewModel.users.observe(this) { userList ->
             friendList.clear()
             friendList.addAll(userList)

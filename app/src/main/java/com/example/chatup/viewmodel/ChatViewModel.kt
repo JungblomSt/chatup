@@ -27,9 +27,7 @@ class ChatViewModel : ViewModel() {
             _users.value = userList
         }, {e ->
             Log.e("!!!",e.message.toString())
-        }
-
-        )
+        } )
 
     }
 
