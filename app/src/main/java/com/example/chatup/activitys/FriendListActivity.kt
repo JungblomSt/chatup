@@ -27,7 +27,6 @@ class FriendListActivity : AppCompatActivity() {
 
         chatViewModel.loadAllUsers()
 
-
         initAdapter()
         loadUsers()
     }
@@ -48,7 +47,7 @@ class FriendListActivity : AppCompatActivity() {
 
         binding.lvFriendsListAfl.setOnItemClickListener { _, _, pos , _ ->
             val selectedUser = friendList[pos]
-            chatViewModel.setOtherUserId(selectedUser)
+            chatViewModel.setOtherUserId(selectedUser.id)
 
             val intent = Intent(this, ChatActivity::class.java)
             intent.putExtra("userId" , selectedUser.id)

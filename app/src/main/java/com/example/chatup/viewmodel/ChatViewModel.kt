@@ -7,9 +7,11 @@ import androidx.lifecycle.ViewModel
 import com.example.chatup.FirebaseManager
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.data.User
+import com.google.firebase.Firebase
 
 class ChatViewModel : ViewModel() {
 
+    private lateinit var conversationId : String
     private var _otherUserId = MutableLiveData<String>()
 
     val otherUserId : LiveData<String> get() = _otherUserId
@@ -31,8 +33,17 @@ class ChatViewModel : ViewModel() {
 
     }
 
-    fun setOtherUserId (id : User){
-        _otherUserId.value = id.id
+    fun initChat (otherUserId : String) {
+        _otherUserId.value = otherUserId
+        conversationId = FirebaseManager.createConversationId(otherUserId)
+
+        FirebaseManager.snapShotListener(conversationId) {
+            _chatMessage.value = it
+        }
+    }
+
+    fun setOtherUserId (userId : String){
+        _otherUserId.value = userId
     }
 
     fun sendMessage (chatText : String) {
@@ -40,10 +51,10 @@ class ChatViewModel : ViewModel() {
         FirebaseManager.sendChatMessage(chatText, receiverId)
     }
 
-    // Todo ändra så att hantering av Log.e görs här itsället för i FirebaseMananger för renare kod
-    fun startListening (conversationId : String) {
-        FirebaseManager.snapShotListener(conversationId) { chatMessages ->
-            _chatMessage.value = chatMessages
-        }
-    }
+//    // Todo ändra så att hantering av Log.e görs här itsället för i FirebaseMananger för renare kod
+//    fun startListening (conversationId : String) {
+//        FirebaseManager.snapShotListener(conversationId) { chatMessages ->
+//            _chatMessage.value = chatMessages
+//        }
+//    }
 }

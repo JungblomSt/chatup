@@ -16,9 +16,9 @@ object FirebaseManager {
 
     private val db by lazy { Firebase.firestore }
 
-    private val _chatMessage = MutableLiveData<List<ChatMessage>>()
-
-    val chatMessage : LiveData<List<ChatMessage>> get() = _chatMessage
+//    private val _chatMessage = MutableLiveData<List<ChatMessage>>()
+//
+//    val chatMessage : LiveData<List<ChatMessage>> get() = _chatMessage
 
     private lateinit var currentUser : FirebaseUser
 
@@ -128,7 +128,13 @@ object FirebaseManager {
      * @param user1Id the first user ID
      * @param user2Id the second user ID
      */
-    private fun getConversationId (user1Id : String, user2Id : String) : String {
+    fun getConversationId (user1Id : String, user2Id : String) : String {
+        return listOf(user1Id, user2Id).sorted().joinToString("_")
+    }
+
+    fun createConversationId (user2Id : String) : String {
+        currentUser = Firebase.auth.currentUser ?: return ""
+        val user1Id : String = currentUser.uid
         return listOf(user1Id, user2Id).sorted().joinToString("_")
     }
 
