@@ -4,11 +4,16 @@ package com.example.chatup.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.chatup.FirebaseManager
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.databinding.ItemConversationListLayoutBinding
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 
 class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolder>() {
 
+    var chatPartnerName = ""
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     var chatList = emptyList<ChatMessage>()
 
     override fun onCreateViewHolder(
@@ -19,6 +24,9 @@ class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolde
         return ChatViewHolder(binding)
     }
 
+    fun getChatPartnerName (otherUserName : String) {
+        chatPartnerName = otherUserName
+    }
     fun submitList (chatMessages : List<ChatMessage>) {
         chatList = chatMessages
         notifyDataSetChanged()
@@ -31,6 +39,12 @@ class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolde
         val chatListMessage = chatList[position]
 
         holder.binding.tvMessageIml.text = chatListMessage.messages
+
+        if (currentUserId == chatListMessage.senderId){
+            holder.binding.tvChatName.text = "You"
+        } else {
+            holder.binding.tvChatName.text = chatPartnerName
+        }
 
     }
 

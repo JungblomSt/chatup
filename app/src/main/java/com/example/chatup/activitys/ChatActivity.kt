@@ -30,8 +30,9 @@ class ChatActivity : AppCompatActivity() {
         binding.rvChatAc.adapter = adapter
 
         val otherUserId = intent.getStringExtra("userId")
+        val otherUserName = intent.getStringExtra("userName")
 
-        startChat(otherUserId)
+        startChat(otherUserId, otherUserName)
     }
 
     /**
@@ -40,14 +41,19 @@ class ChatActivity : AppCompatActivity() {
      *
      * @param otherUserId The user ID of the chat partner.
      */
-    private fun startChat(otherUserId: String?) {
+    private fun startChat(otherUserId: String?, otherUserName : String?) {
         if (otherUserId != null) {
 
             chatViewModel.setOtherUserId(otherUserId)
             chatViewModel.initChat(otherUserId)
+            chatViewModel.setOtherUserName(otherUserName)
 
             chatViewModel.chatMessage.observe(this) { chatMessages ->
                 adapter.submitList(chatMessages)
+            }
+
+            chatViewModel.otherUserName.observe(this) { name ->
+                adapter.getChatPartnerName(name)
             }
 
             binding.fabSendAc.setOnClickListener {

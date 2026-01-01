@@ -67,7 +67,6 @@ object FirebaseManager {
         db.collection("conversation")
             .document(conversationId)
             .collection("messages")
-            // Boven bakom ui inte uppdateras timestamp fel timeStamp (stamp/Stamp)
             .orderBy("timeStamp")
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {

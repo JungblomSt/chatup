@@ -50,6 +50,7 @@ class FriendListActivity : AppCompatActivity() {
 
             val intent = Intent(this, ChatActivity::class.java)
             intent.putExtra("userId", selectedUser.id)
+            intent.putExtra("userName", selectedUser.username)
             startActivity(intent)
 
         }

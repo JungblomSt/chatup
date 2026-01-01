@@ -10,11 +10,13 @@ import com.example.chatup.data.User
 
 class ChatViewModel : ViewModel() {
 
+    private var _otherUserName = MutableLiveData<String>()
+    val otherUserName: LiveData<String> get() = _otherUserName
     /**
      * The unique ID of the current conversation.
      * This is generated based on the logged-in user and the selected chat partner.
      */
-    private lateinit var conversationId: String
+    private lateinit var conversationId : String
 
     /**
      * Holds the user ID of the person the current user is chatting with.
@@ -61,6 +63,10 @@ class ChatViewModel : ViewModel() {
         FirebaseManager.snapShotListener(conversationId) {
             _chatMessage.value = it
         }
+    }
+
+    fun setOtherUserName (otherUserName : String?) {
+        _otherUserName.value = otherUserName
     }
 
     /**
