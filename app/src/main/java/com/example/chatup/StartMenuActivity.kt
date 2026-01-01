@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.chatup.databinding.ItemConversationListLayoutBinding
+import com.example.chatup.fragments.ConversationListFragment
 import com.example.chatup.fragments.UsersFragment
 
 class StartMenuActivity : AppCompatActivity(){
@@ -12,20 +13,20 @@ class StartMenuActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.start_menu_activity)
 
-        //setContentView(binding.root)
+        showConversations()
 
         showUsers()
     }
 
     fun showConversations() {
-//        supportFragmentManager.beginTransaction()
-//            .replace(R.id.fragmentContainer, ConversationsFragment())
-//            .commit()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.conversationListContainer, ConversationListFragment())
+            .commit()
     }
 
     fun showUsers() {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, UsersFragment())
+            .replace(R.id.usersContainer, UsersFragment())
             .commit()
     }
 }
