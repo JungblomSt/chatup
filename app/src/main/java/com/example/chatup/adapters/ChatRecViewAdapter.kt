@@ -49,9 +49,9 @@ class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolde
         holder.binding.tvMessageIml.text = chatListMessage.messages
 
         if (currentUserId == chatListMessage.senderId){
-            holder.binding.tvChatName.text = "You"
+            holder.binding.tvFriendName.text = "You"
         } else {
-            holder.binding.tvChatName.text = chatPartnerName
+            holder.binding.tvFriendName.text = chatPartnerName
         }
 
         holder.binding.tvTimestamp.text = formatTimeStamp(chatListMessage.timeStamp)

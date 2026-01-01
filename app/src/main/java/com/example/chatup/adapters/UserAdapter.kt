@@ -3,7 +3,7 @@ package com.example.chatup.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.chatup.User
+import com.example.chatup.data.User
 import com.example.chatup.databinding.ItemUserBinding
 
 
