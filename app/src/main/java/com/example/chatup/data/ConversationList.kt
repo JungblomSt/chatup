@@ -1,4 +1,4 @@
-package com.example.chatup
+package com.example.chatup.data
 
 data class ConversationList (
     val conversationId : String = "",
