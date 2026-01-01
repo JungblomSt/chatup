@@ -1,9 +1,6 @@
 package com.example.chatup
 
-import android.os.Message
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.data.User
 import com.google.firebase.Firebase
@@ -15,10 +12,6 @@ import com.google.firebase.firestore.firestore
 object FirebaseManager {
 
     private val db by lazy { Firebase.firestore }
-
-//    private val _chatMessage = MutableLiveData<List<ChatMessage>>()
-//
-//    val chatMessage : LiveData<List<ChatMessage>> get() = _chatMessage
 
     private lateinit var currentUser : FirebaseUser
 
@@ -61,7 +54,8 @@ object FirebaseManager {
         db.collection("conversation")
             .document(conversationId)
             .collection("messages")
-            .orderBy("timestamp")
+            // Boven bakom ui inte uppdateras timestamp fel timeStamp (stamp/Stamp)
+            .orderBy("timeStamp")
             .addSnapshotListener { snapshot , e ->
                 if ( e != null ) {
                     Log.e("!!!",e.message.toString())
@@ -72,6 +66,7 @@ object FirebaseManager {
                     val chatMessage = snapshot.documents.mapNotNull { doc ->
                         doc.toObject(ChatMessage::class.java)
                     }
+                    Log.d("!!!", "Messages snapshot -- $chatMessage")
                     onUpdate(chatMessage)
                 }
             }
@@ -97,7 +92,7 @@ object FirebaseManager {
         val chatMessage = ChatMessage(
             senderId = currentUser.uid,
             receiverId = receiverId,
-            chatMessage = chatText,
+            messages = chatText,
             timeStamp = System.currentTimeMillis()
         )
 

@@ -5,12 +5,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatup.data.ChatMessage
-import com.example.chatup.data.User
 import com.example.chatup.databinding.ItemConversationListLayoutBinding
 
 class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolder>() {
 
-    // <Strings> läggs sålänge för att slippa varningar,  antar att det får specificera en skapad class sen istället
     var chatList = emptyList<ChatMessage>()
 
     override fun onCreateViewHolder(
@@ -32,7 +30,7 @@ class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolde
     ) {
         val chatListMessage = chatList[position]
 
-        holder.binding.tvMessageIml.text = chatListMessage.chatMessage
+        holder.binding.tvMessageIml.text = chatListMessage.messages
 
     }
 

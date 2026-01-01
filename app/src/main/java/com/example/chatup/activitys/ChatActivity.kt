@@ -2,6 +2,7 @@ package com.example.chatup.activitys
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -47,6 +48,8 @@ class ChatActivity : AppCompatActivity() {
                 val sendChatText = binding.etMessageAc.text.toString()
                 if (sendChatText.isNotBlank()){
                     chatViewModel.sendMessage(sendChatText)
+                    binding.etMessageAc.text.clear()
+                    Log.d("!!!", "Sent Chat = $sendChatText")
                 }
             }
 
@@ -55,12 +58,5 @@ class ChatActivity : AppCompatActivity() {
             val intent = Intent(this, FriendListActivity::class.java)
             startActivity(intent)
         }
-
-
-
-
-
-
-
     }
 }
