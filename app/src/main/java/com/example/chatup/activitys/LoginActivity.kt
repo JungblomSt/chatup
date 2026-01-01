@@ -63,7 +63,7 @@ class LoginActivity : AppCompatActivity() {
 
         authViewModel.login(email, password, {
             clearFields()
-            val intent = Intent(this, ConversationListActivity::class.java)
+            val intent = Intent(this, StartMenuActivity::class.java)
             startActivity(intent)
         }, {
             Toast.makeText(this, it.message.toString(), Toast.LENGTH_SHORT).show()
@@ -77,7 +77,7 @@ class LoginActivity : AppCompatActivity() {
         authViewModel.register(email, password) {
             if (it.isSuccessful){
                 clearFields()
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, StartMenuActivity::class.java)
                 startActivity(intent)
             }else {
                 Toast.makeText(this, it.exception?.message.toString(), Toast.LENGTH_SHORT).show()

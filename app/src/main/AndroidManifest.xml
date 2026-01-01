@@ -18,6 +18,9 @@
             android:name=".activitys.ChatActivity"
             android:exported="false" />
         <activity
+            android:name=".StartMenuActivity"
+            android:exported="false" />
+        <activity
             android:name=".activitys.LoginActivity"
             android:exported="true">
 <!--            android:exported="false">-->

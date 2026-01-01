@@ -25,7 +25,7 @@ class ConversationsRecViewAdapter : RecyclerView.Adapter<ConversationsRecViewAda
         position: Int
     ) {
         val conversation = conversationsList[position]
-        holder.binding.tvFriendName.text = conversation.friendName
+        holder.binding.tvFriendName.text = conversation.username
         holder.binding.tvMessageIml.text = conversation.lastMessage
     }
 
