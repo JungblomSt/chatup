@@ -11,9 +11,16 @@ import com.google.firebase.firestore.firestore
 
 object FirebaseManager {
 
+    /**
+     * Firestore database instance.
+     * Init lazy to ensure it is only created when first accessed.
+     */
     private val db by lazy { Firebase.firestore }
 
-    private lateinit var currentUser : FirebaseUser
+    /**
+     * Holds the currently authenticated Firebase user.
+     */
+    private lateinit var currentUser: FirebaseUser
 
     /**
      * Fetches all users from the Firestore 'users' collection.
@@ -24,16 +31,22 @@ object FirebaseManager {
      * @param onException Callback invoked if there is an error while fetching users.
      *                    Returns the Exception for logging or UI handling.
      */
-    fun getAllUsers (onComplete : (List<User>) -> Unit , onException : (Exception) -> Unit) {
+    fun getAllUsers(onComplete: (List<User>) -> Unit, onException: (Exception) -> Unit) {
+
+        val currentUserId = Firebase.auth.currentUser?.uid
+
         db.collection("users")
             .get()
             .addOnSuccessListener { snapshots ->
                 val userList = snapshots.documents.mapNotNull { doc ->
                     doc.toObject(User::class.java)?.copy(id = doc.id)
+                }.filter { user ->
+                    user.id != currentUserId
                 }
+
                 onComplete(userList)
 
-            } .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 onException(e)
             }
     }
@@ -47,7 +60,7 @@ object FirebaseManager {
      * @param onUpdate Callback invoked whenever messages are added, modified, or removed
      *                 in this conversation. Returns a List<ChatMessage> representing the current messages.
      */
-    fun snapShotListener (conversationId : String, onUpdate : (List<ChatMessage>) -> Unit) {
+    fun snapShotListener(conversationId: String, onUpdate: (List<ChatMessage>) -> Unit) {
 
         currentUser = Firebase.auth.currentUser ?: return
 
@@ -56,13 +69,13 @@ object FirebaseManager {
             .collection("messages")
             // Boven bakom ui inte uppdateras timestamp fel timeStamp (stamp/Stamp)
             .orderBy("timeStamp")
-            .addSnapshotListener { snapshot , e ->
-                if ( e != null ) {
-                    Log.e("!!!",e.message.toString())
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("!!!", e.message.toString())
                     return@addSnapshotListener
                 }
 
-                if (snapshot != null){
+                if (snapshot != null) {
                     val chatMessage = snapshot.documents.mapNotNull { doc ->
                         doc.toObject(ChatMessage::class.java)
                     }
@@ -83,7 +96,7 @@ object FirebaseManager {
      * @param receiverId The unique user ID (uid) of the message receiver.
      *
      */
-    fun sendChatMessage (chatText : String, receiverId : String) {
+    fun sendChatMessage(chatText: String, receiverId: String) {
 
         currentUser = Firebase.auth.currentUser ?: return
 
@@ -123,13 +136,13 @@ object FirebaseManager {
      * @param user1Id the first user ID
      * @param user2Id the second user ID
      */
-    fun getConversationId (user1Id : String, user2Id : String) : String {
+    fun getConversationId(user1Id: String, user2Id: String): String {
         return listOf(user1Id, user2Id).sorted().joinToString("_")
     }
 
-    fun createConversationId (user2Id : String) : String {
+    fun createConversationId(user2Id: String): String {
         currentUser = Firebase.auth.currentUser ?: return ""
-        val user1Id : String = currentUser.uid
+        val user1Id: String = currentUser.uid
         return listOf(user1Id, user2Id).sorted().joinToString("_")
     }
 

@@ -12,16 +12,16 @@ import com.example.chatup.viewmodel.ChatViewModel
 
 class FriendListActivity : AppCompatActivity() {
 
-    private lateinit var binding : ActivityFriendListBinding
-    private lateinit var chatViewModel : ChatViewModel
+    private lateinit var binding: ActivityFriendListBinding
+    private lateinit var chatViewModel: ChatViewModel
 
-    private lateinit var adapter : ArrayAdapter<String>
+    private lateinit var adapter: ArrayAdapter<String>
 
     private var friendList = mutableListOf<User>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-       binding = ActivityFriendListBinding.inflate(layoutInflater)
+        binding = ActivityFriendListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
 
@@ -35,8 +35,7 @@ class FriendListActivity : AppCompatActivity() {
     Todo ändra " temporärt innan vi lägger till vänner via email lägg till alla i register "
 
     TODO Lägga till att man lägger till vänner via ex email istället för att hämta all users ifrån db
-       Todo Möjligen ta hela user objektet istället för bara <String>
-     */
+          */
     private fun initAdapter() {
         adapter = ArrayAdapter(
             this,
@@ -45,12 +44,12 @@ class FriendListActivity : AppCompatActivity() {
         )
         binding.lvFriendsListAfl.adapter = adapter
 
-        binding.lvFriendsListAfl.setOnItemClickListener { _, _, pos , _ ->
+        binding.lvFriendsListAfl.setOnItemClickListener { _, _, pos, _ ->
             val selectedUser = friendList[pos]
             chatViewModel.setOtherUserId(selectedUser.id)
 
             val intent = Intent(this, ChatActivity::class.java)
-            intent.putExtra("userId" , selectedUser.id)
+            intent.putExtra("userId", selectedUser.id)
             startActivity(intent)
 
         }
@@ -58,8 +57,7 @@ class FriendListActivity : AppCompatActivity() {
 
     }
 
-    fun loadUsers () {
-
+    fun loadUsers() {
         chatViewModel.users.observe(this) { userList ->
             friendList.clear()
             friendList.addAll(userList)

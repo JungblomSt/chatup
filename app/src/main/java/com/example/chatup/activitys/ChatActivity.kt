@@ -3,25 +3,21 @@ package com.example.chatup.activitys
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.chatup.R
 import com.example.chatup.adapters.ChatRecViewAdapter
 import com.example.chatup.databinding.ActivityChatBinding
 import com.example.chatup.viewmodel.ChatViewModel
 
 class ChatActivity : AppCompatActivity() {
 
-    private lateinit var binding : ActivityChatBinding
+    private lateinit var binding: ActivityChatBinding
 
-    private lateinit var chatViewModel : ChatViewModel
+    private lateinit var chatViewModel: ChatViewModel
 
-    private lateinit var adapter : ChatRecViewAdapter
+    private lateinit var adapter: ChatRecViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +31,16 @@ class ChatActivity : AppCompatActivity() {
 
         val otherUserId = intent.getStringExtra("userId")
 
+        startChat(otherUserId)
+    }
+
+    /**
+     * Initializes the chat if a valid user ID is provided.
+     * Sets up LiveData observers and handles sending messages.
+     *
+     * @param otherUserId The user ID of the chat partner.
+     */
+    private fun startChat(otherUserId: String?) {
         if (otherUserId != null) {
 
             chatViewModel.setOtherUserId(otherUserId)
@@ -46,7 +52,7 @@ class ChatActivity : AppCompatActivity() {
 
             binding.fabSendAc.setOnClickListener {
                 val sendChatText = binding.etMessageAc.text.toString()
-                if (sendChatText.isNotBlank()){
+                if (sendChatText.isNotBlank()) {
                     chatViewModel.sendMessage(sendChatText)
                     binding.etMessageAc.text.clear()
                     Log.d("!!!", "Sent Chat = $sendChatText")
