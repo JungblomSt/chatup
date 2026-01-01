@@ -19,6 +19,7 @@ class ConversationListAdapter(private var conversationList: List<ConversationLis
     override fun onBindViewHolder(holder: ConversationListViewHolder, position: Int) {
         val conversation = conversationList[position]
         holder.binding.tvMessageIml.text = conversation.lastMessage
+        holder.binding.tvFriendName.text = conversation.friendUsername
     }
 
     override fun getItemCount() = conversationList.size

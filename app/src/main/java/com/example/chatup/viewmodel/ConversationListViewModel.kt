@@ -8,6 +8,9 @@ import com.example.chatup.data.User
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.tasks.await
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
 class ConversationListViewModel : ViewModel(){
 
@@ -18,15 +21,34 @@ class ConversationListViewModel : ViewModel(){
 
     fun getAllCurrentUserConversationLists(){
         val currentUserId = auth.currentUser?.uid
+        viewModelScope.launch {
+            val users = getUsers()
 
-        db.collection("conversation")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val list = snapshot.documents.mapNotNull { doc ->
-                    val conversation = doc.toObject(ConversationList::class.java)?.copy(conversationId = doc.id)
-                    if (conversation!!.users.contains(currentUserId!!)) conversation else null
+            db.collection("conversation")
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    val list = snapshot.documents.mapNotNull { doc ->
+                        val conversation = doc.toObject(ConversationList::class.java)
+                            ?.copy(conversationId = doc.id)
+                        val friendId = conversation?.users?.first() { it != currentUserId }
+                        val friend = users.first() { it.uid == friendId }
+                        conversation?.friendUsername = friend.username!!
+                        if (conversation!!.users.contains(currentUserId!!)) conversation else null
+                    }
+                    _conversationList.value = list
                 }
-                _conversationList.value = list
-            }
+        }
+    }
+
+    private suspend fun getUsers(): List<User>{
+        val currentUserId = auth.currentUser?.uid
+
+        val usersSnapshot = db.collection("users").get().await()
+        val users = usersSnapshot.documents.mapNotNull { doc ->
+            val user = doc.toObject(User::class.java)?.copy(uid = doc.id)
+            if (user?.uid != currentUserId) user else null
+        }
+
+        return users
     }
 }
