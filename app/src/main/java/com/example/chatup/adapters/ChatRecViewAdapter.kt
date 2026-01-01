@@ -9,6 +9,9 @@ import com.example.chatup.data.ChatMessage
 import com.example.chatup.databinding.ItemConversationListLayoutBinding
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolder>() {
 
@@ -22,6 +25,12 @@ class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolde
     ): ChatViewHolder {
         val binding = ItemConversationListLayoutBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return ChatViewHolder(binding)
+    }
+
+    fun formatTimeStamp (timeStamp : Long) : String {
+        val timeStampFormatter = SimpleDateFormat("DD/MM HH:MM", Locale.getDefault())
+        val dateFormat = Date(timeStamp)
+        return timeStampFormatter.format(dateFormat)
     }
 
     fun getChatPartnerName (otherUserName : String) {
@@ -45,6 +54,8 @@ class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolde
         } else {
             holder.binding.tvChatName.text = chatPartnerName
         }
+
+        holder.binding.tvTimestamp.text = formatTimeStamp(chatListMessage.timeStamp)
 
     }
 
