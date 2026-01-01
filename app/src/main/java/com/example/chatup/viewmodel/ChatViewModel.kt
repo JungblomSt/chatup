@@ -61,7 +61,7 @@ class ChatViewModel : ViewModel() {
         conversationId = FirebaseManager.createConversationId(otherUserId)
 
         FirebaseManager.snapShotListener(conversationId) {
-            _chatMessage.value = it
+            _chatMessage.postValue(it.toList())
         }
     }
 

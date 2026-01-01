@@ -28,7 +28,8 @@ class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolde
     }
 
     fun formatTimeStamp (timeStamp : Long) : String {
-        val timeStampFormatter = SimpleDateFormat("DD/MM HH:MM", Locale.getDefault())
+        val timeStampFormatter = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
+        timeStampFormatter.timeZone = java.util.TimeZone.getDefault()
         val dateFormat = Date(timeStamp)
         return timeStampFormatter.format(dateFormat)
     }

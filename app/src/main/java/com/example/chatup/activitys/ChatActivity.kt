@@ -50,6 +50,7 @@ class ChatActivity : AppCompatActivity() {
 
             chatViewModel.chatMessage.observe(this) { chatMessages ->
                 adapter.submitList(chatMessages)
+                binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
             }
 
             chatViewModel.otherUserName.observe(this) { name ->
