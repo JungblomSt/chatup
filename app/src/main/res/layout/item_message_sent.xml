@@ -12,29 +12,28 @@
         android:id="@+id/cv_message_sent_ims"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="20dp"
         android:layout_margin="8dp"
-        app:cardElevation="2dp"
-        >
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp">
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="12dp"
-            >
+            android:minWidth="140dp"
+            android:padding="12dp">
 
 
             <TextView
-                android:id="@+id/tv_friendName_ims"
+                android:id="@+id/tv_friend_name_ims"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
                 android:text="Chatname"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
 
             <TextView
                 android:id="@+id/tv_message_ims"
@@ -42,14 +41,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
+                android:lineSpacingExtra="2dp"
+                android:maxWidth="250dp"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toTopOf="@+id/tv_time_stamp_ims"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_friendName_ims"
+                app:layout_constraintTop_toBottomOf="@+id/tv_friend_name_ims"
                 tools:text="Message" />
-
 
             <TextView
                 android:id="@+id/tv_time_stamp_ims"
