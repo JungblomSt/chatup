@@ -12,13 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Chatup">
         <activity
-            android:name=".FriendListActivity"
+            android:name=".activitys.FriendListActivity"
             android:exported="false" />
         <activity
-            android:name=".ChatActivity"
+            android:name=".activitys.ChatActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".StartMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activitys.LoginActivity"
             android:exported="true">
 <!--            android:exported="false">-->
 
@@ -29,7 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".activitys.MainActivity"
             android:exported="false">
 
 <!--            android:exported="true">-->

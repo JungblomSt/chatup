@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatup.databinding.ItemConversationListLayoutBinding
-import com.example.chatup.ConversationList
+import com.example.chatup.data.ConversationList
 
 class ConversationsRecViewAdapter : RecyclerView.Adapter<ConversationsRecViewAdapter.ConversationsViewHolder>() {
 
@@ -25,7 +25,7 @@ class ConversationsRecViewAdapter : RecyclerView.Adapter<ConversationsRecViewAda
         position: Int
     ) {
         val conversation = conversationsList[position]
-        holder.binding.tvChatName.text = conversation.chatName
+        //holder.binding.tvFriendName.text = conversation.username
         holder.binding.tvMessageIml.text = conversation.lastMessage
     }
 

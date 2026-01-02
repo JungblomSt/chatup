@@ -1,10 +1,8 @@
-package com.example.chatup
+package com.example.chatup.activitys
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.chatup.databinding.ActivityMainBinding
 
 lateinit var binding: ActivityMainBinding
@@ -13,6 +11,16 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        binding.button.setOnClickListener {
+            val intent = Intent(this, FriendListActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.button2.setOnClickListener {
+            val intent = Intent(this, ChatActivity::class.java)
+            startActivity(intent)
+        }
 
     }
 }
