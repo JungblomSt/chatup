@@ -38,17 +38,17 @@ class AuthViewModel : ViewModel() {
 
     fun resetPassword(email: String) {
         if (email.isBlank()) {
-            _resetPasswordResult.value = Result.failure(Exception("Uppge epostadress"))
+            _resetPasswordResult.value = Result.failure(Exception("Enter email address"))
             return
         }
         repository.sendPasswordReset(email) { success, error ->
             if (success) {
                 _resetPasswordResult.postValue(
-                    Result.success("Återställningsmail har skickats")
+                    Result.success("Reset email has been sent")
                 )
             } else {
                 _resetPasswordResult.postValue(
-                    Result.failure(Exception(error ?: "Okänt fel"))
+                    Result.failure(Exception(error ?: "Error"))
                 )
             }
         }

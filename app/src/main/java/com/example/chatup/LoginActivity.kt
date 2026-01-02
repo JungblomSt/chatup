@@ -2,7 +2,6 @@ package com.example.chatup
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -49,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
                 .onFailure {
                     Toast.makeText(
                         this,
-                        it.message ?: "Fel uppstod",
+                        it.message ?: getString(R.string.wrong),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -67,15 +66,15 @@ class LoginActivity : AppCompatActivity() {
 
         if (binding.etPasswordAl.text.isBlank()){
             check = false
-            Toast.makeText(this, "lösenordet måste inehålla minst 6 tecken", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.etPasswordAlBlank), Toast.LENGTH_SHORT).show()
         }
         if (binding.etEmailAl.text.isBlank()){
             check = false
-            Toast.makeText(this, "Uppge en epostadress", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.etEmailAlBlank), Toast.LENGTH_SHORT).show()
         }
         if (binding.etPasswordAl.text.length < 6){
             check = false
-            Toast.makeText(this, "lösenordet måste inehålla minst 6 tecken", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.etPasswordAlToShort), Toast.LENGTH_SHORT).show()
         }
 
         return check
