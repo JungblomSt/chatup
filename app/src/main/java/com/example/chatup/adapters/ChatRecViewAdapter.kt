@@ -17,6 +17,7 @@ class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolde
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     var chatList = emptyList<ChatMessage>()
 
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -54,7 +55,7 @@ class ChatRecViewAdapter : RecyclerView.Adapter<ChatRecViewAdapter.ChatViewHolde
             holder.binding.tvFriendName.text = chatPartnerName
         }
 
-        holder.binding.tvTimestamp.text = formatTimeStamp(chatListMessage.timeStamp)
+        holder.binding.tvTimeStamp.text = formatTimeStamp(chatListMessage.timeStamp)
 
     }
 
