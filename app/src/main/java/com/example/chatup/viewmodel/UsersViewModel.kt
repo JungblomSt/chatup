@@ -21,11 +21,11 @@ class UsersViewModel : ViewModel(){
         db.collection("users")
             .get()
             .addOnSuccessListener { snapshot ->
-                val list = snapshot.documents.mapNotNull { doc ->
+                val userList = snapshot.documents.mapNotNull { doc ->
                     val user = doc.toObject(User::class.java)?.copy(uid = doc.id)
                     if (user?.uid != currentUserId) user else null
                 }
-                _users.value = list
+                _users.value = userList
             }
     }
 }

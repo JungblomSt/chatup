@@ -2,7 +2,6 @@ package com.example.chatup.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
@@ -12,6 +11,8 @@ import com.example.chatup.R
 import com.example.chatup.activitys.ChatActivity
 import com.example.chatup.adapters.ConversationListAdapter
 import com.example.chatup.viewmodel.ConversationListViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
     private lateinit var conversationListViewModel: ConversationListViewModel
@@ -26,11 +27,12 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
         adapter = ConversationListAdapter(emptyList()) { conversation ->
-            //TODO: chat acitivy needs to get the conversation id so it can fetch the conversation from firebase
-            //conversation.conversationId
-            Log.d("conversation id", "Conversation id is: ${conversation.conversationId}")
+            val currentUserId = Firebase.auth.currentUser?.uid
+            val friendId = conversation.users.first() { it != currentUserId }
+
             val intent = Intent(requireContext(), ChatActivity::class.java)
-            //intent.putExtra("conversationId", conversation.conversationId)
+            intent.putExtra("userId", friendId)
+            intent.putExtra("userName", conversation.friendUsername)
             startActivity(intent)
         }
 

@@ -27,15 +27,15 @@ class ConversationListViewModel : ViewModel(){
             db.collection("conversation")
                 .get()
                 .addOnSuccessListener { snapshot ->
-                    val list = snapshot.documents.mapNotNull { doc ->
+                    val convList = snapshot.documents.mapNotNull { doc ->
                         val conversation = doc.toObject(ConversationList::class.java)
                             ?.copy(conversationId = doc.id)
                         val friendId = conversation?.users?.first() { it != currentUserId }
                         val friend = users.first() { it.uid == friendId }
                         conversation?.friendUsername = friend.username!!
-                        if (conversation!!.users.contains(currentUserId!!)) conversation else null
+                        if (conversation!!.users.contains(currentUserId!!) && conversation.lastMessage.isNotEmpty()) conversation else null
                     }
-                    _conversationList.value = list
+                    _conversationList.value = convList
                 }
         }
     }
