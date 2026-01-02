@@ -39,9 +39,9 @@ object FirebaseManager {
             .get()
             .addOnSuccessListener { snapshots ->
                 val userList = snapshots.documents.mapNotNull { doc ->
-                    doc.toObject(User::class.java)?.copy(id = doc.id)
+                    doc.toObject(User::class.java)?.copy(uid = doc.id)
                 }.filter { user ->
-                    user.id != currentUserId
+                    user.uid != currentUserId
                 }
 
                 onComplete(userList)
