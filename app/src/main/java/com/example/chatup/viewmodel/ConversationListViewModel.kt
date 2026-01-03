@@ -29,11 +29,20 @@ class ConversationListViewModel : ViewModel(){
                 .addOnSuccessListener { snapshot ->
                     val convList = snapshot.documents.mapNotNull { doc ->
                         val conversation = doc.toObject(ConversationList::class.java)
-                            ?.copy(conversationId = doc.id)
-                        val friendId = conversation?.users?.first() { it != currentUserId }
-                        val friend = users.first() { it.uid == friendId }
-                        conversation?.friendUsername = friend.username!!
-                        if (conversation!!.users.contains(currentUserId!!) && conversation.lastMessage.isNotEmpty()) conversation else null
+                            ?.copy(conversationId = doc.id) ?: return@mapNotNull null
+
+                        if (!conversation.users.contains(currentUserId) || conversation.lastMessage.isEmpty()) {
+                            return@mapNotNull null
+                        }
+
+                        val friendId = conversation.users.firstOrNull { it != currentUserId }
+                            ?: return@mapNotNull null
+
+                        val friend = users.firstOrNull { it.uid == friendId }
+                            ?: return@mapNotNull null
+
+                        conversation.friendUsername = friend.username ?: return@mapNotNull null
+                       return@mapNotNull conversation
                     }
                     _conversationList.value = convList
                 }
