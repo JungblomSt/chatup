@@ -10,6 +10,9 @@ import com.example.chatup.data.User
 
 class ChatViewModel : ViewModel() {
 
+    private var _isTyping = MutableLiveData<Boolean>()
+    val isTyping : LiveData<Boolean> get() = _isTyping
+
     private var _otherUserName = MutableLiveData<String>()
     val otherUserName: LiveData<String> get() = _otherUserName
     /**
@@ -37,6 +40,12 @@ class ChatViewModel : ViewModel() {
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> get() = _users
 
+    fun setTyping (isTyping : Boolean) {
+        _isTyping.value = isTyping
+        FirebaseManager.setTyping(conversationId,isTyping)
+    }
+
+
     /**
      * Collects all users from Firestore via FirebaseManager.
      * Updates LiveData so the UI can display the user list.
@@ -62,6 +71,10 @@ class ChatViewModel : ViewModel() {
 
         FirebaseManager.snapShotListener(conversationId) {
             _chatMessage.postValue(it.toList())
+        }
+
+        FirebaseManager.typingSnapShotListener(conversationId, otherUserId){
+            _isTyping.value = it
         }
     }
 

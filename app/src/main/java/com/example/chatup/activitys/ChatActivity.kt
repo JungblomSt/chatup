@@ -3,8 +3,10 @@ package com.example.chatup.activitys
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatup.adapters.ChatRecViewAdapter
@@ -47,6 +49,22 @@ class ChatActivity : AppCompatActivity() {
             chatViewModel.setOtherUserId(otherUserId)
             chatViewModel.initChat(otherUserId)
             chatViewModel.setOtherUserName(otherUserName)
+
+            binding.etMessageAc.addTextChangedListener { editText ->
+                if (editText.isNullOrBlank()){
+                    chatViewModel.setTyping(false)
+                }else {
+                    chatViewModel.setTyping(true)
+                }
+            }
+
+            chatViewModel.isTyping.observe(this) { isTyping ->
+                if (isTyping) {
+                    binding.tvReceiverNameAc.setText("${otherUserName} is typing")
+                }else {
+                    binding.tvReceiverNameAc.setText(otherUserName)
+                }
+            }
 
             chatViewModel.chatMessage.observe(this) { chatMessages ->
                 adapter.submitList(chatMessages)

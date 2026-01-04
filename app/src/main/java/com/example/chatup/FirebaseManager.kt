@@ -31,6 +31,25 @@ object FirebaseManager {
     }
 
 
+    fun typingSnapShotListener (conversationId: String, friendId : String, onTyping : (Boolean) -> Unit) {
+
+        db.collection("conversation")
+            .document(conversationId)
+            .addSnapshotListener { snapshot , e ->
+                if (e != null){
+                    e.message?.let { Log.e("!!!", it) }
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val typing = snapshot.get("typing") as? Map<* , *> ?: return@addSnapshotListener
+                    val isTyping = typing[friendId] as? Boolean ?: false
+
+                    onTyping(isTyping)
+                }
+            }
+
+
+    }
 
     /**
      * Fetches all users from the Firestore 'users' collection.
