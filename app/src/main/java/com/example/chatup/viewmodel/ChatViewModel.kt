@@ -66,7 +66,7 @@ class ChatViewModel : ViewModel() {
     }
 
     fun setOtherUserName (otherUserName : String?) {
-        _otherUserName.value = otherUserName
+        _otherUserName.value = otherUserName ?: ""
     }
 
     /**

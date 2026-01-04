@@ -22,6 +22,16 @@ object FirebaseManager {
      */
     private lateinit var currentUser: FirebaseUser
 
+    fun setTyping (conversationId: String, isTyping : Boolean) {
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+        db.collection("conversation")
+            .document(conversationId)
+            .update("typing.$currentUserId", isTyping)
+    }
+
+
+
     /**
      * Fetches all users from the Firestore 'users' collection.
      * This function is used to display a list of all users for starting new conversations.

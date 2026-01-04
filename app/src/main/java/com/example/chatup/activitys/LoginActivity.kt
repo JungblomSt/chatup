@@ -6,7 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.chatup.R
-import com.example.chatup.StartMenuActivity
+import com.example.chatup.activitys.StartMenuActivity
 import com.example.chatup.databinding.ActivityLoginBinding
 import com.example.chatup.viewmodel.AuthViewModel
 
