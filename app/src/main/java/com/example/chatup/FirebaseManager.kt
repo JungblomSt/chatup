@@ -40,12 +40,11 @@ object FirebaseManager {
                     e.message?.let { Log.e("!!!", it) }
                     return@addSnapshotListener
                 }
-                if (snapshot != null) {
-                    val typing = snapshot.get("typing") as? Map<* , *> ?: return@addSnapshotListener
+                    val typing = snapshot?.get("typing") as? Map<* , *> ?: return@addSnapshotListener
                     val isTyping = typing[friendId] as? Boolean ?: false
 
                     onTyping(isTyping)
-                }
+
             }
 
 

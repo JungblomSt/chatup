@@ -40,9 +40,14 @@ class ChatViewModel : ViewModel() {
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> get() = _users
 
-    fun setTyping (isTyping : Boolean) {
+    fun setTyping (otherUserId: String ,isTyping : Boolean) {
         _isTyping.value = isTyping
         FirebaseManager.setTyping(conversationId,isTyping)
+
+        FirebaseManager.typingSnapShotListener(conversationId, otherUserId){
+            _isTyping.value = it
+        }
+
     }
 
 
@@ -73,9 +78,7 @@ class ChatViewModel : ViewModel() {
             _chatMessage.postValue(it.toList())
         }
 
-        FirebaseManager.typingSnapShotListener(conversationId, otherUserId){
-            _isTyping.value = it
-        }
+
     }
 
     fun setOtherUserName (otherUserName : String?) {

@@ -52,9 +52,9 @@ class ChatActivity : AppCompatActivity() {
 
             binding.etMessageAc.addTextChangedListener { editText ->
                 if (editText.isNullOrBlank()){
-                    chatViewModel.setTyping(false)
+                    chatViewModel.setTyping(otherUserId,false)
                 }else {
-                    chatViewModel.setTyping(true)
+                    chatViewModel.setTyping(otherUserId,true)
                 }
             }
 
@@ -90,4 +90,5 @@ class ChatActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
 }
