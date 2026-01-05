@@ -4,16 +4,30 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.chatup.R
 import com.example.chatup.StartMenuActivity
 import com.example.chatup.databinding.ActivityLoginBinding
 import com.example.chatup.viewmodel.AuthViewModel
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityLoginBinding
     lateinit var authViewModel: AuthViewModel
+
+    lateinit var credentialManager: CredentialManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +35,8 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         authViewModel = ViewModelProvider(this).get(AuthViewModel::class.java)
+
+        credentialManager = CredentialManager.create(this)
 
         binding.btnRegisterAl.setOnClickListener {
             if (checkValidInput()) {
@@ -33,6 +49,10 @@ class LoginActivity : AppCompatActivity() {
                 login()
             }
         }
+        binding.btnLogingoogleAl.setOnClickListener {
+            loginWithGoogle()
+        }
+
         binding.btnForgotPasswordAl.setOnClickListener {
             val email = binding.etForgotEmailAl.text.toString().trim()
             authViewModel.resetPassword(email)
@@ -54,6 +74,62 @@ class LoginActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+        }
+    }
+    private fun loginWithGoogle() {
+        lifecycleScope.launch {
+            try {
+                val googleIdOption = GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    .setServerClientId(baseContext.getString(R.string.default_web_client_id))
+                    .build()
+
+                val request = GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+
+
+                val result = credentialManager.getCredential(
+                    this@LoginActivity,
+                    request)
+
+                handleSignIn(result)
+            } catch (e: GetCredentialException){
+                handleFailure(e)
+            }
+
+        }
+    }
+
+    private fun handleSignIn(result: GetCredentialResponse) {
+
+        if(result.credential is CustomCredential && result.credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL){
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
+
+            val idToken = googleIdTokenCredential.idToken
+
+            authViewModel.loginWithGoogle(idToken,
+                {
+                    val intent = Intent(this, StartMenuActivity::class.java)
+                    startActivity(intent)
+                },{
+                    Toast.makeText(this,"Error: ${it.message}", Toast.LENGTH_SHORT).show()
+                })
+        }
+
+    }
+
+    private fun handleFailure(e: GetCredentialException){
+        when(e){
+            is GetCredentialCancellationException -> {
+                Toast.makeText(this,"Login canceled", Toast.LENGTH_SHORT).show()
+            }
+            is NoCredentialException -> {
+                Toast.makeText(this,"No google accounts on this device", Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                Toast.makeText(this,"Error!: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
