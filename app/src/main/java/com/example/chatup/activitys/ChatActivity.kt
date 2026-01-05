@@ -3,7 +3,6 @@ package com.example.chatup.activitys
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -37,6 +36,11 @@ class ChatActivity : AppCompatActivity() {
         startChat(otherUserId, otherUserName)
     }
 
+    override fun onStart() {
+        super.onStart()
+        chatViewModel.setChatOpened(true)
+    }
+
     /**
      * Initializes the chat if a valid user ID is provided.
      * Sets up LiveData observers and handles sending messages.
@@ -45,8 +49,6 @@ class ChatActivity : AppCompatActivity() {
      */
     private fun startChat(otherUserId: String?, otherUserName : String?) {
         if (otherUserId != null) {
-
-            chatViewModel.setChatOpened(true)
 
             chatViewModel.setOtherUserId(otherUserId)
             chatViewModel.initChat(otherUserId)

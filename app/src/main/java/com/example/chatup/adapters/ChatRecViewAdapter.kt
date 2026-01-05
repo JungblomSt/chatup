@@ -9,6 +9,7 @@ import com.example.chatup.R
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.databinding.ItemMessageReceivedBinding
 import com.example.chatup.databinding.ItemMessageSentBinding
+import com.google.android.material.transition.Hold
 import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -79,30 +80,27 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             holder.binding.tvTimeStampIms.text = formatTimeStamp(chatListMessage.timeStamp)
             holder.binding.tvFriendNameIms.text = "You"
 
-            when {
-                chatListMessage.delivered -> {
-                    holder.binding.ivCheckDeliveredIms.isVisible = true
-                }
-                chatListMessage.seen -> {
-                    holder.binding.ivCheckDeliveredIms.isVisible = true
-                    holder.binding.ivCheckSentIms.isVisible = true
+            holder.binding.ivCheckSentIms.isVisible = false
+            holder.binding.ivCheckDeliveredIms.isVisible = false
 
-                    holder.binding.ivCheckSentIms.setBackgroundColor(R.color.white)
-                    holder.binding.ivCheckSentIms.setBackgroundColor(R.color.white)
+            when {
+                chatListMessage.seen -> {
+                    holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.seen_outline_check_small_24)
+                    holder.binding.ivCheckSentIms.setImageResource(R.drawable.seen_outline_check_small_24)
+                    holder.binding.ivCheckSentIms.isVisible = true
+                    holder.binding.ivCheckDeliveredIms.isVisible = true
+
+                }
+                chatListMessage.delivered -> {
+                    holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.outline_check_small_24)
+                    holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
+                    holder.binding.ivCheckDeliveredIms.isVisible = true
                 }
                 else -> {
+                    holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
                     holder.binding.ivCheckSentIms.isVisible = true
                 }
             }
-
-            if (chatListMessage.delivered) {
-
-            }
-            if (chatListMessage.seen){
-                holder.binding.ivCheckSentIms
-            }
-
-
 
         } else if (holder is MessageReceivedViewHolder) {
             holder.binding.tvMessageImr.text = chatListMessage.messages

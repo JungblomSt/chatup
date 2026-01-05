@@ -12,15 +12,19 @@ import com.google.firebase.firestore.ListenerRegistration
 class ChatViewModel : ViewModel() {
 
     private var chatListener : ListenerRegistration? = null
+
     private var typingListener : ListenerRegistration? = null
 
     private var _chatOpened = MutableLiveData<Boolean>()
 
     private var _isTyping = MutableLiveData<Boolean>()
+
     val isTyping : LiveData<Boolean> get() = _isTyping
 
     private var _otherUserName = MutableLiveData<String>()
+
     val otherUserName: LiveData<String> get() = _otherUserName
+
     /**
      * The unique ID of the current conversation.
      * This is generated based on the logged-in user and the selected chat partner.
@@ -92,9 +96,6 @@ class ChatViewModel : ViewModel() {
         typingListener = FirebaseManager.typingSnapShotListener(conversationId, otherUserId){
             _isTyping.value = it
         }
-
-
-
 
     }
 
