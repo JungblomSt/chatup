@@ -3,6 +3,7 @@ package com.example.chatup.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.databinding.ItemMessageReceivedBinding
@@ -76,6 +77,13 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             holder.binding.tvMessageIms.text = chatListMessage.messages
             holder.binding.tvTimeStampIms.text = formatTimeStamp(chatListMessage.timeStamp)
             holder.binding.tvFriendNameIms.text = "You"
+
+            if (chatListMessage.delivered) {
+                holder.binding.ivCheckDeliveredIms.isVisible = true
+            }
+
+
+
         } else if (holder is MessageReceivedViewHolder) {
             holder.binding.tvMessageImr.text = chatListMessage.messages
             holder.binding.tvTimeStampImr.text = formatTimeStamp(chatListMessage.timeStamp)

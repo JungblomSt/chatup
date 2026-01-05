@@ -91,7 +91,7 @@ object FirebaseManager {
      */
     fun snapShotListener(conversationId: String, onUpdate: (List<ChatMessage>) -> Unit) : ListenerRegistration? {
 
-        currentUser = Firebase.auth.currentUser ?: return null
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return null
 
         return db.collection("conversation")
             .document(conversationId)
@@ -105,10 +105,20 @@ object FirebaseManager {
 
                 if (snapshot != null) {
                     val chatMessage = snapshot.documents.mapNotNull { doc ->
-                        doc.toObject(ChatMessage::class.java)
+                       val message = doc.toObject(ChatMessage::class.java) ?: return@mapNotNull null
+
+
+                        if (message.receiverId == currentUserId && !message.delivered){
+                            doc.reference.update("delivered", true)
+                        }
+
+                        message
+
                     }
                     Log.d("!!!", "Messages snapshot -- $chatMessage")
                     onUpdate(chatMessage)
+
+
                 }
             }
     }
@@ -134,7 +144,9 @@ object FirebaseManager {
             senderId = currentUser.uid,
             receiverId = receiverId,
             messages = chatText,
-            timeStamp = System.currentTimeMillis()
+            timeStamp = System.currentTimeMillis(),
+            delivered = false,
+            seen = false
         )
 
         // Update or create conversation metadata

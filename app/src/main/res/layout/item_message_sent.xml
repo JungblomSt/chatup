@@ -64,6 +64,7 @@
 
 
             <ImageView
+                android:visibility="invisible"
                 android:id="@+id/iv_check_sent_ims"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,6 +73,7 @@
                 app:srcCompat="@drawable/outline_check_small_24" />
 
             <ImageView
+                android:visibility="invisible"
                 android:id="@+id/iv_check_delivered_ims"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
