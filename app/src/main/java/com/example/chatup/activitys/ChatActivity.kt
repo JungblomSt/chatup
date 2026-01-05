@@ -60,7 +60,7 @@ class ChatActivity : AppCompatActivity() {
 
             chatViewModel.isTyping.observe(this) { isTyping ->
                 if (isTyping) {
-                    binding.tvReceiverNameAc.setText("${otherUserName} is typing")
+                    binding.tvReceiverNameAc.setText("${otherUserName} is typing...")
                 }else {
                     binding.tvReceiverNameAc.setText(otherUserName)
                 }
