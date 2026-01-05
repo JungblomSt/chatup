@@ -7,6 +7,7 @@ import com.example.chatup.AuthRepository
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 
 class AuthViewModel : ViewModel() {
@@ -35,6 +36,22 @@ class AuthViewModel : ViewModel() {
             .addOnFailureListener { onFailure(it) }
     }
 
+    fun loginWithGoogle(idToken: String, onSuccess: () -> Unit,onFailure: (Exception) -> Unit){
+
+        val credential = GoogleAuthProvider.getCredential(idToken,null)
+
+
+        auth.signInWithCredential(credential).addOnSuccessListener {
+            onSuccess()
+        }.addOnFailureListener {
+            onFailure(it)
+        }
+    }
+
+    fun signOut(){
+        auth.signOut()
+    }
+
     fun resetPassword(email: String) {
         if (email.isBlank()) {
             _resetPasswordResult.value = Result.failure(Exception("Enter email address"))
@@ -52,5 +69,6 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+    fun getCurrentUser() = auth.currentUser
 
 }
