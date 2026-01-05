@@ -69,5 +69,6 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+    fun getCurrentUser() = auth.currentUser
 
 }
