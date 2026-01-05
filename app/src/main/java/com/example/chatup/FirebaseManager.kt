@@ -6,6 +6,7 @@ import com.example.chatup.data.User
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 
@@ -31,9 +32,9 @@ object FirebaseManager {
     }
 
 
-    fun typingSnapShotListener (conversationId: String, friendId : String, onTyping : (Boolean) -> Unit) {
+    fun typingSnapShotListener (conversationId: String, friendId : String, onTyping : (Boolean) -> Unit) : ListenerRegistration {
 
-        db.collection("conversation")
+       return db.collection("conversation")
             .document(conversationId)
             .addSnapshotListener { snapshot , e ->
                 if (e != null){
@@ -88,11 +89,11 @@ object FirebaseManager {
      * @param onUpdate Callback invoked whenever messages are added, modified, or removed
      *                 in this conversation. Returns a List<ChatMessage> representing the current messages.
      */
-    fun snapShotListener(conversationId: String, onUpdate: (List<ChatMessage>) -> Unit) {
+    fun snapShotListener(conversationId: String, onUpdate: (List<ChatMessage>) -> Unit) : ListenerRegistration? {
 
-        currentUser = Firebase.auth.currentUser ?: return
+        currentUser = Firebase.auth.currentUser ?: return null
 
-        db.collection("conversation")
+        return db.collection("conversation")
             .document(conversationId)
             .collection("messages")
             .orderBy("timeStamp")

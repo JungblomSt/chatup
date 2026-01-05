@@ -7,8 +7,12 @@ import androidx.lifecycle.ViewModel
 import com.example.chatup.FirebaseManager
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.data.User
+import com.google.firebase.firestore.ListenerRegistration
 
 class ChatViewModel : ViewModel() {
+
+    private var sendMessageListener : ListenerRegistration? = null
+    private var typingListener : ListenerRegistration? = null
 
     private var _isTyping = MutableLiveData<Boolean>()
     val isTyping : LiveData<Boolean> get() = _isTyping
@@ -40,13 +44,8 @@ class ChatViewModel : ViewModel() {
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> get() = _users
 
-    fun setTyping (otherUserId: String ,isTyping : Boolean) {
-        _isTyping.value = isTyping
+    fun setTyping (isTyping : Boolean) {
         FirebaseManager.setTyping(conversationId,isTyping)
-
-        FirebaseManager.typingSnapShotListener(conversationId, otherUserId){
-            _isTyping.value = it
-        }
 
     }
 
@@ -74,8 +73,12 @@ class ChatViewModel : ViewModel() {
         _otherUserId.value = otherUserId
         conversationId = FirebaseManager.createConversationId(otherUserId)
 
-        FirebaseManager.snapShotListener(conversationId) {
+        sendMessageListener = FirebaseManager.snapShotListener(conversationId) {
             _chatMessage.postValue(it.toList())
+        }
+
+        typingListener = FirebaseManager.typingSnapShotListener(conversationId, otherUserId){
+            _isTyping.value = it
         }
 
 
@@ -101,6 +104,15 @@ class ChatViewModel : ViewModel() {
      */
     fun sendMessage(chatText: String) {
         val receiverId = _otherUserId.value ?: return
-        FirebaseManager.sendChatMessage(chatText, receiverId)
+         FirebaseManager.sendChatMessage(chatText, receiverId)
+    }
+
+    override fun onCleared() {
+        typingListener?.remove()
+        typingListener = null
+        sendMessageListener?.remove()
+        sendMessageListener = null
+        super.onCleared()
+
     }
 }
