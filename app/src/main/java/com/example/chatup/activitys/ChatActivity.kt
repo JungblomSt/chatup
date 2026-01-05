@@ -52,9 +52,9 @@ class ChatActivity : AppCompatActivity() {
 
             binding.etMessageAc.addTextChangedListener { editText ->
                 if (editText.isNullOrBlank()){
-                    chatViewModel.setTyping(otherUserId,false)
+                    chatViewModel.setTyping(false)
                 }else {
-                    chatViewModel.setTyping(otherUserId,true)
+                    chatViewModel.setTyping(true)
                 }
             }
 
@@ -68,7 +68,9 @@ class ChatActivity : AppCompatActivity() {
 
             chatViewModel.chatMessage.observe(this) { chatMessages ->
                 adapter.submitList(chatMessages)
-                binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
+                if (chatMessages.isNotEmpty()){
+                    binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
+                }
             }
 
             chatViewModel.otherUserName.observe(this) { name ->
@@ -89,6 +91,11 @@ class ChatActivity : AppCompatActivity() {
             val intent = Intent(this, FriendListActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    override fun onStop() {
+        chatViewModel.setTyping(false)
+        super.onStop()
     }
 
 }
