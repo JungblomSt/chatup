@@ -46,6 +46,8 @@ class ChatActivity : AppCompatActivity() {
     private fun startChat(otherUserId: String?, otherUserName : String?) {
         if (otherUserId != null) {
 
+            chatViewModel.setChatOpened(true)
+
             chatViewModel.setOtherUserId(otherUserId)
             chatViewModel.initChat(otherUserId)
             chatViewModel.setOtherUserName(otherUserName)
@@ -95,6 +97,7 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onStop() {
         chatViewModel.setTyping(false)
+        chatViewModel.setChatOpened(false)
         super.onStop()
     }
 

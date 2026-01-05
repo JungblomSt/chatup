@@ -11,8 +11,10 @@ import com.google.firebase.firestore.ListenerRegistration
 
 class ChatViewModel : ViewModel() {
 
-    private var sendMessageListener : ListenerRegistration? = null
+    private var chatListener : ListenerRegistration? = null
     private var typingListener : ListenerRegistration? = null
+
+    private var _chatOpened = MutableLiveData<Boolean>()
 
     private var _isTyping = MutableLiveData<Boolean>()
     val isTyping : LiveData<Boolean> get() = _isTyping
@@ -44,6 +46,14 @@ class ChatViewModel : ViewModel() {
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> get() = _users
 
+    fun setChatOpened (isOpened : Boolean) {
+        _chatOpened.value = isOpened
+    }
+
+    fun isChatOpened () : Boolean {
+        return _chatOpened.value == true
+    }
+
     fun setTyping (isTyping : Boolean) {
         FirebaseManager.setTyping(conversationId,isTyping)
 
@@ -73,13 +83,17 @@ class ChatViewModel : ViewModel() {
         _otherUserId.value = otherUserId
         conversationId = FirebaseManager.createConversationId(otherUserId)
 
-        sendMessageListener = FirebaseManager.snapShotListener(conversationId) {
-            _chatMessage.postValue(it.toList())
-        }
+        chatListener = FirebaseManager.snapShotListener(conversationId = conversationId,
+        onUpdate = { chatMessage ->
+            _chatMessage.postValue(chatMessage.toList())
+        }, chatIsOpened = {isChatOpened()
+        } )
 
         typingListener = FirebaseManager.typingSnapShotListener(conversationId, otherUserId){
             _isTyping.value = it
         }
+
+
 
 
     }
@@ -110,8 +124,8 @@ class ChatViewModel : ViewModel() {
     override fun onCleared() {
         typingListener?.remove()
         typingListener = null
-        sendMessageListener?.remove()
-        sendMessageListener = null
+        chatListener?.remove()
+        chatListener = null
         super.onCleared()
 
     }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.example.chatup.R
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.databinding.ItemMessageReceivedBinding
 import com.example.chatup.databinding.ItemMessageSentBinding
@@ -78,8 +79,27 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             holder.binding.tvTimeStampIms.text = formatTimeStamp(chatListMessage.timeStamp)
             holder.binding.tvFriendNameIms.text = "You"
 
+            when {
+                chatListMessage.delivered -> {
+                    holder.binding.ivCheckDeliveredIms.isVisible = true
+                }
+                chatListMessage.seen -> {
+                    holder.binding.ivCheckDeliveredIms.isVisible = true
+                    holder.binding.ivCheckSentIms.isVisible = true
+
+                    holder.binding.ivCheckSentIms.setBackgroundColor(R.color.white)
+                    holder.binding.ivCheckSentIms.setBackgroundColor(R.color.white)
+                }
+                else -> {
+                    holder.binding.ivCheckSentIms.isVisible = true
+                }
+            }
+
             if (chatListMessage.delivered) {
-                holder.binding.ivCheckDeliveredIms.isVisible = true
+
+            }
+            if (chatListMessage.seen){
+                holder.binding.ivCheckSentIms
             }
 
 

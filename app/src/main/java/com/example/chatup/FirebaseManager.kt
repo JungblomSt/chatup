@@ -23,6 +23,7 @@ object FirebaseManager {
      */
     private lateinit var currentUser: FirebaseUser
 
+    // todo lägg till komentarer
     fun setTyping (conversationId: String, isTyping : Boolean) {
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
 
@@ -31,6 +32,7 @@ object FirebaseManager {
             .update("typing.$currentUserId", isTyping)
     }
 
+    // todo lägg till komentarer
 
     fun typingSnapShotListener (conversationId: String, friendId : String, onTyping : (Boolean) -> Unit) : ListenerRegistration {
 
@@ -81,6 +83,9 @@ object FirebaseManager {
     }
 
 
+    // todo Uppdatera komentarer
+
+
     /**
      * Sets up a real-time listener for messages in a specific conversation.
      *
@@ -89,7 +94,7 @@ object FirebaseManager {
      * @param onUpdate Callback invoked whenever messages are added, modified, or removed
      *                 in this conversation. Returns a List<ChatMessage> representing the current messages.
      */
-    fun snapShotListener(conversationId: String, onUpdate: (List<ChatMessage>) -> Unit) : ListenerRegistration? {
+    fun snapShotListener(conversationId: String, onUpdate: (List<ChatMessage>) -> Unit, chatIsOpened : () -> Boolean) : ListenerRegistration? {
 
         val currentUserId = Firebase.auth.currentUser?.uid ?: return null
 
@@ -110,6 +115,14 @@ object FirebaseManager {
 
                         if (message.receiverId == currentUserId && !message.delivered){
                             doc.reference.update("delivered", true)
+                        }
+
+
+                        if (message.receiverId == currentUserId
+                            && message.delivered && !message.seen
+                            && chatIsOpened()) {
+
+                            doc.reference.update("seen", true)
                         }
 
                         message
@@ -180,6 +193,7 @@ object FirebaseManager {
         return listOf(user1Id, user2Id).sorted().joinToString("_")
     }
 
+    // todo lägg till komentarer
     fun createConversationId(user2Id: String): String {
         currentUser = Firebase.auth.currentUser ?: return ""
         val user1Id: String = currentUser.uid
