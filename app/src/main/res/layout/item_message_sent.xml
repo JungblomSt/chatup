@@ -26,25 +26,25 @@
             android:padding="12dp">
 
 
-            <TextView
-                android:id="@+id/tv_friend_name_ims"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Chatname"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:fontFamily="@font/lunasima"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+<!--            <TextView-->
+<!--                android:id="@+id/tv_friend_name_ims"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Chatname"-->
+<!--                android:textColor="@color/black"-->
+<!--                android:textSize="16sp"-->
+<!--                android:fontFamily="@font/lunasima"-->
+<!--                android:textStyle="bold"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent" />-->
 
 
             <TextView
                 android:id="@+id/tv_message_ims"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
+                android:fontFamily="@font/lunasima"
                 android:lineSpacingExtra="2dp"
                 android:maxWidth="250dp"
                 android:textColor="@color/black"
@@ -52,7 +52,7 @@
                 app:layout_constraintBottom_toTopOf="@+id/tv_time_stamp_ims"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_friend_name_ims"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:text="Message" />
 
             <TextView
@@ -60,7 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
-                android:textSize="10dp"
+                android:textSize="10sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:text="MM:DD\nHH:MM" />
