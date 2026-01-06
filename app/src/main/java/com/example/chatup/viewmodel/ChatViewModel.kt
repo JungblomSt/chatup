@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import com.example.chatup.FirebaseManager
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.data.User
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.ListenerRegistration
 
 class ChatViewModel : ViewModel() {
@@ -50,8 +52,8 @@ class ChatViewModel : ViewModel() {
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> get() = _users
 
-    fun checkDeliveredMessage () {
-        FirebaseManager.markDelivered(conversationId)
+    fun checkDeliveredMessage() {
+        FirebaseManager.markDelivered()
     }
 
     fun setChatOpened (isOpened : Boolean) {

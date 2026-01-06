@@ -23,20 +23,41 @@ object FirebaseManager {
      */
     private lateinit var currentUser: FirebaseUser
 
-    fun markDelivered (conversationId: String)  {
+    fun markDelivered ()  {
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
 
         db.collection("conversation")
-            .document(conversationId)
-            .collection("messages")
-            .whereEqualTo("receiverId", currentUserId)
-            .whereEqualTo("delivered", false)
-            .get()
-            .addOnSuccessListener { snapshots ->
-                snapshots.documents.forEach {doc ->
-                    doc.reference.update("delivered", true)
+            .whereArrayContains("users", currentUserId)
+            .addSnapshotListener { conversations, e ->
+                if (e != null) {
+                    Log.e("!!!", "Failed to listen to conversations: ${e.message}")
+                    return@addSnapshotListener
+                }
+
+                conversations?.documents?.forEach { conversationDoc ->
+                    val conversationId = conversationDoc.id
+
+                    db.collection("conversation")
+                        .document(conversationId)
+                        .collection("messages")
+                        .whereEqualTo("receiverId", currentUserId)
+                        .whereEqualTo("delivered", false)
+                        .addSnapshotListener { messages, e2 ->
+                            if (e2 != null) return@addSnapshotListener
+
+                            messages?.documents?.forEach { msg ->
+                                msg.reference.update("delivered", true)
+                                    .addOnSuccessListener {
+                                        Log.d("!!!", "Delivered marked for message ${msg.id}")
+                                    }
+                                    .addOnFailureListener { e3 ->
+                                        Log.e("!!!", "Failed to mark delivered: ${e3.message}")
+                                    }
+                            }
+                        }
                 }
             }
+
     }
 
     // todo lägg till komentarer
