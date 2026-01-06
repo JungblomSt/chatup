@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "635818144534",
+    "project_id": "app25gr3chatup",
+    "storage_bucket": "app25gr3chatup.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635818144534:android:a01898f7b217a34bea5637",
+        "android_client_info": {
+          "package_name": "com.example.chatup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "635818144534-7sh9sqoah6oa7ipmtp6oripg5v2na4e0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chatup",
+            "certificate_hash": "111bd1e6af6c3c45ad5927e82b0ea3ba39b6e19e"
+          }
+        },
+        {
+          "client_id": "635818144534-jcs167ao26bj4effrv577nlh60a9b6t3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc8F4nGi8lVsa0hW3dfgvRxx-kGjOTMpc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "635818144534-jcs167ao26bj4effrv577nlh60a9b6t3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
