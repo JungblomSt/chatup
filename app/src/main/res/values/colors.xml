@@ -4,4 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="temp_color_received">#DBDBDB</color>
     <color name="temp_color_sender">#7EE682</color>
+
 </resources>
