@@ -9,9 +9,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.chatup.fragments.ConversationListFragment
 import com.example.chatup.fragments.UsersFragment
 import com.example.chatup.viewmodel.AuthViewModel
+import com.example.chatup.viewmodel.ChatViewModel
 
 class StartMenuActivity : AppCompatActivity(){
 
+    private lateinit var chatViewModel: ChatViewModel
     private lateinit var auth: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,6 +21,7 @@ class StartMenuActivity : AppCompatActivity(){
         setContentView(R.layout.start_menu_activity)
 
         auth = ViewModelProvider(this)[AuthViewModel::class.java]
+        chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
 
         val tvEmail = findViewById<TextView>(R.id.tv_email)
         val btnLogout = findViewById<Button>(R.id.btn_logout)
@@ -33,6 +36,11 @@ class StartMenuActivity : AppCompatActivity(){
         showConversations()
 
         showUsers()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        chatViewModel.checkDeliveredMessage()
     }
 
     fun showConversations() {
