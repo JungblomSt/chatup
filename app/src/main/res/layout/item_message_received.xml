@@ -6,13 +6,24 @@
     android:layout_height="wrap_content"
     android:gravity="start"
     android:padding="8dp"
-    >
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_friendName_imr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chatname"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:fontFamily="@font/lunasima"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_message_received_imr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="4dp"
         app:cardBackgroundColor="@color/temp_color_received"
         app:cardCornerRadius="20dp"
         app:cardElevation="2dp">
@@ -24,17 +35,6 @@
             android:minWidth="140dp"
             android:padding="12dp">
 
-
-            <TextView
-                android:id="@+id/tv_friendName_imr"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Chatname"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <TextView
                 android:id="@+id/tv_message_imr"
                 android:layout_width="wrap_content"
@@ -45,6 +45,7 @@
                 android:maxWidth="250dp"
                 android:textColor="@color/black"
                 android:textSize="16sp"
+                android:fontFamily="@font/lunasima"
                 app:layout_constraintBottom_toTopOf="@+id/tv_time_stamp_imr"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

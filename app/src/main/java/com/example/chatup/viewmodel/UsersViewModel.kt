@@ -16,7 +16,7 @@ class UsersViewModel : ViewModel() {
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> = _users
 
-    // Cache som sparar alla användare
+    // Cache för snabb sökning
     private var originalUserList = listOf<User>()
 
     fun getAllUsers() {
@@ -30,8 +30,6 @@ class UsersViewModel : ViewModel() {
                     val user = doc.toObject(User::class.java)?.copy(uid = doc.id)
                     if (user?.uid != currentUserId) user else null
                 }
-                Log.d("UsersViewModel", "getAllUsers: Successfully fetched ${userList.size} users")
-
                 // Spara till cachen
                 originalUserList = userList
                 _users.value = userList

@@ -49,4 +49,5 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         super.onResume()
         conversationListViewModel.getAllCurrentUserConversationLists()
     }
+
 }
