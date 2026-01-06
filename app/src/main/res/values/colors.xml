@@ -4,5 +4,11 @@
     <color name="white">#FFFFFFFF</color>
     <color name="temp_color_received">#DBDBDB</color>
     <color name="temp_color_sender">#7EE682</color>
+    <color name="light">#AFE1AF</color>
+    <color name="mid">#2F6B4F</color>
+    <color name="middark">#255C45</color>
+    <color name="dark">#002D04</color>
+    <color name="buttoncolor">#F7A072</color>
+    <color name="transparent">#00000000</color>
 
 </resources>
