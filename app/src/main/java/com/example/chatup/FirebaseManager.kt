@@ -42,8 +42,8 @@ object FirebaseManager {
                         .collection("messages")
                         .whereEqualTo("receiverId", currentUserId)
                         .whereEqualTo("delivered", false)
-                        .addSnapshotListener { messages, e2 ->
-                            if (e2 != null) return@addSnapshotListener
+                        .get()
+                        .addOnSuccessListener{ messages ->
 
                             messages?.documents?.forEach { msg ->
                                 msg.reference.update("delivered", true)
@@ -53,6 +53,13 @@ object FirebaseManager {
                                     .addOnFailureListener { e3 ->
                                         Log.e("!!!", "Failed to mark delivered: ${e3.message}")
                                     }
+                                val lastMessageId = conversationDoc.getString("lastMessageId")
+
+                                if (msg.id == lastMessageId){
+                                    conversationDoc.reference.update(
+                                        mapOf ("lastMessageDelivered" to true,
+                                            "lastUpdated" to System.currentTimeMillis()))
+                                }
                             }
                         }
                 }
@@ -145,26 +152,30 @@ object FirebaseManager {
                     return@addSnapshotListener
                 }
 
-                if (snapshot != null) {
-                    val chatMessage = snapshot.documents.mapNotNull { doc ->
-                       val message = doc.toObject(ChatMessage::class.java) ?: return@mapNotNull null
+                if (snapshot == null) return@addSnapshotListener
+
+                val chatMessages = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(ChatMessage::class.java)
+                }
+                onUpdate(chatMessages)
+
+                val lastDoc = snapshot.documents.lastOrNull() ?: return@addSnapshotListener
+                val lastMessage = lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
 
 
-                        if (message.receiverId == currentUserId
-                            && message.delivered && !message.seen
+                        if (lastMessage.receiverId == currentUserId
+                            && lastMessage.delivered && !lastMessage.seen
                             && chatIsOpened()) {
 
-                            doc.reference.update("seen", true)
+                            lastDoc.reference.update("seen", true)
+
+                            db.collection("conversation")
+                                .document(conversationId)
+                                .update(
+                                    mapOf ("lastMessageSeen" to true,
+                                        "lastUpdated" to System.currentTimeMillis()))
                         }
 
-                        message
-
-                    }
-                    Log.d("!!!", "Messages snapshot -- $chatMessage")
-                    onUpdate(chatMessage)
-
-
-                }
             }
     }
 
@@ -185,6 +196,11 @@ object FirebaseManager {
 
         val conversationId = getConversationId(currentUser.uid, receiverId)
 
+        val chatMessageRef = db.collection("conversation")
+            .document(conversationId)
+            .collection("messages")
+            .document()
+
         val chatMessage = ChatMessage(
             senderId = currentUser.uid,
             receiverId = receiverId,
@@ -194,6 +210,8 @@ object FirebaseManager {
             seen = false
         )
 
+        chatMessageRef.set(chatMessage)
+
         // Update or create conversation metadata
         db.collection("conversation")
             .document(conversationId)
@@ -201,16 +219,14 @@ object FirebaseManager {
                 mapOf(
                     "users" to listOf(currentUser.uid, receiverId),
                     "lastMessage" to chatText,
-                    "lastUpdated" to System.currentTimeMillis()
+                    "lastUpdated" to System.currentTimeMillis(),
+                    "lastMessageId" to chatMessageRef.id,
+                    "lastMessageDelivered" to false,
+                    "lastMessageSeen" to false
                 ),
                 SetOptions.merge()
             )
 
-        // Add the message to the conversation
-        db.collection("conversation")
-            .document(conversationId)
-            .collection("messages")
-            .add(chatMessage)
     }
 
     /**

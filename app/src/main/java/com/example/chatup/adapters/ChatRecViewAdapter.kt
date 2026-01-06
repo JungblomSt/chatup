@@ -78,7 +78,6 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         if (holder is MessageSentViewHolder) {
             holder.binding.tvMessageIms.text = chatListMessage.messages
             holder.binding.tvTimeStampIms.text = formatTimeStamp(chatListMessage.timeStamp)
-            holder.binding.tvFriendNameIms.text = "You"
 
             holder.binding.ivCheckSentIms.isVisible = false
             holder.binding.ivCheckDeliveredIms.isVisible = false
@@ -95,6 +94,7 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                     holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.outline_check_small_24)
                     holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
                     holder.binding.ivCheckDeliveredIms.isVisible = true
+                    holder.binding.ivCheckSentIms.isVisible = true
                 }
                 else -> {
                     holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
