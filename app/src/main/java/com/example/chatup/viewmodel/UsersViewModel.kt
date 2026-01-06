@@ -1,5 +1,6 @@
 package com.example.chatup.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,15 +9,19 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
-class UsersViewModel : ViewModel(){
+class UsersViewModel : ViewModel() {
 
     private val db = Firebase.firestore
     private val auth = Firebase.auth
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> = _users
 
-    fun getAllUsers(){
+    // Cache som sparar alla användare
+    private var originalUserList = listOf<User>()
+
+    fun getAllUsers() {
         val currentUserId = auth.currentUser?.uid
+        Log.d("UsersViewModel", "getAllUsers: Fetching users from Firestore")
 
         db.collection("users")
             .get()
@@ -25,7 +30,27 @@ class UsersViewModel : ViewModel(){
                     val user = doc.toObject(User::class.java)?.copy(uid = doc.id)
                     if (user?.uid != currentUserId) user else null
                 }
+                Log.d("UsersViewModel", "getAllUsers: Successfully fetched ${userList.size} users")
+
+                // Spara till cachen
+                originalUserList = userList
                 _users.value = userList
             }
+            .addOnFailureListener { exception ->
+                Log.e("UsersViewModel", "getAllUsers: Error fetching users", exception)
+            }
+    }
+
+    fun searchUsers(query: String) {
+        if (query.isBlank()) {
+            _users.value = originalUserList
+        } else {
+            val filteredList = originalUserList.filter { user ->
+                val usernameMatch = user.username?.contains(query, ignoreCase = true) == true
+                val emailMatch = user.email.contains(query, ignoreCase = true)
+                usernameMatch || emailMatch
+            }
+            _users.value = filteredList
+        }
     }
 }
