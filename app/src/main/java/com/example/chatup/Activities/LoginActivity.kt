@@ -14,7 +14,6 @@ import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.chatup.R
-import com.example.chatup.StartMenuActivity
 import com.example.chatup.databinding.ActivityLoginBinding
 import com.example.chatup.viewmodel.AuthViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -110,7 +109,7 @@ class LoginActivity : AppCompatActivity() {
 
             authViewModel.loginWithGoogle(idToken,
                 {
-                    val intent = Intent(this, StartMenuActivity::class.java)
+                    val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                 },{
                     Toast.makeText(this,"Error: ${it.message}", Toast.LENGTH_SHORT).show()
@@ -164,7 +163,7 @@ class LoginActivity : AppCompatActivity() {
 
         authViewModel.login(email, password, {
             clearFields()
-            val intent = Intent(this, StartMenuActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }, {
             Toast.makeText(this, it.message.toString(), Toast.LENGTH_SHORT).show()
@@ -178,7 +177,7 @@ class LoginActivity : AppCompatActivity() {
         authViewModel.register(email, password) {
             if (it.isSuccessful){
                 clearFields()
-                val intent = Intent(this, StartMenuActivity::class.java)
+                val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }else {
                 Toast.makeText(this, it.exception?.message.toString(), Toast.LENGTH_SHORT).show()

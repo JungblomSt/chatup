@@ -1,26 +1,31 @@
 package com.example.chatup.Activities
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import com.example.chatup.R
 import com.example.chatup.databinding.ActivityMainBinding
+import com.example.chatup.fragments.ProfileFragment
+import com.example.chatup.fragments.UsersFragment
 
-lateinit var binding: ActivityMainBinding
 class MainActivity : AppCompatActivity() {
+    
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        binding = ActivityMainBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.button.setOnClickListener {
-            val intent = Intent(this, FriendListActivity::class.java)
-            startActivity(intent)
+        // Visa UsersFragment som standard
+        if (savedInstanceState == null) {
+            replaceFragment(UsersFragment())
         }
+    }
 
-        binding.button2.setOnClickListener {
-            val intent = Intent(this, ChatActivity::class.java)
-            startActivity(intent)
-        }
-
+    fun replaceFragment(fragment: Fragment) {
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.fragment_container, fragment)
+        transaction.commit()
     }
 }
