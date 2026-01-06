@@ -44,4 +44,9 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
         conversationListViewModel.getAllCurrentUserConversationLists()
     }
+
+    override fun onResume() {
+        super.onResume()
+        conversationListViewModel.getAllCurrentUserConversationLists()
+    }
 }
