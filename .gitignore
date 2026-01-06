@@ -20,6 +20,9 @@ build/
 *.ap_
 *.aab
 
+# Firebase config
+app/google-services.json
+
 # Local configuration file (sdk path, etc)
 # local.properties
 

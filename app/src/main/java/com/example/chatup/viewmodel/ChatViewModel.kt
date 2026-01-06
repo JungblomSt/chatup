@@ -50,6 +50,10 @@ class ChatViewModel : ViewModel() {
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> get() = _users
 
+    fun checkDeliveredMessage () {
+        FirebaseManager.markDelivered(conversationId)
+    }
+
     fun setChatOpened (isOpened : Boolean) {
         _chatOpened.value = isOpened
     }

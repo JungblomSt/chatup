@@ -23,6 +23,22 @@ object FirebaseManager {
      */
     private lateinit var currentUser: FirebaseUser
 
+    fun markDelivered (conversationId: String)  {
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+        db.collection("conversation")
+            .document(conversationId)
+            .collection("messages")
+            .whereEqualTo("receiverId", currentUserId)
+            .whereEqualTo("delivered", false)
+            .get()
+            .addOnSuccessListener { snapshots ->
+                snapshots.documents.forEach {doc ->
+                    doc.reference.update("delivered", true)
+                }
+            }
+    }
+
     // todo lägg till komentarer
     fun setTyping (conversationId: String, isTyping : Boolean) {
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
@@ -111,11 +127,6 @@ object FirebaseManager {
                 if (snapshot != null) {
                     val chatMessage = snapshot.documents.mapNotNull { doc ->
                        val message = doc.toObject(ChatMessage::class.java) ?: return@mapNotNull null
-
-
-                        if (message.receiverId == currentUserId && !message.delivered){
-                            doc.reference.update("delivered", true)
-                        }
 
 
                         if (message.receiverId == currentUserId
