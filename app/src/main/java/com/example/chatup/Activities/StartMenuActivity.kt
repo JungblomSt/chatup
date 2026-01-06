@@ -1,5 +1,6 @@
 package com.example.chatup
 
+
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -37,6 +38,7 @@ class StartMenuActivity : AppCompatActivity(){
     fun showConversations() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.conversationListContainer, ConversationListFragment())
+            .replace(R.id.usersContainer, UsersFragment())
             .commit()
     }
 
