@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#255C45">
+    android:background="@color/middark">
 
     <LinearLayout
         android:id="@+id/top_bar"
@@ -15,25 +15,29 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="#2F6B4F"
-        android:layout_margin="15dp"
-        android:padding="8dp">
+        android:background="@color/mid"
+        android:padding="10dp">
 
         <Button
             android:id="@+id/btn_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Logout"
-            android:backgroundTint="#F7A072"
+            android:fontFamily="@font/lunasima"
+            android:textStyle="bold"
+            android:backgroundTint="@color/buttoncolor"
             android:textColor="@color/black"/>
+
         <TextView
             android:id="@+id/tv_email"
-            android:textColor="@color/white"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:fontFamily="@font/lunasima"
+            android:textSize="16sp"
+            android:text="email"
             android:textAlignment="center"
-            android:text="email"/>
+            android:textColor="@color/white" />
 
     </LinearLayout>
 
