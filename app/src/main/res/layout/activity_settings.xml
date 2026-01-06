@@ -20,8 +20,8 @@
 
     <TextView
         android:id="@+id/tvHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="79dp"
+        android:layout_height="35dp"
         android:layout_marginStart="36dp"
         android:text="Settings"
         android:textColor="@android:color/white"
@@ -51,46 +51,44 @@
 
             <Button
                 android:id="@+id/btnChangePassword"
-                android:layout_width="385dp"
-                android:layout_height="160dp"
+                android:layout_width="271dp"
+                android:layout_height="105dp"
                 android:backgroundTint="#1F5A45"
                 android:text="Change your password"
                 android:textAllCaps="false"
                 android:textColor="@color/cardview_light_background"
                 app:cornerRadius="30dp" />
 
+            <View
+                android:id="@+id/logoutSpacer"
+                android:layout_width="0dp"
+                android:layout_height="12dp" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <!-- A subtle separator space -->
-    <View
-        android:id="@+id/logoutSpacer"
-        android:layout_width="0dp"
-        android:layout_height="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardAccount" />
 
     <!-- LOGOUT: separate + red -->
 
     <Button
         android:id="@+id/btnLogout"
-        android:layout_width="441dp"
-        android:layout_height="118dp"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="20dp"
-        android:backgroundTint="#D64545"
+        android:backgroundTint="#8C0C0C"
         android:text="Logga ut"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
         app:cornerRadius="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/logoutSpacer"
-        app:layout_constraintVertical_bias="0.831" />
+        app:layout_constraintVertical_bias="0.779" />
 
     <TextView
 

@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.chatup.fragments.ConversationListFragment
 import com.example.chatup.fragments.UsersFragment
 import com.example.chatup.viewmodel.AuthViewModel
+import android.content.Intent
+import com.example.chatup.Activities.SettingsActivity
 
 class StartMenuActivity : AppCompatActivity(){
 
@@ -29,6 +31,14 @@ class StartMenuActivity : AppCompatActivity(){
             auth.signOut()
             finish()
         }
+
+        val btnSettings = findViewById<Button>(R.id.btn_settings)
+
+        btnSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
+
 
         showConversations()
 

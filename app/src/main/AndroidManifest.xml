@@ -17,6 +17,9 @@
             android:name=".Activities.FriendListActivity"
             android:exported="false" />
         <activity
+            android:name=".Activities.SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activities.ChatActivity"
             android:exported="false" />
         <activity
@@ -25,6 +28,7 @@
         <activity
             android:name=".Activities.LoginActivity"
             android:exported="true">
+
 <!--            android:exported="false">-->
 
             <intent-filter>

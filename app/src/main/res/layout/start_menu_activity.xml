@@ -29,6 +29,13 @@
             android:textAlignment="center"
             android:text="email"/>
 
+        <Button
+            android:id="@+id/btn_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Settings"
+            android:textColorLink="#2E2929" />
+
     </LinearLayout>
 
     <FrameLayout
