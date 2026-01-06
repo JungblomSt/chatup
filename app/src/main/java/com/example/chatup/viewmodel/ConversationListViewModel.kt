@@ -25,6 +25,7 @@ class ConversationListViewModel : ViewModel(){
             val users = getUsers()
 
             db.collection("conversation")
+                .orderBy("lastUpdated", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener { snapshot ->
                     val convList = snapshot.documents.mapNotNull { doc ->
