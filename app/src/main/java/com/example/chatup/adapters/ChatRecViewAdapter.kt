@@ -78,7 +78,6 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         if (holder is MessageSentViewHolder) {
             holder.binding.tvMessageIms.text = chatListMessage.messages
             holder.binding.tvTimeStampIms.text = formatTimeStamp(chatListMessage.timeStamp)
-            holder.binding.tvFriendNameIms.text = "You"
 
             holder.binding.ivCheckSentIms.isVisible = false
             holder.binding.ivCheckDeliveredIms.isVisible = false

@@ -56,7 +56,9 @@ object FirebaseManager {
                                 val lastMessageId = conversationDoc.getString("lastMessageId")
 
                                 if (msg.id == lastMessageId){
-                                    conversationDoc.reference.update("delivered", true)
+                                    conversationDoc.reference.update(
+                                        mapOf ("lastMessageDelivered" to true,
+                                            "lastUpdated" to System.currentTimeMillis()))
                                 }
                             }
                         }
@@ -169,7 +171,9 @@ object FirebaseManager {
 
                             db.collection("conversation")
                                 .document(conversationId)
-                                .update("seen", true)
+                                .update(
+                                    mapOf ("lastMessageSeen" to true,
+                                        "lastUpdated" to System.currentTimeMillis()))
                         }
 
             }
@@ -192,6 +196,11 @@ object FirebaseManager {
 
         val conversationId = getConversationId(currentUser.uid, receiverId)
 
+        val chatMessageRef = db.collection("conversation")
+            .document(conversationId)
+            .collection("messages")
+            .document()
+
         val chatMessage = ChatMessage(
             senderId = currentUser.uid,
             receiverId = receiverId,
@@ -200,11 +209,6 @@ object FirebaseManager {
             delivered = false,
             seen = false
         )
-
-        val chatMessageRef = db.collection("conversation")
-            .document(conversationId)
-            .collection("messages")
-            .document()
 
         chatMessageRef.set(chatMessage)
 
@@ -217,17 +221,12 @@ object FirebaseManager {
                     "lastMessage" to chatText,
                     "lastUpdated" to System.currentTimeMillis(),
                     "lastMessageId" to chatMessageRef.id,
-                    "delivered" to false,
-                    "seen" to false
+                    "lastMessageDelivered" to false,
+                    "lastMessageSeen" to false
                 ),
                 SetOptions.merge()
             )
 
-//        // Add the message to the conversation
-//        db.collection("conversation")
-//            .document(conversationId)
-//            .collection("messages")
-//            .add(chatMessage)
     }
 
     /**
