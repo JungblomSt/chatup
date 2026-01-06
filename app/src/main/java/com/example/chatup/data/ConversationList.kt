@@ -5,5 +5,7 @@ data class ConversationList (
     val lastMessage : String = "",
     val lastUpdated : Long = 0,
     var friendUsername : String = "",
-    val users : List<String> = emptyList()
+    val users : List<String> = emptyList(),
+    val lastMessageDelivered : Boolean = false,
+    val lastMessageSeen : Boolean = false
 )
