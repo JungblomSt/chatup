@@ -38,7 +38,6 @@ class StartMenuActivity : AppCompatActivity(){
     fun showConversations() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.conversationListContainer, ConversationListFragment())
-            .replace(R.id.usersContainer, UsersFragment())
             .commit()
     }
 
