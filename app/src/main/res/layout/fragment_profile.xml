@@ -63,11 +63,21 @@
         android:padding="8dp">
 
         <Button
-            android:id="@+id/btnChat"
+            android:id="@+id/btnChats"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Chat"
+            android:text="Chattar"
+            android:layout_marginEnd="4dp"
+            android:backgroundTint="@android:color/darker_gray"/>
+
+        <Button
+            android:id="@+id/btnUsers"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Hitta"
+            android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
             android:backgroundTint="@android:color/darker_gray"/>
 
@@ -79,5 +89,6 @@
             android:text="Profil"
             android:layout_marginStart="4dp"
             android:backgroundTint="@color/design_default_color_primary"/>
+
     </LinearLayout>
 </LinearLayout>

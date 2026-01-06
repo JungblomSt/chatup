@@ -28,7 +28,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val ivProfileImage = view.findViewById<ImageView>(R.id.ivProfileImage)
         val etProfileImageUrl = view.findViewById<EditText>(R.id.etProfileImageUrl) 
         val btnSave = view.findViewById<Button>(R.id.btnSaveProfile)
-        val btnChat = view.findViewById<Button>(R.id.btnChat)
+        val btnChats = view.findViewById<Button>(R.id.btnChats)
+        val btnUsers = view.findViewById<Button>(R.id.btnUsers)
 
         profileViewModel.currentUser.observe(viewLifecycleOwner) { user ->
             if (user != null) {
@@ -63,7 +64,11 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         profileViewModel.loadUserProfile()
 
-        btnChat.setOnClickListener {
+        btnChats.setOnClickListener {
+            (activity as? MainActivity)?.replaceFragment(ConversationListFragment())
+        }
+        
+        btnUsers.setOnClickListener {
             (activity as? MainActivity)?.replaceFragment(UsersFragment())
         }
     }

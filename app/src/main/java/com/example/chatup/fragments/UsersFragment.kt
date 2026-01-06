@@ -27,6 +27,7 @@ class UsersFragment : Fragment(R.layout.fragment_user) {
 
         val recycler = view.findViewById<RecyclerView>(R.id.usersRecycler)
         val searchView = view.findViewById<SearchView>(R.id.searchView)
+        val btnChats = view.findViewById<Button>(R.id.btnChats)
         val btnProfile = view.findViewById<Button>(R.id.btnProfile)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
@@ -52,6 +53,10 @@ class UsersFragment : Fragment(R.layout.fragment_user) {
                 return true
             }
         })
+
+        btnChats.setOnClickListener {
+             (activity as? MainActivity)?.replaceFragment(ConversationListFragment())
+        }
 
         btnProfile.setOnClickListener {
             (activity as? MainActivity)?.replaceFragment(ProfileFragment())
