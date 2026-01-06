@@ -26,9 +26,9 @@ class UsersFragment : Fragment(R.layout.fragment_user) {
         userViewModel = ViewModelProvider(this)[UsersViewModel::class.java]
 
         val recycler = view.findViewById<RecyclerView>(R.id.usersRecycler)
-        val searchView = view.findViewById<SearchView>(R.id.searchView)
-        val btnChats = view.findViewById<Button>(R.id.btnChats)
-        val btnProfile = view.findViewById<Button>(R.id.btnProfile)
+        //val searchView = view.findViewById<SearchView>(R.id.searchView)
+        //val btnChats = view.findViewById<Button>(R.id.btnChats)
+       // val btnProfile = view.findViewById<Button>(R.id.btnProfile)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
@@ -43,23 +43,16 @@ class UsersFragment : Fragment(R.layout.fragment_user) {
         userViewModel.users.observe(viewLifecycleOwner) { adapter.update(it) }
         userViewModel.getAllUsers()
 
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                userViewModel.searchUsers(query ?: "")
-                return true
-            }
-            override fun onQueryTextChange(newText: String?): Boolean {
-                userViewModel.searchUsers(newText ?: "")
-                return true
-            }
-        })
+       // searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        //    override fun onQueryTextSubmit(query: String?): Boolean {
+        //        userViewModel.searchUsers(query ?: "")
+        //        return true
+        //    }
+        //    override fun onQueryTextChange(newText: String?): Boolean {
+        //        userViewModel.searchUsers(newText ?: "")
+        //        return true
+       //     }
+      //  })
 
-        btnChats.setOnClickListener {
-             (activity as? MainActivity)?.replaceFragment(ConversationListFragment())
-        }
-
-        btnProfile.setOnClickListener {
-            (activity as? MainActivity)?.replaceFragment(ProfileFragment())
-        }
     }
 }
