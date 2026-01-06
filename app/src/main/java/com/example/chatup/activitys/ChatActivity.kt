@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatup.adapters.ChatRecViewAdapter
@@ -35,6 +36,11 @@ class ChatActivity : AppCompatActivity() {
         startChat(otherUserId, otherUserName)
     }
 
+    override fun onStart() {
+        super.onStart()
+        chatViewModel.setChatOpened(true)
+    }
+
     /**
      * Initializes the chat if a valid user ID is provided.
      * Sets up LiveData observers and handles sending messages.
@@ -48,9 +54,27 @@ class ChatActivity : AppCompatActivity() {
             chatViewModel.initChat(otherUserId)
             chatViewModel.setOtherUserName(otherUserName)
 
+            binding.etMessageAc.addTextChangedListener { editText ->
+                if (editText.isNullOrBlank()){
+                    chatViewModel.setTyping(false)
+                }else {
+                    chatViewModel.setTyping(true)
+                }
+            }
+
+            chatViewModel.isTyping.observe(this) { isTyping ->
+                if (isTyping) {
+                    binding.tvReceiverNameAc.setText("${otherUserName} is typing...")
+                }else {
+                    binding.tvReceiverNameAc.setText(otherUserName)
+                }
+            }
+
             chatViewModel.chatMessage.observe(this) { chatMessages ->
                 adapter.submitList(chatMessages)
-                binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
+                if (chatMessages.isNotEmpty()){
+                    binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
+                }
             }
 
             chatViewModel.otherUserName.observe(this) { name ->
@@ -72,4 +96,11 @@ class ChatActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
+    override fun onStop() {
+        chatViewModel.setTyping(false)
+        chatViewModel.setChatOpened(false)
+        super.onStop()
+    }
+
 }

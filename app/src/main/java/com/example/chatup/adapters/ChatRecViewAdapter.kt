@@ -3,10 +3,13 @@ package com.example.chatup.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.example.chatup.R
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.databinding.ItemMessageReceivedBinding
 import com.example.chatup.databinding.ItemMessageSentBinding
+import com.google.android.material.transition.Hold
 import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -76,6 +79,29 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             holder.binding.tvMessageIms.text = chatListMessage.messages
             holder.binding.tvTimeStampIms.text = formatTimeStamp(chatListMessage.timeStamp)
             holder.binding.tvFriendNameIms.text = "You"
+
+            holder.binding.ivCheckSentIms.isVisible = false
+            holder.binding.ivCheckDeliveredIms.isVisible = false
+
+            when {
+                chatListMessage.seen -> {
+                    holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.seen_outline_check_small_24)
+                    holder.binding.ivCheckSentIms.setImageResource(R.drawable.seen_outline_check_small_24)
+                    holder.binding.ivCheckSentIms.isVisible = true
+                    holder.binding.ivCheckDeliveredIms.isVisible = true
+
+                }
+                chatListMessage.delivered -> {
+                    holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.outline_check_small_24)
+                    holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
+                    holder.binding.ivCheckDeliveredIms.isVisible = true
+                }
+                else -> {
+                    holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
+                    holder.binding.ivCheckSentIms.isVisible = true
+                }
+            }
+
         } else if (holder is MessageReceivedViewHolder) {
             holder.binding.tvMessageImr.text = chatListMessage.messages
             holder.binding.tvTimeStampImr.text = formatTimeStamp(chatListMessage.timeStamp)

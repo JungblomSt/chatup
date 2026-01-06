@@ -6,6 +6,7 @@ import com.example.chatup.data.User
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 
@@ -21,6 +22,73 @@ object FirebaseManager {
      * Holds the currently authenticated Firebase user.
      */
     private lateinit var currentUser: FirebaseUser
+
+    fun markDelivered ()  {
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+        db.collection("conversation")
+            .whereArrayContains("users", currentUserId)
+            .addSnapshotListener { conversations, e ->
+                if (e != null) {
+                    Log.e("!!!", "Failed to listen to conversations: ${e.message}")
+                    return@addSnapshotListener
+                }
+
+                conversations?.documents?.forEach { conversationDoc ->
+                    val conversationId = conversationDoc.id
+
+                    db.collection("conversation")
+                        .document(conversationId)
+                        .collection("messages")
+                        .whereEqualTo("receiverId", currentUserId)
+                        .whereEqualTo("delivered", false)
+                        .addSnapshotListener { messages, e2 ->
+                            if (e2 != null) return@addSnapshotListener
+
+                            messages?.documents?.forEach { msg ->
+                                msg.reference.update("delivered", true)
+                                    .addOnSuccessListener {
+                                        Log.d("!!!", "Delivered marked for message ${msg.id}")
+                                    }
+                                    .addOnFailureListener { e3 ->
+                                        Log.e("!!!", "Failed to mark delivered: ${e3.message}")
+                                    }
+                            }
+                        }
+                }
+            }
+
+    }
+
+    // todo lägg till komentarer
+    fun setTyping (conversationId: String, isTyping : Boolean) {
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+        db.collection("conversation")
+            .document(conversationId)
+            .update("typing.$currentUserId", isTyping)
+    }
+
+    // todo lägg till komentarer
+
+    fun typingSnapShotListener (conversationId: String, friendId : String, onTyping : (Boolean) -> Unit) : ListenerRegistration {
+
+       return db.collection("conversation")
+            .document(conversationId)
+            .addSnapshotListener { snapshot , e ->
+                if (e != null){
+                    e.message?.let { Log.e("!!!", it) }
+                    return@addSnapshotListener
+                }
+                    val typing = snapshot?.get("typing") as? Map<* , *> ?: return@addSnapshotListener
+                    val isTyping = typing[friendId] as? Boolean ?: false
+
+                    onTyping(isTyping)
+
+            }
+
+
+    }
 
     /**
      * Fetches all users from the Firestore 'users' collection.
@@ -52,6 +120,9 @@ object FirebaseManager {
     }
 
 
+    // todo Uppdatera komentarer
+
+
     /**
      * Sets up a real-time listener for messages in a specific conversation.
      *
@@ -60,11 +131,11 @@ object FirebaseManager {
      * @param onUpdate Callback invoked whenever messages are added, modified, or removed
      *                 in this conversation. Returns a List<ChatMessage> representing the current messages.
      */
-    fun snapShotListener(conversationId: String, onUpdate: (List<ChatMessage>) -> Unit) {
+    fun snapShotListener(conversationId: String, onUpdate: (List<ChatMessage>) -> Unit, chatIsOpened : () -> Boolean) : ListenerRegistration? {
 
-        currentUser = Firebase.auth.currentUser ?: return
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return null
 
-        db.collection("conversation")
+        return db.collection("conversation")
             .document(conversationId)
             .collection("messages")
             .orderBy("timeStamp")
@@ -76,10 +147,23 @@ object FirebaseManager {
 
                 if (snapshot != null) {
                     val chatMessage = snapshot.documents.mapNotNull { doc ->
-                        doc.toObject(ChatMessage::class.java)
+                       val message = doc.toObject(ChatMessage::class.java) ?: return@mapNotNull null
+
+
+                        if (message.receiverId == currentUserId
+                            && message.delivered && !message.seen
+                            && chatIsOpened()) {
+
+                            doc.reference.update("seen", true)
+                        }
+
+                        message
+
                     }
                     Log.d("!!!", "Messages snapshot -- $chatMessage")
                     onUpdate(chatMessage)
+
+
                 }
             }
     }
@@ -105,7 +189,9 @@ object FirebaseManager {
             senderId = currentUser.uid,
             receiverId = receiverId,
             messages = chatText,
-            timeStamp = System.currentTimeMillis()
+            timeStamp = System.currentTimeMillis(),
+            delivered = false,
+            seen = false
         )
 
         // Update or create conversation metadata
@@ -139,6 +225,7 @@ object FirebaseManager {
         return listOf(user1Id, user2Id).sorted().joinToString("_")
     }
 
+    // todo lägg till komentarer
     fun createConversationId(user2Id: String): String {
         currentUser = Firebase.auth.currentUser ?: return ""
         val user1Id: String = currentUser.uid

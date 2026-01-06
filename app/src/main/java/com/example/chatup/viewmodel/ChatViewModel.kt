@@ -7,11 +7,26 @@ import androidx.lifecycle.ViewModel
 import com.example.chatup.FirebaseManager
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.data.User
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.ListenerRegistration
 
 class ChatViewModel : ViewModel() {
 
+    private var chatListener : ListenerRegistration? = null
+
+    private var typingListener : ListenerRegistration? = null
+
+    private var _chatOpened = MutableLiveData<Boolean>()
+
+    private var _isTyping = MutableLiveData<Boolean>()
+
+    val isTyping : LiveData<Boolean> get() = _isTyping
+
     private var _otherUserName = MutableLiveData<String>()
+
     val otherUserName: LiveData<String> get() = _otherUserName
+
     /**
      * The unique ID of the current conversation.
      * This is generated based on the logged-in user and the selected chat partner.
@@ -37,6 +52,24 @@ class ChatViewModel : ViewModel() {
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> get() = _users
 
+    fun checkDeliveredMessage() {
+        FirebaseManager.markDelivered()
+    }
+
+    fun setChatOpened (isOpened : Boolean) {
+        _chatOpened.value = isOpened
+    }
+
+    fun isChatOpened () : Boolean {
+        return _chatOpened.value == true
+    }
+
+    fun setTyping (isTyping : Boolean) {
+        FirebaseManager.setTyping(conversationId,isTyping)
+
+    }
+
+
     /**
      * Collects all users from Firestore via FirebaseManager.
      * Updates LiveData so the UI can display the user list.
@@ -60,13 +93,20 @@ class ChatViewModel : ViewModel() {
         _otherUserId.value = otherUserId
         conversationId = FirebaseManager.createConversationId(otherUserId)
 
-        FirebaseManager.snapShotListener(conversationId) {
-            _chatMessage.postValue(it.toList())
+        chatListener = FirebaseManager.snapShotListener(conversationId = conversationId,
+        onUpdate = { chatMessage ->
+            _chatMessage.postValue(chatMessage.toList())
+        }, chatIsOpened = {isChatOpened()
+        } )
+
+        typingListener = FirebaseManager.typingSnapShotListener(conversationId, otherUserId){
+            _isTyping.value = it
         }
+
     }
 
     fun setOtherUserName (otherUserName : String?) {
-        _otherUserName.value = otherUserName
+        _otherUserName.value = otherUserName ?: ""
     }
 
     /**
@@ -85,6 +125,15 @@ class ChatViewModel : ViewModel() {
      */
     fun sendMessage(chatText: String) {
         val receiverId = _otherUserId.value ?: return
-        FirebaseManager.sendChatMessage(chatText, receiverId)
+         FirebaseManager.sendChatMessage(chatText, receiverId)
+    }
+
+    override fun onCleared() {
+        typingListener?.remove()
+        typingListener = null
+        chatListener?.remove()
+        chatListener = null
+        super.onCleared()
+
     }
 }

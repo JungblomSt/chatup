@@ -63,6 +63,27 @@
                 tools:text="MM:DD\nHH:MM" />
 
 
+            <ImageView
+                android:id="@+id/iv_check_sent_ims"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:visibility="gone"
+                android:src="@drawable/outline_check_small_24"
+                />
+
+            <ImageView
+                android:id="@+id/iv_check_delivered_ims"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/iv_check_sent_ims"
+                android:visibility="gone"
+                android:src="@drawable/outline_check_small_24"
+                />
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

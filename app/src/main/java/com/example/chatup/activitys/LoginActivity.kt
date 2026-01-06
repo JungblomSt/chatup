@@ -14,7 +14,7 @@ import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.chatup.R
-import com.example.chatup.StartMenuActivity
+import com.example.chatup.activitys.StartMenuActivity
 import com.example.chatup.databinding.ActivityLoginBinding
 import com.example.chatup.viewmodel.AuthViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption

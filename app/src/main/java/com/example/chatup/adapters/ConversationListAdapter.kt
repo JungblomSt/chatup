@@ -4,7 +4,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.chatup.StartMenuActivity
+import com.example.chatup.activitys.StartMenuActivity
 import com.example.chatup.data.ConversationList
 import com.example.chatup.databinding.ItemConversationListLayoutBinding
 
