@@ -44,7 +44,8 @@
         app:layout_constraintTop_toBottomOf="@id/top_bar"
         app:layout_constraintBottom_toTopOf="@id/usersContainer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.6"/>
 
     <FrameLayout
         android:id="@+id/usersContainer"
@@ -53,6 +54,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/conversationListContainer"/>
+        app:layout_constraintTop_toBottomOf="@id/conversationListContainer"
+        app:layout_constraintHeight_percent="0.4" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
