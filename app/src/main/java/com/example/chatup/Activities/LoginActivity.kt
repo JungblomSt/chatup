@@ -122,13 +122,13 @@ class LoginActivity : AppCompatActivity() {
     private fun handleFailure(e: GetCredentialException){
         when(e){
             is GetCredentialCancellationException -> {
-                Toast.makeText(this,"Login canceled", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.login_canceled), Toast.LENGTH_SHORT).show()
             }
             is NoCredentialException -> {
-                Toast.makeText(this,"No google accounts on this device", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.no_google_accounts), Toast.LENGTH_SHORT).show()
             }
             else -> {
-                Toast.makeText(this,"Error!: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.error, e.message), Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -49,7 +49,7 @@ class StartMenuActivity : AppCompatActivity() {
 
         val headerViewHamburgerMenu = navigationView.getHeaderView(0)
         val tvMail = headerViewHamburgerMenu.findViewById<TextView>(R.id.tv_email)
-        tvMail.text = auth.getCurrentUser()?.email ?: "Ingen e-post"
+        tvMail.text = auth.getCurrentUser()?.email ?: getString(R.string.no_email)
 
         showConversations()
         showUsers()

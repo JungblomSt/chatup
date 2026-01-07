@@ -3,19 +3,16 @@ package com.example.chatup.fragments
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatup.R
 import com.example.chatup.Activities.ChatActivity
-import com.example.chatup.Activities.MainActivity
 import com.example.chatup.adapters.UserAdapter
 import com.example.chatup.viewmodel.UsersViewModel
 
-class UsersFragment : Fragment(R.layout.fragment_user) {
+class UsersFragment : Fragment(R.layout.fragment_users_list) {
 
     private lateinit var userViewModel: UsersViewModel
     private lateinit var adapter: UserAdapter

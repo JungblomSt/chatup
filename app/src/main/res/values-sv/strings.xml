@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">chatup</string>
+    <string name="app_name">ChatUp</string>
     <string name="wrong">Fel uppstod</string>
     <string name="etPasswordAlBlank">lösenordet måste inehålla minst 6 tecken</string>
     <string name="etEmailAlBlank">Uppge en epostadress</string>
     <string name="etPasswordAlToShort">lösenordet måste inehålla minst 6 tecken</string>
-
+    <string name="open">Öppna meny</string>
+    <string name="close">Stäng meny</string>
+    <string name="is_typing">%1$s skriver...</string>
+    <string name="login_canceled">Inloggningen avbröts</string>
+    <string name="no_google_accounts">Det finns inga Googlekonton på den här enheten</string>
+    <string name="error">Error!: %1$s</string>
+    <string name="no_email">Ingen e-post</string>
+    <string name="profile_updated">Profil uppdaterad!</string>
+    <string name="username_empty">Användarnamn får inte vara tomt</string>
+    <string name="Conversations">Chattar</string>
+    <string name="find_users">Hitta användare</string>
+    <string name="search">Sök</string>
+    <string name="profile">Profil</string>
+    <string name="settings">Inställningar</string>
+    <string name="log_out">Logga ut</string>
+    <string name="start_chatting_with">Starta Chat med...</string>
+    <string name="conversations">Konversationer</string>
 
 </resources>

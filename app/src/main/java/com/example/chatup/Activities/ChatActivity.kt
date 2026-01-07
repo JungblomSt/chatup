@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.chatup.R
 import com.example.chatup.adapters.ChatRecViewAdapter
 import com.example.chatup.databinding.ActivityChatBinding
 import com.example.chatup.viewmodel.ChatViewModel
@@ -70,7 +71,7 @@ class ChatActivity : AppCompatActivity() {
 
             chatViewModel.isTyping.observe(this) { isTyping ->
                 if (isTyping) {
-                    binding.tvIsTextingAc.setText("${otherUserName} is typing...")
+                    binding.tvIsTextingAc.setText(getString(R.string.is_typing, otherUserName))
                 }else {
                     binding.tvIsTextingAc.setText("")
                 }
@@ -97,7 +98,7 @@ class ChatActivity : AppCompatActivity() {
             }
 
         } else {
-            Toast.makeText(this, "Something is wrong ", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.wrong, Toast.LENGTH_SHORT).show()
             val intent = Intent(this, FriendListActivity::class.java)
             startActivity(intent)
         }
