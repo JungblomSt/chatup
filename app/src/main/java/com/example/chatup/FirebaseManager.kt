@@ -40,27 +40,38 @@ object FirebaseManager {
                     db.collection("conversation")
                         .document(conversationId)
                         .collection("messages")
-                        .whereEqualTo("receiverId", currentUserId)
-                        .whereEqualTo("delivered", false)
+//                        .whereEqualTo("receiverId", currentUserId)
+//                        .whereEqualTo("delivered", false)
                         .get()
                         .addOnSuccessListener{ messages ->
 
-                            messages?.documents?.forEach { msg ->
-                                msg.reference.update("delivered", true)
-                                    .addOnSuccessListener {
-                                        Log.d("!!!", "Delivered marked for message ${msg.id}")
-                                    }
-                                    .addOnFailureListener { e3 ->
-                                        Log.e("!!!", "Failed to mark delivered: ${e3.message}")
-                                    }
-                                val lastMessageId = conversationDoc.getString("lastMessageId")
+                            messages?.documents?.forEach { msgDoc ->
 
-                                if (msg.id == lastMessageId){
-                                    conversationDoc.reference.update(
-                                        mapOf ("lastMessageDelivered" to true,
-                                            "lastUpdated" to System.currentTimeMillis()))
+                                val message = msgDoc.toObject(ChatMessage::class.java) ?: return@forEach
+
+                                if (!message.deliveredTo.contains(currentUserId)) {
+                                    msgDoc.reference.update("deliveredTo",
+                                        com.google.firebase.firestore.FieldValue.arrayUnion(currentUserId))
                                 }
+
                             }
+
+//                            messages?.documents?.forEach { msg ->
+//                                msg.reference.update("delivered", true)
+//                                    .addOnSuccessListener {
+//                                        Log.d("!!!", "Delivered marked for message ${msg.id}")
+//                                    }
+//                                    .addOnFailureListener { e3 ->
+//                                        Log.e("!!!", "Failed to mark delivered: ${e3.message}")
+//                                    }
+//                                val lastMessageId = conversationDoc.getString("lastMessageId")
+//
+//                                if (msg.id == lastMessageId){
+//                                    conversationDoc.reference.update(
+//                                        mapOf ("lastMessageDelivered" to true,
+//                                            "lastUpdated" to System.currentTimeMillis()))
+//                                }
+//                            }
                         }
                 }
             }
@@ -162,13 +173,22 @@ object FirebaseManager {
                 snapshot.documents.forEach() {doc ->
                     val message = doc.toObject(ChatMessage::class.java) ?: return@forEach
 
-                    if (message.receiverId == currentUserId
-                        && message.delivered
-                        && !message.seen &&
-                        chatIsOpened()) {
-
-                        doc.reference.update("seen", true)
+                    if (!message.deliveredTo.contains(currentUserId)) {
+                        doc.reference.update("deliveredTo",
+                            com.google.firebase.firestore.FieldValue.arrayUnion(currentUserId))
                     }
+
+                    if (chatIsOpened() && !message.seenBy.contains(currentUserId)) {
+                        doc.reference.update("seenBy",
+                            com.google.firebase.firestore.FieldValue.arrayUnion(currentUserId))
+                    }
+//                    if (message.receiverId == currentUserId
+//                        && message.delivered
+//                        && !message.seen &&
+//                        chatIsOpened()) {
+//
+//                        doc.reference.update("seen", true)
+//                    }
 
                 }
 
@@ -242,6 +262,32 @@ object FirebaseManager {
 
     }
 
+    fun sendGroupMessage (conversationId: String, chatText: String, members: List<String>) {
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+        val groupMessageRef = db.collection("conversation")
+            .document(conversationId).collection("messages")
+            .document()
+
+        val groupMessage = ChatMessage(
+            senderId = currentUserId,
+            messages = chatText,
+            deliveredTo = emptyList(),
+            seenBy = listOf(currentUserId)
+        )
+
+        groupMessageRef.set(groupMessage)
+
+        db.collection("conversation")
+            .document(conversationId)
+            .update(
+                mapOf(
+                    "lastMessage" to chatText,
+                    "lastUpdated" to System.currentTimeMillis()
+                )
+            )
+    }
+
     /**
      * Creates a unique and consistent conversation ID for a chat between two users.
      * The two user IDs are sorted alphabetically so the order is always the same, no matter which user sends or receives a message.
@@ -259,6 +305,30 @@ object FirebaseManager {
         currentUser = Firebase.auth.currentUser ?: return ""
         val user1Id: String = currentUser.uid
         return listOf(user1Id, user2Id).sorted().joinToString("_")
+    }
+
+    fun createGroupConversation (groupName: String, members : List<String>, onComplete : (String) -> Unit ) {
+
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+        // fråga sen vad .distinct betyder
+        val allMembers = (members + currentUserId).distinct()
+
+        // varför hashmapof istället för mapOf För att hasmap är mutable kanske ?
+        val groupConversation = mapOf(
+            "conversationType" to "group",
+            "name" to groupName,
+            "users" to allMembers,
+            "lastMessage" to "",
+            "lastUpdated" to System.currentTimeMillis()
+        )
+
+        db.collection("conversation")
+            .add(groupConversation)
+            .addOnSuccessListener { doc ->
+                onComplete(doc.id)
+            }
+
+
     }
 
 }

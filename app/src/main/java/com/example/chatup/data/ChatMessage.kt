@@ -6,5 +6,10 @@ data class ChatMessage(
     val messages : String = "",
     val timeStamp : Long = System.currentTimeMillis(),
     val delivered : Boolean = false,
-    val seen : Boolean = false
+    val seen : Boolean = false,
+
+    val deliveredTo : List<String> = emptyList(),
+    val seenBy : List <String> = emptyList()
+
+
 )
