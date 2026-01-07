@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.chatup.FirebaseManager
 import com.example.chatup.data.User
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -50,5 +51,17 @@ class UsersViewModel : ViewModel() {
             }
             _users.value = filteredList
         }
+    }
+
+    fun createGroup (
+        groupName : String,
+        members : List<String>,
+        onComplete : (String) -> Unit
+    ) {
+        FirebaseManager.createGroupConversation(
+            groupName = groupName,
+            members = members,
+            onComplete = onComplete
+        )
     }
 }

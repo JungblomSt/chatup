@@ -84,10 +84,10 @@ class ChatViewModel : ViewModel() {
 
     }
 
-    fun initGroupChat (conversationId : String, members : List<String>) {
-        this.conversationId = conversationId
-        this.groupMembers = members
-        this.isGroupChat = true
+    fun initGroupChat (convId : String?, members : List<String>) {
+        conversationId = convId!!
+        groupMembers = members
+        isGroupChat = true
 
         chatListener = FirebaseManager.snapShotListener(
             conversationId = conversationId,
@@ -157,6 +157,5 @@ class ChatViewModel : ViewModel() {
         chatListener?.remove()
         chatListener = null
         super.onCleared()
-
     }
 }

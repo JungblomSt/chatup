@@ -6,6 +6,7 @@ import com.example.chatup.data.User
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
@@ -57,7 +58,7 @@ object FirebaseManager {
 
                                     msgDoc.reference.update(
                                         "deliveredTo",
-                                        com.google.firebase.firestore.FieldValue.arrayUnion(
+                                        FieldValue.arrayUnion(
                                             currentUserId
                                         )
                                     )
@@ -194,12 +195,12 @@ object FirebaseManager {
 
                     if (!message.deliveredTo.contains(currentUserId)) {
                         doc.reference.update("deliveredTo",
-                            com.google.firebase.firestore.FieldValue.arrayUnion(currentUserId))
+                            FieldValue.arrayUnion(currentUserId))
                     }
 
                     if (chatIsOpened() && !message.seenBy.contains(currentUserId)) {
                         doc.reference.update("seenBy",
-                            com.google.firebase.firestore.FieldValue.arrayUnion(currentUserId))
+                            FieldValue.arrayUnion(currentUserId))
                     }
 //                    if (message.receiverId == currentUserId
 //                        && message.delivered
@@ -216,10 +217,10 @@ object FirebaseManager {
 
 
                         if (lastMessage.receiverId == currentUserId
-                            && lastMessage.delivered && !lastMessage.seen
+                            && !lastMessage.seenBy.contains(currentUserId)
                             && chatIsOpened()) {
 
-                            lastDoc.reference.update("seen", true)
+                            lastDoc.reference.update("seenBy", true)
 
                             db.collection("conversation")
                                 .document(conversationId)
@@ -258,8 +259,10 @@ object FirebaseManager {
             receiverId = receiverId,
             messages = chatText,
             timeStamp = System.currentTimeMillis(),
-            delivered = false,
-            seen = false
+            deliveredTo = emptyList(),
+            seenBy = listOf(currentUser.uid)
+//            delivered = false,
+//            seen = false
         )
 
         chatMessageRef.set(chatMessage)

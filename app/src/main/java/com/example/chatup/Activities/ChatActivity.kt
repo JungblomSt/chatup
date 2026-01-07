@@ -33,7 +33,15 @@ class ChatActivity : AppCompatActivity() {
         val otherUserId = intent.getStringExtra("userId")
         val otherUserName = intent.getStringExtra("userName")
 
-        startChat(otherUserId, otherUserName)
+        val isGroup = intent.getBooleanExtra("isGroup", false)
+
+        if (isGroup){
+            val conversationId = intent.getStringExtra("conversationId")
+            startGroupChat(conversationId)
+        } else{
+            startPrivateChat(otherUserId,otherUserName)
+        }
+
     }
 
     override fun onStart() {
@@ -48,6 +56,10 @@ class ChatActivity : AppCompatActivity() {
      * @param otherUserId The user ID of the chat partner.
      */
     private fun startChat(otherUserId: String?, otherUserName : String?) {
+
+    }
+
+    private fun startPrivateChat(otherUserId: String?, otherUserName: String?) {
         if (otherUserId != null) {
 
             chatViewModel.setOtherUserId(otherUserId)
@@ -55,24 +67,24 @@ class ChatActivity : AppCompatActivity() {
             chatViewModel.setOtherUserName(otherUserName)
 
             binding.etMessageAc.addTextChangedListener { editText ->
-                if (editText.isNullOrBlank()){
+                if (editText.isNullOrBlank()) {
                     chatViewModel.setTyping(false)
-                }else {
+                } else {
                     chatViewModel.setTyping(true)
                 }
             }
 
             chatViewModel.isTyping.observe(this) { isTyping ->
                 if (isTyping) {
-                    binding.tvReceiverNameAc.setText("${otherUserName} is typing...")
-                }else {
-                    binding.tvReceiverNameAc.setText(otherUserName)
+                    binding.tvReceiverNameAc.text = "${otherUserName} is typing..."
+                } else {
+                    binding.tvReceiverNameAc.text = otherUserName
                 }
             }
 
             chatViewModel.chatMessage.observe(this) { chatMessages ->
                 adapter.submitList(chatMessages)
-                if (chatMessages.isNotEmpty()){
+                if (chatMessages.isNotEmpty()) {
                     binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
                 }
             }
@@ -95,6 +107,47 @@ class ChatActivity : AppCompatActivity() {
             val intent = Intent(this, FriendListActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    fun startGroupChat (conversationId : String?) {
+
+        binding.etMessageAc.addTextChangedListener { editText ->
+            if (editText.isNullOrBlank()) {
+                chatViewModel.setTyping(false)
+            } else {
+                chatViewModel.setTyping(true)
+            }
+        }
+
+        chatViewModel.isTyping.observe(this) { isTyping ->
+            if (isTyping) {
+                binding.tvReceiverNameAc.text = "is typing..."
+            } else {
+                binding.tvReceiverNameAc.text = "Group"
+            }
+        }
+
+
+        chatViewModel.initGroupChat(convId = conversationId,
+            members = emptyList()
+            )
+
+        chatViewModel.chatMessage.observe(this) {messages ->
+            adapter.submitList(messages)
+            if (messages.isNotEmpty()) {
+                binding.rvChatAc.scrollToPosition(messages.size -1)
+            }
+        }
+
+        binding.fabSendAc.setOnClickListener {
+            val sendChatText = binding.etMessageAc.text.toString()
+            if (sendChatText.isNotBlank()) {
+                chatViewModel.sendMessage(sendChatText)
+                binding.etMessageAc.text.clear()
+                Log.d("!!!", "Sent GROUP Chat = $sendChatText")
+            }
+        }
+
     }
 
     override fun onStop() {

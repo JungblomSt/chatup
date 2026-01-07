@@ -1,5 +1,6 @@
 package com.example.chatup
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -15,19 +16,22 @@ import com.example.chatup.viewmodel.AuthViewModel
 import com.example.chatup.viewmodel.ChatViewModel
 import com.google.android.material.navigation.NavigationView
 import android.widget.TextView
+import com.example.chatup.Activities.FriendListActivity
+import com.example.chatup.databinding.StartMenuActivityBinding
 
 class StartMenuActivity : AppCompatActivity() {
 
+    private lateinit var binding : StartMenuActivityBinding
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toolbar: Toolbar
-
     private lateinit var auth: AuthViewModel
     private lateinit var chatViewModel: ChatViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.start_menu_activity)
+        binding = StartMenuActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         auth = ViewModelProvider(this)[AuthViewModel::class.java]
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
@@ -63,6 +67,11 @@ class StartMenuActivity : AppCompatActivity() {
             }
             drawerLayout.closeDrawers()
             true
+        }
+
+        binding.btnGroupChat.setOnClickListener {
+            val intent = Intent(this, FriendListActivity::class.java)
+            startActivity(intent)
         }
     }
 
