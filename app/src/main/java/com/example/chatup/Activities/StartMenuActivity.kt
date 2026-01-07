@@ -15,6 +15,10 @@ import com.example.chatup.viewmodel.AuthViewModel
 import com.example.chatup.viewmodel.ChatViewModel
 import com.google.android.material.navigation.NavigationView
 import android.widget.TextView
+import android.content.Intent
+import androidx.core.view.GravityCompat
+import com.example.chatup.Activities.SettingsActivity
+import com.example.chatup.Activities.LoginActivity
 
 class StartMenuActivity : AppCompatActivity() {
 
@@ -55,6 +59,10 @@ class StartMenuActivity : AppCompatActivity() {
                 R.id.menu_chats, R.id.menu_users -> {
                     showConversations()
                     showUsers()
+                }
+
+                R.id.menu_settings -> {
+                    startActivity(Intent(this, SettingsActivity::class.java))
                 }
                 R.id.menu_logout -> {
                     auth.signOut()

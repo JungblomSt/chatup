@@ -20,6 +20,9 @@
             android:name=".Activities.ChatActivity"
             android:exported="false" />
         <activity
+            android:name=".Activities.SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".StartMenuActivity"
             android:exported="false" />
         <activity
