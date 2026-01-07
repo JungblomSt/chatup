@@ -7,11 +7,12 @@ import androidx.lifecycle.ViewModel
 import com.example.chatup.FirebaseManager
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.data.User
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.google.firebase.firestore.ListenerRegistration
 
 class ChatViewModel : ViewModel() {
+
+    private var isGroupChat = false
+    private var groupMembers : List<String> = emptyList()
 
     private var chatListener : ListenerRegistration? = null
 
@@ -83,6 +84,18 @@ class ChatViewModel : ViewModel() {
 
     }
 
+    fun initGroupChat (conversationId : String, members : List<String>) {
+        this.conversationId = conversationId
+        this.groupMembers = members
+        this.isGroupChat = true
+
+        chatListener = FirebaseManager.snapShotListener(
+            conversationId = conversationId,
+            onUpdate = {_chatMessage.postValue(it)},
+            chatIsOpened = {isChatOpened()}
+        )
+    }
+
     /**
      * Init a chat session with a specific user.
      * Creates a unique conversation ID and starts listening for real-time message updates from Firestore.
@@ -93,11 +106,13 @@ class ChatViewModel : ViewModel() {
         _otherUserId.value = otherUserId
         conversationId = FirebaseManager.createConversationId(otherUserId)
 
-        chatListener = FirebaseManager.snapShotListener(conversationId = conversationId,
-        onUpdate = { chatMessage ->
-            _chatMessage.postValue(chatMessage.toList())
-        }, chatIsOpened = {isChatOpened()
-        } )
+        chatListener = FirebaseManager.snapShotListener(
+            conversationId = conversationId,
+            onUpdate = { chatMessage ->
+                _chatMessage.postValue(chatMessage.toList())
+            }, chatIsOpened = {
+                isChatOpened()
+            })
 
         typingListener = FirebaseManager.typingSnapShotListener(conversationId, otherUserId){
             _isTyping.value = it
@@ -125,6 +140,14 @@ class ChatViewModel : ViewModel() {
      */
     fun sendMessage(chatText: String) {
         val receiverId = _otherUserId.value ?: return
+
+        if (isGroupChat){
+            FirebaseManager.sendGroupMessage(
+                conversationId,
+                chatText,
+                groupMembers
+            )
+        }else
          FirebaseManager.sendChatMessage(chatText, receiverId)
     }
 

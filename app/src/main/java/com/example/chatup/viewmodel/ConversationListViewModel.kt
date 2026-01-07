@@ -43,14 +43,18 @@ class ConversationListViewModel : ViewModel(){
 
                         if (!conversation.users.contains(currentUserId)) return@mapNotNull null
 
-                        val friendId = conversation.users.first { it != currentUserId }
-                        val friend = users.firstOrNull { it.uid == friendId }
-                            ?: return@mapNotNull null
+                        if (conversation.conversationType == "private"){
+                            val friendId = conversation.users.first { it != currentUserId }
+                            val friend = users.firstOrNull { it.uid == friendId }
+                                ?: return@mapNotNull null
 
-                        conversation.friendUsername = friend.username ?: ""
+                            conversation.friendUsername = friend.username ?: ""
+
+                        } else {
+                            conversation.friendUsername = conversation.name
+                        }
                         conversation
                     }
-
                     _conversationList.postValue(convList)
                 }
             }

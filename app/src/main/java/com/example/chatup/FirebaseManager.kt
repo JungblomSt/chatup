@@ -23,7 +23,7 @@ object FirebaseManager {
      */
     private lateinit var currentUser: FirebaseUser
 
-    fun markDelivered ()  {
+    fun markDelivered() {
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
 
         db.collection("conversation")
@@ -43,18 +43,37 @@ object FirebaseManager {
 //                        .whereEqualTo("receiverId", currentUserId)
 //                        .whereEqualTo("delivered", false)
                         .get()
-                        .addOnSuccessListener{ messages ->
+                        .addOnSuccessListener { messages ->
 
                             messages?.documents?.forEach { msgDoc ->
 
-                                val message = msgDoc.toObject(ChatMessage::class.java) ?: return@forEach
+                                val message =
+                                    msgDoc.toObject(ChatMessage::class.java) ?: return@forEach
 
-                                if (!message.deliveredTo.contains(currentUserId)) {
-                                    msgDoc.reference.update("deliveredTo",
-                                        com.google.firebase.firestore.FieldValue.arrayUnion(currentUserId))
+                                if (message.senderId != currentUserId && !message.deliveredTo.contains(
+                                        currentUserId
+                                    )
+                                ) {
+
+                                    msgDoc.reference.update(
+                                        "deliveredTo",
+                                        com.google.firebase.firestore.FieldValue.arrayUnion(
+                                            currentUserId
+                                        )
+                                    )
+
+//                                    if (!message.deliveredTo.contains(currentUserId)) {
+//                                        msgDoc.reference.update(
+//                                            "deliveredTo",
+//                                            com.google.firebase.firestore.FieldValue.arrayUnion(
+//                                                currentUserId
+//                                            )
+//                                        )
+
                                 }
-
                             }
+
+                        }
 
 //                            messages?.documents?.forEach { msg ->
 //                                msg.reference.update("delivered", true)
@@ -72,9 +91,9 @@ object FirebaseManager {
 //                                            "lastUpdated" to System.currentTimeMillis()))
 //                                }
 //                            }
-                        }
                 }
             }
+
 
     }
 
@@ -310,10 +329,9 @@ object FirebaseManager {
     fun createGroupConversation (groupName: String, members : List<String>, onComplete : (String) -> Unit ) {
 
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
-        // fråga sen vad .distinct betyder
+
         val allMembers = (members + currentUserId).distinct()
 
-        // varför hashmapof istället för mapOf För att hasmap är mutable kanske ?
         val groupConversation = mapOf(
             "conversationType" to "group",
             "name" to groupName,

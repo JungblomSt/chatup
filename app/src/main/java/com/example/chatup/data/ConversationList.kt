@@ -7,5 +7,7 @@ data class ConversationList (
     var friendUsername : String = "",
     val users : List<String> = emptyList(),
     var lastMessageDelivered : Boolean = false,
-    var lastMessageSeen : Boolean = false
+    var lastMessageSeen : Boolean = false,
+    val conversationType : String = "private",
+    val name : String = ""
 )
