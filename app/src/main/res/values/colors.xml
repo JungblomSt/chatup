@@ -9,6 +9,8 @@
     <color name="middark">#255C45</color>
     <color name="dark">#002D04</color>
     <color name="buttoncolor">#F7A072</color>
+    <color name="button_text_color_login">#95FFFFFF</color>
+    <color name="button_color_login">#002D04</color>
     <color name="transparent">#00000000</color>
 
 </resources>

@@ -5,16 +5,30 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/app_bg"
+    android:background="@color/middark"
     tools:context=".Activities.LoginActivity">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/cv_login_la"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/icon" />
+
     <androidx.cardview.widget.CardView
+        android:id="@+id/cv_login_la"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        app:cardBackgroundColor="#CACACA"
-        app:cardCornerRadius="40dp"
+        android:layout_marginBottom="132dp"
+        app:cardBackgroundColor="#95FFFFFF"
+        app:cardCornerRadius="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,32 +39,48 @@
             android:layout_height="match_parent">
 
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="Email"
+                android:textColor="@color/dark"
+                app:layout_constraintBottom_toTopOf="@+id/et_email_al"
+                app:layout_constraintStart_toStartOf="parent" />
             <EditText
                 android:id="@+id/et_email_al"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="32dp"
                 android:layout_marginEnd="16dp"
-                android:ems="10"
-                android:hint="Email"
+                android:background="@drawable/edittext_border"
                 android:inputType="textEmailAddress"
                 android:textAlignment="center"
                 android:textColor="@color/black"
+
                 android:textSize="22sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="Password"
+                android:textColor="@color/dark"
+                app:layout_constraintBottom_toTopOf="@+id/et_password_al"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <EditText
                 android:id="@+id/et_password_al"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="32dp"
                 android:layout_marginEnd="16dp"
-                android:ems="10"
-                android:hint="Password"
+                android:background="@drawable/edittext_border"
                 android:inputType="textPassword"
                 android:textAlignment="center"
                 android:textColor="@android:color/white"
@@ -66,9 +96,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:backgroundTint="#22FFFFFF"
+                android:backgroundTint="@color/button_color_login"
                 android:text="Login"
-                android:textColor="@android:color/white"
+                android:textColor="@color/button_text_color_login"
                 android:textSize="16dp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -79,17 +109,27 @@
                 android:id="@+id/btn_logingoogle_al"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:backgroundTint="#3B3B3E"
-                android:text="Google login"
-                android:textColor="@color/black"
+                android:layout_margin="16dp"
+                android:backgroundTint="@color/button_color_login"
+                android:text="Sign in with Google"
+                android:textColor="@color/button_text_color_login"
                 android:textSize="16dp"
                 android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_login_al" />
+                app:layout_constraintTop_toBottomOf="@+id/btn_register_al"/>
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="32dp"
+                app:layout_constraintBottom_toBottomOf="@id/btn_logingoogle_al"
+                app:layout_constraintEnd_toEndOf="@id/btn_logingoogle_al"
+                app:layout_constraintTop_toTopOf="@id/btn_logingoogle_al"
+                app:srcCompat="@drawable/googleg_standard_color_18">
+
+            </ImageView>
 
             <Button
                 android:id="@+id/btn_register_al"
@@ -98,14 +138,45 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:backgroundTint="#22FFFFFF"
-                android:text="Register"
-                android:textColor="@color/black"
+                android:backgroundTint="@color/button_color_login"
+                android:text="Register new account"
+                android:textColor="@color/button_text_color_login"
                 android:textSize="16dp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_logingoogle_al" />
+                app:layout_constraintTop_toBottomOf="@+id/btn_login_al" />
+
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_reset_password_la"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="#95FFFFFF"
+        app:cardCornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_login_la">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="Enter email to reset password"
+                android:textColor="@color/dark"
+                app:layout_constraintBottom_toTopOf="@+id/et_forgot_email_al"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <EditText
                 android:id="@+id/et_forgot_email_al"
@@ -114,27 +185,26 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="16dp"
-                android:ems="10"
-                android:hint="Enter email to reset password"
+                android:background="@drawable/edittext_border"
                 android:inputType="textEmailAddress"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="22sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_register_al" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <Button
                 android:id="@+id/btn_forgot_password_al"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
-                android:backgroundTint="#3B3B3E"
+                android:backgroundTint="@color/button_color_login"
                 android:text="Send"
-                android:textColor="@color/black"
+                android:textColor="@color/button_text_color_login"
                 android:textSize="16dp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -143,9 +213,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/et_forgot_email_al" />
 
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="4dp"
+        android:textColor="@color/dark"
+        android:text="Forgot your password?"
+        app:layout_constraintBottom_toTopOf="@+id/cv_reset_password_la"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
