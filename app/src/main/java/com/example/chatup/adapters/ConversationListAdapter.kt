@@ -23,11 +23,11 @@ class ConversationListAdapter(private var conversationList: List<ConversationLis
         val conversation = conversationList[position]
         holder.binding.tvMessageIml.text = conversation.lastMessage
         holder.binding.tvFriendName.text = conversation.friendUsername
+        holder.binding.tvTimeStamp.text = TimeStamp(conversation.lastUpdated)
 
         holder.binding.conversationListCardView.setOnClickListener {
             onConversationClicked(conversation)
         }
-
 
         holder.binding.ivCheckSentIcl.isVisible = false
         holder.binding.ivCheckDeliveredIcl.isVisible = false
@@ -50,8 +50,14 @@ class ConversationListAdapter(private var conversationList: List<ConversationLis
                 holder.binding.ivCheckSentIcl.setImageResource(R.drawable.outline_check_small_24)
                 holder.binding.ivCheckSentIcl.isVisible = true
             }
-
         }
+    }
+
+    private fun TimeStamp(timestamp: Long): String {
+        if (timestamp == 0L) return ""
+        val dateFormat = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+        val date = java.util.Date(timestamp)
+        return dateFormat.format(date)
     }
 
     override fun getItemCount() = conversationList.size
