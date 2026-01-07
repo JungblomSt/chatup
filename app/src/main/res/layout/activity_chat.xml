@@ -2,8 +2,18 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/cream_white"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_ac"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/mid"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 
     <androidx.recyclerview.widget.RecyclerView
@@ -11,16 +21,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/et_message_ac"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_receiver_name_ac"
-        tools:listitem="@layout/item_conversation_list_layout"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_ac"
         tools:itemCount="4"
-        />
+        tools:listitem="@layout/item_conversation_list_layout" />
 
     <EditText
         android:id="@+id/et_message_ac"
@@ -29,39 +38,83 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:ems="10"
         android:inputType="text"
         android:hint="..."
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/fab_send_ac"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--        android:id="@+id/fab_send_ac"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:layout_marginBottom="16dp"-->
+<!--        android:backgroundTint="@color/mid"-->
+<!--        android:tint="@color/cream_white"-->
+<!--        android:clickable="true"-->
+<!--        android:src="@drawable/outline_send_24"-->
+<!--        app:fabSize="auto"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/et_message_ac"  />-->
+
+    <ImageView
         android:id="@+id/fab_send_ac"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:clickable="true"
-        android:src="@drawable/outline_send_24"
-        app:fabSize="auto"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/et_message_ac"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/et_message_ac" />
+        app:layout_constraintTop_toTopOf="@+id/et_message_ac"
+        app:srcCompat="@drawable/logo_green_no_text" />
 
     <TextView
         android:id="@+id/tv_receiver_name_ac"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="22dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
+        android:fontFamily="sans-serif-medium"
         android:textAlignment="center"
-        tools:text="Name of Receiver"
+        android:textColor="@color/cream_white"
+        android:textSize="22dp"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar_ac"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Name of Receiver" />
+
+    <ImageButton
+        android:id="@+id/btn_back_ac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="4dp"
+        android:backgroundTint="@color/transparent"
+        android:tint="@color/white"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar_ac"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="?attr/homeAsUpIndicator" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="100dp"
+        android:layout_height="91dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo_text" />
+
+    <TextView
+        android:id="@+id/tv_is_texting_ac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintBottom_toTopOf="@+id/et_message_ac"
+        app:layout_constraintEnd_toEndOf="@+id/et_message_ac"
+        app:layout_constraintStart_toStartOf="@+id/et_message_ac" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
