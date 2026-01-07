@@ -52,13 +52,6 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
         conversationListViewModel.getAllCurrentUserConversationLists()
 
-        btnUsers.setOnClickListener {
-            (activity as? MainActivity)?.replaceFragment(UsersFragment())
-        }
-
-        btnProfile.setOnClickListener {
-            (activity as? MainActivity)?.replaceFragment(ProfileFragment())
-        }
     }
 
     override fun onResume() {

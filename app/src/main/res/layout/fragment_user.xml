@@ -8,67 +8,24 @@
     android:background="#255C45"
     tools:context=".fragments.UsersFragment">
 
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardBackgroundColor="#FAF8F4"
-            app:cardElevation="2dp"
-            android:layout_margin="8dp">
-
-            <SearchView
-                android:id="@+id/searchView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:iconifiedByDefault="false"
-                android:queryHint="Sök användare..."
-                android:background="@android:color/transparent"
-                />
-
-        </androidx.cardview.widget.CardView>
+    <TextView
+        android:id="@+id/tvStartChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Börja chatta"
+        android:textColor="@color/white"
+        android:paddingStart="16dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="0dp"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/usersRecycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"/>
+        android:padding="4dp"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="#EEEEEE"
-        android:padding="8dp">
-
-        <Button
-            android:id="@+id/btnChats"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Chattar"
-            android:layout_marginEnd="4dp"
-            android:backgroundTint="@android:color/darker_gray"/>
-
-        <Button
-            android:id="@+id/btnUsers"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Hitta"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            android:backgroundTint="@color/design_default_color_primary"/>
-
-        <Button
-            android:id="@+id/btnProfile"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Profil"
-            android:layout_marginStart="4dp"
-            android:backgroundTint="@android:color/darker_gray"/>
-
-    </LinearLayout>
 </LinearLayout>
