@@ -5,24 +5,36 @@
     android:id="@+id/userCardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:minHeight="52dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     app:cardCornerRadius="20dp"
-    android:layout_margin="8dp">
+    android:layout_margin="16dp">
+
+    <ImageView
+        android:id="@+id/ivUserProfile"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/background_circle"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomDivider"/>
 
         <TextView
             android:id="@+id/tvUsername"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="18sp"
-            android:textColor="#FAF8F4"
-            android:textStyle="bold"
+            android:textColor="@color/dark"
+            android:textStyle="normal"
             android:fontFamily="sans-serif-medium"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivUserProfile"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/ivMessageIcon"
+            android:layout_marginStart="12dp"
             android:padding="2dp"
             android:ellipsize="end"
             android:maxLines="1"/>
@@ -33,7 +45,7 @@
             android:layout_height="24dp"
             android:src="@drawable/outline_chat_bubble_24"
             android:contentDescription="Starta chatt"
-            android:tint="#FAF8F4"
+            android:tint="@color/dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -42,7 +54,8 @@
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:background="#2F6B4F"
+            android:background="#90C595"
+            android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />

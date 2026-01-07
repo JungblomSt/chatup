@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#255C45"
+    android:background="#FAF8F4"
     tools:context=".fragments.UsersFragment">
 
     <TextView
@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Börja chatta"
-        android:textColor="@color/white"
+        android:textColor="@color/dark"
         android:paddingStart="16dp"
         android:paddingEnd="8dp"
         android:paddingTop="8dp"

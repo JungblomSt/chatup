@@ -4,7 +4,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/middark">
+    android:background="#FAF8F4">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Konversationer"
-            android:textColor="@color/white"
+            android:textColor="@color/dark"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginTop="10dp"
@@ -34,7 +34,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:paddingBottom="2dp"
-            android:paddingStart="15dp"/>
+            android:paddingStart="10dp"/>
 
         <FrameLayout
             android:id="@+id/conversationListContainer"
@@ -51,11 +51,22 @@
             android:id="@+id/usersContainer"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             app:layout_constraintTop_toBottomOf="@id/conversationListContainer"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.4"/>
+            app:layout_constraintHeight_percent="0.45"/>
+
+        <View
+            android:id="@+id/bottomBar"
+            android:layout_width="0dp"
+            android:layout_height="10dp"
+            android:background="@color/mid"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <FrameLayout
             android:id="@+id/fragmentContainer"
@@ -76,7 +87,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:menu="@menu/drawer_menu"
-        app:itemIconTint="@color/mid"
-        app:itemTextColor="@color/mid"/>
+        app:itemIconTint="@color/dark"
+        app:itemTextColor="@color/dark"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>
