@@ -4,17 +4,18 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import com.example.chatup.fragments.ConversationListFragment
+import com.example.chatup.fragments.ProfileFragment
 import com.example.chatup.fragments.UsersFragment
 import com.example.chatup.viewmodel.AuthViewModel
 import com.example.chatup.viewmodel.ChatViewModel
 import com.google.android.material.navigation.NavigationView
-import android.widget.TextView
 
 class StartMenuActivity : AppCompatActivity() {
 
@@ -47,14 +48,15 @@ class StartMenuActivity : AppCompatActivity() {
         val tvMail = headerViewHamburgerMenu.findViewById<TextView>(R.id.tv_email)
         tvMail.text = auth.getCurrentUser()?.email ?: "Ingen e-post"
 
-        showConversations()
-        showUsers()
+        showMainView()
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_chats, R.id.menu_users -> {
-                    showConversations()
-                    showUsers()
+                    showMainView()
+                }
+                R.id.menu_profile -> {
+                    showProfile()
                 }
                 R.id.menu_logout -> {
                     auth.signOut()
@@ -66,18 +68,27 @@ class StartMenuActivity : AppCompatActivity() {
         }
     }
 
-    private fun showConversations() {
+    private fun showMainView() {
+        findViewById<FrameLayout>(R.id.conversationListContainer).visibility = View.VISIBLE
+        findViewById<FrameLayout>(R.id.usersContainer).visibility = View.VISIBLE
+        findViewById<TextView>(R.id.tv_conversations_title).visibility = View.VISIBLE
+        findViewById<FrameLayout>(R.id.fragmentContainer).visibility = View.GONE
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.conversationListContainer, ConversationListFragment())
-            .commit()
-        findViewById<FrameLayout>(R.id.conversationListContainer).visibility = View.VISIBLE
-    }
-
-    private fun showUsers() {
-        supportFragmentManager.beginTransaction()
             .replace(R.id.usersContainer, UsersFragment())
             .commit()
-        findViewById<FrameLayout>(R.id.usersContainer).visibility = View.VISIBLE
+    }
+
+    private fun showProfile() {
+        findViewById<FrameLayout>(R.id.conversationListContainer).visibility = View.GONE
+        findViewById<FrameLayout>(R.id.usersContainer).visibility = View.GONE
+        findViewById<TextView>(R.id.tv_conversations_title).visibility = View.GONE
+        findViewById<FrameLayout>(R.id.fragmentContainer).visibility = View.VISIBLE
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, ProfileFragment())
+            .commit()
     }
 
     override fun onStart() {

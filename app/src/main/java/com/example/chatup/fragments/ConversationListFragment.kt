@@ -26,8 +26,8 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         conversationListViewModel = ViewModelProvider(this)[ConversationListViewModel::class.java]
 
         val recycler = view.findViewById<RecyclerView>(R.id.conversationListRecycler)
-        val btnUsers = view.findViewById<Button>(R.id.btnUsers)
-        val btnProfile = view.findViewById<Button>(R.id.btnProfile)
+        //val btnUsers = view.findViewById<Button>(R.id.btnUsers)
+        //val btnProfile = view.findViewById<Button>(R.id.btnProfile)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
 

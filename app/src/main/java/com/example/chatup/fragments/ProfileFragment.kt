@@ -22,54 +22,45 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         super.onViewCreated(view, savedInstanceState)
 
         profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
+        profileViewModel.loadUserProfile()
 
         val etUsername = view.findViewById<EditText>(R.id.etUsername)
         val tvEmail = view.findViewById<TextView>(R.id.tvEmail)
         val ivProfileImage = view.findViewById<ImageView>(R.id.ivProfileImage)
-        val etProfileImageUrl = view.findViewById<EditText>(R.id.etProfileImageUrl) 
+        val etProfileImageUrl = view.findViewById<EditText>(R.id.etProfileImageUrl)
         val btnSave = view.findViewById<Button>(R.id.btnSaveProfile)
-        val btnChats = view.findViewById<Button>(R.id.btnChats)
-        val btnUsers = view.findViewById<Button>(R.id.btnUsers)
 
         profileViewModel.currentUser.observe(viewLifecycleOwner) { user ->
             if (user != null) {
-                etUsername.setText(user.username)
-                tvEmail.text = user.email
+                etUsername?.setText(user.username)
+                tvEmail?.text = user.email
                 if (!user.profileImage.isNullOrEmpty()) {
-                    etProfileImageUrl.setText(user.profileImage)
-                    Glide.with(this)
-                        .load(user.profileImage)
-                        .placeholder(android.R.drawable.sym_def_app_icon)
-                        .error(android.R.drawable.sym_def_app_icon)
-                        .into(ivProfileImage)
+                    etProfileImageUrl?.setText(user.profileImage)
+                    if (ivProfileImage != null) {
+                        Glide.with(this)
+                            .load(user.profileImage)
+                            .placeholder(android.R.drawable.sym_def_app_icon)
+                            .error(android.R.drawable.sym_def_app_icon)
+                            .into(ivProfileImage)
+                    }
                 }
             }
         }
 
-        btnSave.setOnClickListener {
-            val newUsername = etUsername.text.toString()
-            val newImageUrl = etProfileImageUrl.text.toString()
+        btnSave?.setOnClickListener {
+            val newUsername = etUsername?.text.toString()
+            val newImageUrl = etProfileImageUrl?.text.toString()
 
             if (newUsername.isNotBlank()) {
                 profileViewModel.updateUserProfile(newUsername, if (newImageUrl.isNotBlank()) newImageUrl else null)
                 Toast.makeText(requireContext(), "Profil uppdaterad!", Toast.LENGTH_SHORT).show()
-                
-                 if (newImageUrl.isNotBlank()) {
+
+                if (newImageUrl.isNotBlank() && ivProfileImage != null) {
                     Glide.with(this).load(newImageUrl).into(ivProfileImage)
                 }
             } else {
                 Toast.makeText(requireContext(), "Användarnamn får inte vara tomt", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        profileViewModel.loadUserProfile()
-
-        btnChats.setOnClickListener {
-            (activity as? MainActivity)?.replaceFragment(ConversationListFragment())
-        }
-        
-        btnUsers.setOnClickListener {
-            (activity as? MainActivity)?.replaceFragment(UsersFragment())
         }
     }
 }
