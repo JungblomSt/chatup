@@ -159,6 +159,19 @@ object FirebaseManager {
                 }
                 onUpdate(chatMessages)
 
+                snapshot.documents.forEach() {doc ->
+                    val message = doc.toObject(ChatMessage::class.java) ?: return@forEach
+
+                    if (message.receiverId == currentUserId
+                        && message.delivered
+                        && !message.seen &&
+                        chatIsOpened()) {
+
+                        doc.reference.update("seen", true)
+                    }
+
+                }
+
                 val lastDoc = snapshot.documents.lastOrNull() ?: return@addSnapshotListener
                 val lastMessage = lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
 
