@@ -11,14 +11,18 @@ import com.google.firebase.firestore.firestore
 
 class UsersViewModel : ViewModel() {
 
+    // ============== Firebase ==============
     private val db = Firebase.firestore
     private val auth = Firebase.auth
+
+    // ============== Livedata ==============
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> = _users
 
-    // Cache för snabb sökning
+    // ============== Data ==================
     private var originalUserList = listOf<User>()
 
+    // ============== Fetch users ===========
     fun getAllUsers() {
         val currentUserId = auth.currentUser?.uid
         Log.d("UsersViewModel", "getAllUsers: Fetching users from Firestore")
@@ -30,12 +34,8 @@ class UsersViewModel : ViewModel() {
                     val user = doc.toObject(User::class.java)?.copy(uid = doc.id)
                     if (user?.uid != currentUserId) user else null
                 }
-                // Spara till cachen
                 originalUserList = userList
                 _users.value = userList
-            }
-            .addOnFailureListener { exception ->
-                Log.e("UsersViewModel", "getAllUsers: Error fetching users", exception)
             }
     }
 

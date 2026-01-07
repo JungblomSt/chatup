@@ -17,9 +17,11 @@ import com.example.chatup.viewmodel.UsersViewModel
 
 class UsersFragment : Fragment(R.layout.fragment_user) {
 
+    // ============== ViewModel and Adapter ==============
     private lateinit var userViewModel: UsersViewModel
     private lateinit var adapter: UserAdapter
 
+    // ============== Starts when fragment view creats ================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

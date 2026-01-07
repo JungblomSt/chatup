@@ -17,20 +17,24 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
+
+    // ============== Variables ============
     private lateinit var conversationListViewModel: ConversationListViewModel
     private lateinit var adapter: ConversationListAdapter
 
+    // ============== Fragment view create ==============
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         conversationListViewModel = ViewModelProvider(this)[ConversationListViewModel::class.java]
 
         val recycler = view.findViewById<RecyclerView>(R.id.conversationListRecycler)
-        val btnUsers = view.findViewById<Button>(R.id.btnUsers)
-        val btnProfile = view.findViewById<Button>(R.id.btnProfile)
+        //val btnUsers = view.findViewById<Button>(R.id.btnUsers)
+        //val btnProfile = view.findViewById<Button>(R.id.btnProfile)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
+        // ============== Initilize adapter and click =========
         adapter = ConversationListAdapter(emptyList()) { conversation ->
             val currentUserId = Firebase.auth.currentUser?.uid
             val friendId = conversation.users.firstOrNull { it != currentUserId }
@@ -38,7 +42,6 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
             if (friendId != null) {
                 val intent = Intent(requireContext(), ChatActivity::class.java)
                 intent.putExtra("userId", friendId)
-                // Om friendUsername saknas kan vi kanske behöva hämta det, men vi skickar med det vi har
                 intent.putExtra("userName", conversation.friendUsername ?: "Chat")
                 startActivity(intent)
             }
@@ -51,12 +54,10 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         }
 
         conversationListViewModel.getAllCurrentUserConversationLists()
-
     }
-
+    // ============== Update conversationlist =============
     override fun onResume() {
         super.onResume()
         conversationListViewModel.getAllCurrentUserConversationLists()
     }
-
 }
