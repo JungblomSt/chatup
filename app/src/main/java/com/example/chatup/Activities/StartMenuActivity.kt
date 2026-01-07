@@ -15,6 +15,10 @@ import com.example.chatup.viewmodel.AuthViewModel
 import com.example.chatup.viewmodel.ChatViewModel
 import com.google.android.material.navigation.NavigationView
 import android.widget.TextView
+import android.content.Intent
+import androidx.core.view.GravityCompat
+import com.example.chatup.Activities.SettingsActivity
+import com.example.chatup.Activities.LoginActivity
 
 class StartMenuActivity : AppCompatActivity() {
 
@@ -50,19 +54,40 @@ class StartMenuActivity : AppCompatActivity() {
         showConversations()
         showUsers()
 
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.menu_chats, R.id.menu_users -> {
-                    showConversations()
-                    showUsers()
+        navigationView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+
+                R.id.menu_settings -> {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                    true
                 }
+
                 R.id.menu_logout -> {
                     auth.signOut()
-                    finish()
+                    val intent = Intent(this, LoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    true
+                }
+
+                R.id.menu_chats -> {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    showConversations()
+                    true
+                }
+
+                R.id.menu_users -> {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    showUsers()
+                    true
+                }
+
+                else -> {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
                 }
             }
-            drawerLayout.closeDrawers()
-            true
         }
     }
 
