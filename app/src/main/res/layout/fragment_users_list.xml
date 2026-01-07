@@ -11,14 +11,14 @@
         android:id="@+id/tvStartChat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Börja chatta"
+        android:text="@string/start_chatting_with"
         android:textColor="@color/dark"
         android:fontFamily="@font/lunasima"
         android:paddingStart="16dp"
         android:paddingEnd="8dp"
         android:paddingTop="8dp"
         android:paddingBottom="0dp"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="normal"/>
 
     <androidx.recyclerview.widget.RecyclerView

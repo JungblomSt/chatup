@@ -25,7 +25,7 @@
             android:id="@+id/tv_conversations_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Konversationer"
+            android:text="@string/conversations"
             android:textColor="@color/dark"
             android:textSize="20sp"
             android:fontFamily="@font/lunasima"
