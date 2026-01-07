@@ -10,7 +10,9 @@ import com.example.chatup.data.ChatMessage
 import com.example.chatup.databinding.ItemMessageReceivedBinding
 import com.example.chatup.databinding.ItemMessageSentBinding
 import com.google.android.material.transition.Hold
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -82,15 +84,20 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             holder.binding.ivCheckSentIms.isVisible = false
             holder.binding.ivCheckDeliveredIms.isVisible = false
 
+            val currentUser = Firebase.auth.currentUser?.uid ?: ""
+
+            val isSeen = chatListMessage.seenBy.containsAll(chatListMessage.deliveredTo.filter { it != currentUser })
+            val isDelivered = chatListMessage.deliveredTo.isNotEmpty() && !isSeen
+
             when {
-                chatListMessage.seen -> {
+                isSeen -> {
                     holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.seen_outline_check_small_24)
                     holder.binding.ivCheckSentIms.setImageResource(R.drawable.seen_outline_check_small_24)
                     holder.binding.ivCheckSentIms.isVisible = true
                     holder.binding.ivCheckDeliveredIms.isVisible = true
 
                 }
-                chatListMessage.delivered -> {
+                isDelivered -> {
                     holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.outline_check_small_24)
                     holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
                     holder.binding.ivCheckDeliveredIms.isVisible = true

@@ -220,7 +220,10 @@ object FirebaseManager {
                             && !lastMessage.seenBy.contains(currentUserId)
                             && chatIsOpened()) {
 
-                            lastDoc.reference.update("seenBy", true)
+                            lastDoc.reference.update(
+                                "seenBy",
+                                FieldValue.arrayUnion(currentUserId)
+                            )
 
                             db.collection("conversation")
                                 .document(conversationId)

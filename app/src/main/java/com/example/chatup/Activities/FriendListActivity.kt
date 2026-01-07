@@ -69,7 +69,7 @@ class FriendListActivity : AppCompatActivity() {
 
             binding.fabStartGroupChatAfl.setOnClickListener {
 
-                if (groupName.isBlank()){
+                if (binding.etSearchFriendAfl.text.isBlank()){
                     Toast.makeText(this,"Choose a group name", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
 
@@ -107,20 +107,20 @@ class FriendListActivity : AppCompatActivity() {
     }
 
     fun loadUsers() {
-        usersViewModel.users.observe(this) { userList ->
-            friendList.clear()
-            friendList.addAll(userList)
-            adapter.clear()
-            adapter.addAll(userList.map { it.username })
-            adapter.notifyDataSetChanged()
-        }
-
-//        chatViewModel.users.observe(this) { userList ->
+//        usersViewModel.users.observe(this) { userList ->
 //            friendList.clear()
 //            friendList.addAll(userList)
 //            adapter.clear()
 //            adapter.addAll(userList.map { it.username })
 //            adapter.notifyDataSetChanged()
 //        }
+
+        chatViewModel.users.observe(this) { userList ->
+            friendList.clear()
+            friendList.addAll(userList)
+            adapter.clear()
+            adapter.addAll(userList.map { it.username })
+            adapter.notifyDataSetChanged()
+        }
     }
 }
