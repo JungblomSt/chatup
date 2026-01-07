@@ -34,6 +34,10 @@ class ChatActivity : AppCompatActivity() {
         val otherUserName = intent.getStringExtra("userName")
 
         startChat(otherUserId, otherUserName)
+
+        binding.btnBackAc.setOnClickListener {
+            finish()
+        }
     }
 
     override fun onStart() {
@@ -54,6 +58,8 @@ class ChatActivity : AppCompatActivity() {
             chatViewModel.initChat(otherUserId)
             chatViewModel.setOtherUserName(otherUserName)
 
+            binding.tvReceiverNameAc.text = otherUserName
+
             binding.etMessageAc.addTextChangedListener { editText ->
                 if (editText.isNullOrBlank()){
                     chatViewModel.setTyping(false)
@@ -64,9 +70,9 @@ class ChatActivity : AppCompatActivity() {
 
             chatViewModel.isTyping.observe(this) { isTyping ->
                 if (isTyping) {
-                    binding.tvReceiverNameAc.setText("${otherUserName} is typing...")
+                    binding.tvIsTextingAc.setText("${otherUserName} is typing...")
                 }else {
-                    binding.tvReceiverNameAc.setText(otherUserName)
+                    binding.tvIsTextingAc.setText("")
                 }
             }
 

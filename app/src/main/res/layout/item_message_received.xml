@@ -17,14 +17,17 @@
         android:textSize="14sp"
         android:fontFamily="@font/lunasima"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="24dp"/>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_message_received_imr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        app:cardBackgroundColor="@color/temp_color_received"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="4dp"
+        app:cardBackgroundColor="@color/color_received_background_ac"
         app:cardCornerRadius="20dp"
         app:cardElevation="2dp">
 
