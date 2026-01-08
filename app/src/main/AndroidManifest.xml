@@ -24,6 +24,13 @@
             android:name=".Activities.SettingsActivity"
             android:exported="false" />
         <activity
+            android:name=".Activities.AboutActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".Activities.TermsActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activities.ProfileActivity"
             android:exported="false" />
         <activity

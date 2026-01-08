@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Inställningar</string>
+    <string name="cd_back">Tillbaka</string>
+
+    <string name="notif_title">Notiser</string>
+    <string name="notif_subtitle">Aktivera aviseringar.</string>
+
+    <string name="clear_local_title">Rensa lokal data</string>
+    <string name="clear_local_subtitle">Radera sparad appdata.</string>
+    <string name="clear_btn">Rensa</string>
+
+    <string name="about_title">Om appen</string>
+    <string name="about_subtitle">Version, info och kontakt.</string>
+
+    <string name="terms_title">Villkor &amp; Integritetspolicy</string>
+    <string name="terms_subtitle">Läs våra villkor och policy.</string>
+
+    <string name="delete_title">Radera konto</string>
+    <string name="delete_subtitle">Ta bort ditt konto permanent.</string>
+    <string name="cd_delete">Radera konto</string>
+
+    <string name="dlg_clear_title">Rensa lokal data?</string>
+    <string name="dlg_clear_msg">Detta raderar endast data på den här enheten. Ditt konto påverkas inte.</string>
+
+    <string name="dlg_delete_title">Radera konto?</string>
+    <string name="dlg_delete_msg">Det här kommer att radera ditt konto permanent. Det går inte att ångra.</string>
+
+    <string name="btn_cancel">Avbryt</string>
+    <string name="btn_delete">Radera</string>
+    <string name="btn_ok">OK</string>
+</resources>
