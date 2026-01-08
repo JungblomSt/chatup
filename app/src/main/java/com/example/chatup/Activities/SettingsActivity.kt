@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -14,13 +16,12 @@ import com.example.chatup.R
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import android.widget.Button
 
 class SettingsActivity : AppCompatActivity() {
 
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val db by lazy { FirebaseFirestore.getInstance() }
-    private val prefs by lazy { getSharedPreferences("chatup_settings", Context.MODE_PRIVATE) }
+    private val prefs by lazy { getSharedPreferences("chatup_settings",Context.MODE_PRIVATE) }
 
     private lateinit var swNotifications: SwitchMaterial
 
@@ -30,13 +31,18 @@ class SettingsActivity : AppCompatActivity() {
                 saveNotificationsEnabled(true)
             } else {
                 // رجّع السويتش OFF إذا رفض
+                swNotifications.setOnCheckedChangeListener(null)
                 swNotifications.isChecked = false
+                swNotifications.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) enableNotificationsFlow() else saveNotificationsEnabled(false)
+                }
+
                 saveNotificationsEnabled(false)
 
                 AlertDialog.Builder(this)
-                    .setTitle("Notiser")
+                    .setTitle(getString(R.string.notif_title))
                     .setMessage("Du nekade tillåtelsen. Notiser är avstängda.")
-                    .setPositiveButton("OK", null)
+                    .setPositiveButton(getString(R.string.btn_ok), null)
                     .show()
             }
         }
@@ -45,23 +51,48 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        swNotifications = findViewById(R.id.switchNotifications)
-        val btnDelete = findViewById<Button>(R.id.btnDeleteAccount)
-
-        // حمّل الحالة المحفوظة
-        swNotifications.isChecked = prefs.getBoolean("notifications_enabled", true)
-
-        swNotifications.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                enableNotificationsFlow()
-            } else {
-                saveNotificationsEnabled(false)
-            }
+        findViewById<android.widget.ImageButton>(R.id.btnBackBurger).setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
 
-        btnDelete.setOnClickListener {
+
+        swNotifications = findViewById(R.id.switchNotifications)
+
+        // Rensa lokal data
+        findViewById<Button>(R.id.btnClearLocal).setOnClickListener { showClearLocalDialog() }
+
+        // About / Terms
+        findViewById<androidx.cardview.widget.CardView>(R.id.cardAbout).setOnClickListener {
+            startActivity(Intent(this, AboutActivity::class.java))
+        }
+        findViewById<androidx.cardview.widget.CardView>(R.id.cardTerms).setOnClickListener {
+            startActivity(Intent(this, TermsActivity::class.java))
+        }
+
+        // Delete
+        findViewById<androidx.cardview.widget.CardView>(R.id.cardDelete).setOnClickListener {
             showDeleteConfirmDialog()
         }
+
+        // Init switch state correctly (saved + real permission)
+        val saved = prefs.getBoolean("notifications_enabled", false)
+        val hasPermission = hasNotifPermission()
+
+        swNotifications.setOnCheckedChangeListener(null)
+        swNotifications.isChecked = saved && hasPermission
+        if (saved && !hasPermission) saveNotificationsEnabled(false)
+
+        swNotifications.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) enableNotificationsFlow() else saveNotificationsEnabled(false)
+        }
+    }
+
+    private fun hasNotifPermission(): Boolean {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun enableNotificationsFlow() {
@@ -77,21 +108,48 @@ class SettingsActivity : AppCompatActivity() {
                 return
             }
         }
-
-        // أجهزة أقدم أو permission already granted
         saveNotificationsEnabled(true)
+        Toast.makeText(this, "Notiser aktiverade ✅", Toast.LENGTH_SHORT).show()
     }
 
     private fun saveNotificationsEnabled(enabled: Boolean) {
         prefs.edit().putBoolean("notifications_enabled", enabled).apply()
     }
 
+    private fun showClearLocalDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.dlg_clear_title))
+            .setMessage(getString(R.string.dlg_clear_msg))
+            .setNegativeButton(getString(R.string.btn_cancel), null)
+            .setPositiveButton(getString(R.string.clear_btn)) { _, _ ->
+                clearLocalData()
+            }
+            .show()
+    }
+
+    private fun clearLocalData() {
+        // 1) Clear settings prefs
+        prefs.edit().clear().apply()
+
+        // 2) Clear cache (safe local only)
+        runCatching { cacheDir.deleteRecursively() }
+
+        // Reset UI switch
+        swNotifications.setOnCheckedChangeListener(null)
+        swNotifications.isChecked = false
+        swNotifications.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) enableNotificationsFlow() else saveNotificationsEnabled(false)
+        }
+
+        Toast.makeText(this, "Lokal data rensad ✅", Toast.LENGTH_SHORT).show()
+    }
+
     private fun showDeleteConfirmDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Radera konto?")
-            .setMessage("Det här kommer att radera ditt konto permanent. Det går inte att ångra.")
-            .setNegativeButton("Avbryt", null)
-            .setPositiveButton("Radera") { _, _ -> deleteAccount() }
+            .setTitle(getString(R.string.dlg_delete_title))
+            .setMessage(getString(R.string.dlg_delete_msg))
+            .setNegativeButton(getString(R.string.btn_cancel), null)
+            .setPositiveButton(getString(R.string.btn_delete)) { _, _ -> deleteAccount() }
             .show()
     }
 
@@ -99,10 +157,9 @@ class SettingsActivity : AppCompatActivity() {
         val user = auth.currentUser ?: return
         val uid = user.uid
 
-        // أولاً: احذف وثيقة المستخدم (Best effort)
+        // Best-effort: delete Firestore doc first, then Auth user
         db.collection("users").document(uid).delete()
             .addOnCompleteListener {
-                // ثم: احذف حساب Firebase Auth
                 user.delete()
                     .addOnSuccessListener {
                         val intent = Intent(this, LoginActivity::class.java).apply {
@@ -114,7 +171,7 @@ class SettingsActivity : AppCompatActivity() {
                         AlertDialog.Builder(this)
                             .setTitle("Kunde inte radera konto")
                             .setMessage("Du behöver logga in igen och försöka på nytt (reauthentication).")
-                            .setPositiveButton("OK", null)
+                            .setPositiveButton(getString(R.string.btn_ok), null)
                             .show()
                     }
             }
