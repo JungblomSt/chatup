@@ -14,12 +14,19 @@
             android:id="@+id/toolbar"
             android:layout_width="0dp"
             android:layout_height="70dp"
+            app:title=" "
             android:background="@color/mid"
-            app:title="ChatUp"
-            app:titleTextColor="@color/white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:id="@+id/logo_toolbar_conversationlist"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/icon_green_with_text"/>
+        </androidx.appcompat.widget.Toolbar>
 
         <TextView
             android:id="@+id/tv_conversations_title"

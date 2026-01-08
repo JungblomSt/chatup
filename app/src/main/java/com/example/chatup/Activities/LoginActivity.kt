@@ -24,25 +24,31 @@ import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
+    // ============= Variables for binding and ViewModel =============
     lateinit var binding: ActivityLoginBinding
     lateinit var authViewModel: AuthViewModel
 
+    // ============== Variables for credential manager ==============
     lateinit var credentialManager: CredentialManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ============== View binding set up =============
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // ============== Initilize ViewModel ==============
         authViewModel = ViewModelProvider(this).get(AuthViewModel::class.java)
 
+        // ==============Initilize credential manager ==============
         credentialManager = CredentialManager.create(this)
 
+        // ============== Clicklistener ==============
         binding.btnRegisterAl.setOnClickListener {
             if (checkValidInput()) {
                 register()
             }
-
         }
         binding.btnLoginAl.setOnClickListener {
             if (checkValidInput()) {
@@ -56,8 +62,9 @@ class LoginActivity : AppCompatActivity() {
         binding.btnForgotPasswordAl.setOnClickListener {
             val email = binding.etForgotEmailAl.text.toString().trim()
             authViewModel.resetPassword(email)
-
         }
+
+        // ============== Observe reset password result =============
         authViewModel.resetPasswordResult.observe(this) { result ->
             result
                 .onSuccess {
@@ -76,6 +83,8 @@ class LoginActivity : AppCompatActivity() {
                 }
         }
     }
+
+    // ============== Google login ===============
     private fun loginWithGoogle() {
         lifecycleScope.launch {
             try {
@@ -97,10 +106,10 @@ class LoginActivity : AppCompatActivity() {
             } catch (e: GetCredentialException){
                 handleFailure(e)
             }
-
         }
     }
 
+    // ============== Handle successful Google login ===============
     private fun handleSignIn(result: GetCredentialResponse) {
 
         if(result.credential is CustomCredential && result.credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL){
@@ -116,9 +125,9 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this,"Error: ${it.message}", Toast.LENGTH_SHORT).show()
                 })
         }
-
     }
 
+    // =============== Handle login failure ==============
     private fun handleFailure(e: GetCredentialException){
         when(e){
             is GetCredentialCancellationException -> {
@@ -133,6 +142,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // ============== Clearing and validation functions ==============
     fun clearFields(){
         binding.etPasswordAl.text.clear()
         binding.etEmailAl.text.clear()
@@ -156,8 +166,9 @@ class LoginActivity : AppCompatActivity() {
         }
 
         return check
-
     }
+
+    // ============== Email and password login ==============
     fun login() {
         val email = binding.etEmailAl.text.toString()
         val password = binding.etPasswordAl.text.toString()
@@ -171,6 +182,7 @@ class LoginActivity : AppCompatActivity() {
         })
     }
 
+    // ============== Register with email and password ==============
     fun register() {
         val email = binding.etEmailAl.text.toString()
         val password = binding.etPasswordAl.text.toString()
