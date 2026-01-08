@@ -6,12 +6,19 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.chatup.R
 
 class AboutActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
 
-        val versionName = packageManager.getPackageInfo(packageName, 0).versionName
-        findViewById<TextView>(R.id.tvAboutText).text =
-            "ChatUp\nVersion: $versionName\n\nKontakt: support@chatup.se"
+        val tvVersion = findViewById<TextView>(R.id.tvVersion)
+
+        val versionName = try {
+            packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0"
+        } catch (e: Exception) {
+            "1.0"
+        }
+
+        tvVersion.text = "${getString(R.string.about_version_prefix)} $versionName"
     }
 }
