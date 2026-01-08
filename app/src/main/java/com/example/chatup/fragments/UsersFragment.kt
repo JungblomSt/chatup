@@ -25,9 +25,6 @@ class UsersFragment : Fragment(R.layout.fragment_users_list) {
         userViewModel = ViewModelProvider(this)[UsersViewModel::class.java]
 
         val recycler = view.findViewById<RecyclerView>(R.id.usersRecycler)
-        //val searchView = view.findViewById<SearchView>(R.id.searchView)
-        //val btnChats = view.findViewById<Button>(R.id.btnChats)
-       // val btnProfile = view.findViewById<Button>(R.id.btnProfile)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
@@ -41,17 +38,5 @@ class UsersFragment : Fragment(R.layout.fragment_users_list) {
 
         userViewModel.users.observe(viewLifecycleOwner) { adapter.update(it) }
         userViewModel.getAllUsers()
-
-       // searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-        //    override fun onQueryTextSubmit(query: String?): Boolean {
-        //        userViewModel.searchUsers(query ?: "")
-        //        return true
-        //    }
-        //    override fun onQueryTextChange(newText: String?): Boolean {
-        //        userViewModel.searchUsers(newText ?: "")
-        //        return true
-       //     }
-      //  })
-
     }
 }
