@@ -11,15 +11,13 @@ import com.example.chatup.data.ChatMessage
 import com.example.chatup.data.User
 import com.example.chatup.databinding.ItemMessageReceivedBinding
 import com.example.chatup.databinding.ItemMessageSentBinding
-import com.google.android.material.transition.Hold
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ChatRecViewAdapter (private val getUsername: ((String) -> String)? = null) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
 
     var isGroupChat = false
     var chatPartnerName: String? = ""
@@ -80,6 +78,13 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 //        chatPartnerName = otherUserName
 //    }
 
+    fun updateUsersMap(newUsersMap: Map<String, String?>) {
+        Log.d("DEBUG_ADAPTER!!", "setUsersMap called with $newUsersMap")
+        usersMap = newUsersMap
+        notifyDataSetChanged() // tvingar ombindning så namn dyker upp
+    }
+
+
     fun submitList(chatMessages: List<ChatMessage>) {
         Log.d("DEBUG_UI_ADAPTER", "submitList called with ${chatMessages.size} messages")
 
@@ -131,11 +136,21 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             holder.binding.tvTimeStampImr.text = formatTimeStamp(chatListMessage.timeStamp)
 
 //            holder.binding.tvFriendNameImr.isVisible = true
-            holder.binding.tvFriendNameImr.text = if (isGroupChat) {
-                usersMap[chatListMessage.senderId] ?: "Unknown"
-            }else {
-                chatPartnerName
+
+                val senderName = if (isGroupChat) usersMap[chatListMessage.senderId] else chatPartnerName
+                Log.d("DEBUG_ADAPTER", "Position $position senderId=${chatListMessage.senderId} -> name=$senderName")
+            if (senderName == null) {
+                Log.d("DEBUG_ADAPTER", "Position $position senderId=${chatListMessage.senderId} -> name=null, using fallback")
             }
+                holder.binding.tvFriendNameImr.text = senderName ?: "unknown"
+
+//            holder.binding.tvFriendNameImr.text = if (isGroupChat) {
+//                usersMap[chatListMessage.senderId]
+//                    ?: getUsername?.invoke(chatListMessage.senderId)
+//                    ?: "Unknown"
+//            }else {
+//                chatPartnerName
+//            }
         }
 
 

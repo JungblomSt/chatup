@@ -51,7 +51,7 @@ class FriendListActivity : AppCompatActivity() {
         adapter = ArrayAdapter(
             this,
             R.layout.simple_list_item_multiple_choice,
-            friendList.map { it.username }
+            friendList.map { it.username}
         )
         binding.lvFriendsListAfl.adapter = adapter
 
@@ -88,7 +88,7 @@ class FriendListActivity : AppCompatActivity() {
             }
 
             val selectedUserIds = selectedUser.map { it.uid }
-            val selectedUsersName = selectedUser.map { it.username }
+//            val selectedUsersName = selectedUser.map { it.username }
 
 
 
@@ -103,7 +103,7 @@ class FriendListActivity : AppCompatActivity() {
                 intent.putExtra("isGroup", true)
                 intent.putExtra("groupName", groupName)
                 intent.putExtra("chatPartnersId", ArrayList(selectedUserIds))
-                intent.putStringArrayListExtra("chatPartnersNames", ArrayList(selectedUsersName))
+//                intent.putStringArrayListExtra("chatPartnersNames", ArrayList(selectedUsersName))
 
                 startActivity(intent)
             }

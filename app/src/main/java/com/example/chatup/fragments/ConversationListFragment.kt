@@ -43,10 +43,8 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
             if (conversation.conversationType == "group") {
 
                 intent.putExtra("groupName", conversation.name)
-                intent.putStringArrayListExtra(
-                    "chatPartnersId",
-                    ArrayList(conversation.users)
-                )
+                intent.putStringArrayListExtra("chatPartnersId", ArrayList(conversation.users))
+
                 Log.d("DEBUG_CONV_LIST", "Group chat: groupName='${conversation.name}', members=${conversation.users}")
 
             } else {

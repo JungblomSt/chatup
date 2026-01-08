@@ -150,18 +150,22 @@ object FirebaseManager {
 
         val currentUserId = Firebase.auth.currentUser?.uid
 
+        Log.d("FirebaseManager", "Fetching users from Firestore. CurrentUserId=$currentUserId")
+
         db.collection("users")
             .get()
             .addOnSuccessListener { snapshots ->
                 val userList = snapshots.documents.mapNotNull { doc ->
-                    doc.toObject(User::class.java)?.copy(uid = doc.id)
-                }.filter { user ->
-                    user.uid != currentUserId
+                   val user = doc.toObject(User::class.java)?.copy(uid = doc.id)
+                    if (user?.uid != currentUserId) user else null
                 }
+                Log.d("FirebaseManager", "Fetched users: ${userList.map { it.username }}")
 
                 onComplete(userList)
 
             }.addOnFailureListener { e ->
+                Log.e("FirebaseManager", "Failed to fetch users", e)
+
                 onException(e)
             }
     }

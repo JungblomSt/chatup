@@ -16,6 +16,11 @@ class GroupChatViewModel : ViewModel () {
 
     private lateinit var groupMembers : List<String>
 
+//    private val usersMap = mutableMapOf<String, String>()
+
+    private val _usersMap = MutableLiveData<Map<String, String>>(emptyMap())
+    val usersMap: LiveData<Map<String, String>> get() = _usersMap
+
     private var chatListener : ListenerRegistration? = null
 
     private val _groupChatMessage = MutableLiveData<List<ChatMessage>>()
@@ -41,6 +46,8 @@ class GroupChatViewModel : ViewModel () {
         conversationId = convId
         groupMembers = members
 
+        loadUsersMap()
+
         Log.d("DEBUG_GROUP", "initGroupChat: conversationId set to $conversationId with members $members")
 
         chatListener?.remove()
@@ -60,6 +67,28 @@ class GroupChatViewModel : ViewModel () {
         )
 
     }
+
+//    fun getUsernameFor(uid: String): String {
+//        return usersMap[uid] ?: "Unknown"
+//    }
+
+
+    private fun loadUsersMap() {
+        FirebaseManager.getAllUsers(
+            onComplete = { users ->
+                val map: Map <String, String> = users.associate { user ->
+                    Pair(user.uid.toString(), user.username.toString() ?: "Unknown" )
+                }
+                _usersMap.postValue(map)
+                Log.d("DEBUG_USERS_MAP", "Loaded usersMap: $map")
+            },
+            onException = { e ->
+                Log.e("DEBUG_USERS_MAP", e.message ?: "Error loading users")
+            }
+        )
+    }
+
+
 //    private fun markMessagesAsSeenIfOpen(messages: List<ChatMessage>) {
 //        val currentUserId = Firebase.auth.currentUser?.uid ?: return
 //
