@@ -22,7 +22,7 @@ object FirebaseManager {
     /**
      * Holds the currently authenticated Firebase user.
      */
-    private lateinit var currentUser: FirebaseUser
+     private lateinit var currentUser: FirebaseUser
 
     fun markDelivered() {
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
@@ -178,160 +178,179 @@ object FirebaseManager {
      * @param onUpdate Callback invoked whenever messages are added, modified, or removed
      *                 in this conversation. Returns a List<ChatMessage> representing the current messages.
      */
-//    fun snapShotListener(
+    fun snapShotListener(
+        conversationId: String,
+        onUpdate: (List<ChatMessage>) -> Unit,
+        chatIsOpened: () -> Boolean
+    ): ListenerRegistration? {
+
+        val conversationRef = db.collection("conversation").document(conversationId)
+
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return null
+
+        var isGroupChat = false
+
+        conversationRef.get().addOnSuccessListener { convSnapshot ->
+            isGroupChat = convSnapshot.getString("conversationType") == "group"
+        }
+
+        return db.collection("conversation")
+            .document(conversationId)
+            .collection("messages")
+            .orderBy("timeStamp")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("!!!", e.message.toString())
+                    return@addSnapshotListener
+                }
+
+                if (snapshot == null) return@addSnapshotListener
+
+                val chatMessages = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(ChatMessage::class.java)
+                }
+                onUpdate(chatMessages)
+
+                snapshot.documents.forEach() { doc ->
+                    val message = doc.toObject(ChatMessage::class.java) ?: return@forEach
+
+                    // gör en check för race quota här men få det att funka först
+
+                    if (!isGroupChat && !message.deliveredTo.contains(currentUserId)) {
+                        doc.reference.update(
+                            "deliveredTo",
+                            FieldValue.arrayUnion(currentUserId)
+                        )
+                    }
+
+                    if (chatIsOpened() && !message.seenBy.contains(currentUserId)) {
+                        doc.reference.update(
+                            "seenBy",
+                            FieldValue.arrayUnion(currentUserId)
+                        )
+                    }
+
+                    Log.d("DEBUG_GROUP_MSG", "MessageId=${doc.id}, sender=${message.senderId}, receiver=${message.receiverId}, text=${message.messages}")
+                    Log.d("DEBUG_GROUP_MSG", "Chat opened = ${chatIsOpened()}, deliveredTo=${message.deliveredTo}, seenBy=${message.seenBy}")
+
+                }
+
+                val lastDoc = snapshot.documents.lastOrNull() ?: return@addSnapshotListener
+                val lastMessage =
+                    lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
+
+
+
+                if (isGroupChat
+                    && !lastMessage.seenBy.contains(currentUserId)
+                    && chatIsOpened()
+                ) {
+
+                    lastDoc.reference.update(
+                        "seenBy",
+                        FieldValue.arrayUnion(currentUserId)
+                    )
+
+                    db.collection("conversation")
+                        .document(conversationId)
+                        .update(
+                            mapOf(
+                                "lastMessageSeen" to true,
+                                "lastUpdated" to System.currentTimeMillis()
+                            )
+                        )
+                }
+
+
+            }
+    }
+
+
+
+//    fun privateChatSnapshotListener(
 //        conversationId: String,
-//        onUpdate: (List<ChatMessage>) -> Unit,
-//        chatIsOpened: () -> Boolean
-//    ): ListenerRegistration? {
+//        otherUserId: String,
+//        chatIsOpened: () -> Boolean,
+//        onUpdate: (List<ChatMessage>) -> Unit
+//    ): ListenerRegistration {
 //
-//        val conversationRef = db.collection("conversation").document(conversationId)
-//
-//        val currentUserId = Firebase.auth.currentUser?.uid ?: return null
-//
-//        var isGroupChat = false
-//
-//        conversationRef.get().addOnSuccessListener { convSnapshot ->
-//            isGroupChat = convSnapshot.getString("conversationType") == "group"
-//        }
+//        val currentUserId = Firebase.auth.currentUser!!.uid
 //
 //        return db.collection("conversation")
 //            .document(conversationId)
 //            .collection("messages")
+//            .whereEqualTo("receiverId", otherUserId)
 //            .orderBy("timeStamp")
-//            .addSnapshotListener { snapshot, e ->
-//                if (e != null) {
-//                    Log.e("!!!", e.message.toString())
-//                    return@addSnapshotListener
-//                }
+//            .addSnapshotListener { snapshot, _ ->
 //
 //                if (snapshot == null) return@addSnapshotListener
 //
-//                val chatMessages = snapshot.documents.mapNotNull { doc ->
-//                    doc.toObject(ChatMessage::class.java)
-//                }
-//                onUpdate(chatMessages)
+//                val messages = snapshot.toObjects(ChatMessage::class.java)
+//                onUpdate(messages)
 //
-//                snapshot.documents.forEach() { doc ->
-//                    val message = doc.toObject(ChatMessage::class.java) ?: return@forEach
+//                snapshot.documents.forEach { doc ->
+//                    val msg = doc.toObject(ChatMessage::class.java) ?: return@forEach
 //
-//                    // gör en check för race quota här men få det att funka först
-//
-//                    if (!isGroupChat && !message.deliveredTo.contains(currentUserId)) {
+//                    if (!msg.deliveredTo.contains(currentUserId)) {
 //                        doc.reference.update(
 //                            "deliveredTo",
 //                            FieldValue.arrayUnion(currentUserId)
 //                        )
 //                    }
 //
-//                    if (chatIsOpened() && !message.seenBy.contains(currentUserId)) {
+//                    if (chatIsOpened() && !msg.seenBy.contains(currentUserId)) {
 //                        doc.reference.update(
 //                            "seenBy",
 //                            FieldValue.arrayUnion(currentUserId)
 //                        )
 //                    }
-//
-//                    Log.d("DEBUG_GROUP_MSG", "MessageId=${doc.id}, sender=${message.senderId}, receiver=${message.receiverId}, text=${message.messages}")
-//                    Log.d("DEBUG_GROUP_MSG", "Chat opened = ${chatIsOpened()}, deliveredTo=${message.deliveredTo}, seenBy=${message.seenBy}")
-//
 //                }
-//
-//                val lastDoc = snapshot.documents.lastOrNull() ?: return@addSnapshotListener
-//                val lastMessage =
-//                    lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
-//
-//
-//
-//                if (isGroupChat
-//                    && !lastMessage.seenBy.contains(currentUserId)
-//                    && chatIsOpened()
-//                ) {
-//
-//                    lastDoc.reference.update(
-//                        "seenBy",
-//                        FieldValue.arrayUnion(currentUserId)
-//                    )
-//
-//                    db.collection("conversation")
-//                        .document(conversationId)
-//                        .update(
-//                            mapOf(
-//                                "lastMessageSeen" to true,
-//                                "lastUpdated" to System.currentTimeMillis()
-//                            )
-//                        )
-//                }
-//
-//
 //            }
 //    }
-
-
-    fun privateChatSnapshotListener(
-        conversationId: String,
-        otherUserId: String,
-        chatIsOpened: () -> Boolean,
-        onUpdate: (List<ChatMessage>) -> Unit
-    ): ListenerRegistration {
-
-        val currentUserId = Firebase.auth.currentUser!!.uid
-
-        return db.collection("conversation")
-            .document(conversationId)
-            .collection("messages")
-            .whereEqualTo("receiverId", otherUserId)
-            .orderBy("timeStamp")
-            .addSnapshotListener { snapshot, _ ->
-
-                if (snapshot == null) return@addSnapshotListener
-
-                val messages = snapshot.toObjects(ChatMessage::class.java)
-                onUpdate(messages)
-
-                snapshot.documents.forEach { doc ->
-                    val msg = doc.toObject(ChatMessage::class.java) ?: return@forEach
-
-                    if (chatIsOpened() && !msg.seenBy.contains(currentUserId)) {
-                        doc.reference.update(
-                            "seenBy",
-                            FieldValue.arrayUnion(currentUserId)
-                        )
-                    }
-                }
-            }
-    }
-
-    fun groupChatSnapshotListener(
-        conversationId: String,
-        chatIsOpened: () -> Boolean,
-        onUpdate: (List<ChatMessage>) -> Unit
-    ): ListenerRegistration {
-
-        val currentUserId = Firebase.auth.currentUser!!.uid
-
-        return db.collection("conversation")
-            .document(conversationId)
-            .collection("messages")
-            .whereEqualTo("receiverId", null)
-            .orderBy("timeStamp")
-            .addSnapshotListener { snapshot, _ ->
-
-                if (snapshot == null) return@addSnapshotListener
-
-                val messages = snapshot.toObjects(ChatMessage::class.java)
-                onUpdate(messages)
-
-                snapshot.documents.forEach { doc ->
-                    val msg = doc.toObject(ChatMessage::class.java) ?: return@forEach
-
-                    if (chatIsOpened() && !msg.seenBy.contains(currentUserId)) {
-                        doc.reference.update(
-                            "seenBy",
-                            FieldValue.arrayUnion(currentUserId)
-                        )
-                    }
-                }
-            }
-    }
+//
+//    fun groupChatSnapshotListener(
+//        conversationId: String,
+//        chatIsOpened: () -> Boolean,
+//        onUpdate: (List<ChatMessage>) -> Unit
+//    ): ListenerRegistration {
+//
+//        val currentUserId = Firebase.auth.currentUser!!.uid
+//
+//        return db.collection("conversation")
+//            .document(conversationId)
+//            .collection("messages")
+//            .whereEqualTo("receiverId", null)
+//            .orderBy("timeStamp")
+//            .addSnapshotListener { snapshot, _ ->
+//
+//                if (snapshot == null) return@addSnapshotListener
+//
+//                val messages = snapshot.toObjects(ChatMessage::class.java)
+//                onUpdate(messages)
+//
+//                snapshot.documents.forEach { doc ->
+//                    val msg = doc.toObject(ChatMessage::class.java) ?: return@forEach
+//
+//                    Log.d("DEBUG_GROUP_SEND", "Sent message with deliveredTo=${msg.deliveredTo} seenBy=${msg.seenBy}")
+//                    Log.d("DEBUG_GROUP_SEEN", "Added $currentUserId to seenBy for message ${msg.senderId}")
+//                    if (!msg.deliveredTo.contains(currentUserId)) {
+//                        doc.reference.update(
+//                            "deliveredTo",
+//                            FieldValue.arrayUnion(currentUserId)
+//                        )
+//                    }
+//
+//                    Log.d("DEBUG_GROUP_DELIVERED", "Added $currentUserId to deliveredTo for message ${msg.senderId}")
+//
+//                    if (chatIsOpened() && !msg.seenBy.contains(currentUserId)) {
+//                        doc.reference.update(
+//                            "seenBy",
+//                            FieldValue.arrayUnion(currentUserId)
+//                        )
+//                    }
+//                }
+//            }
+//    }
 
         /**
          * Sends a chat message to a specific user.
@@ -444,6 +463,17 @@ object FirebaseManager {
             return listOf(user1Id, user2Id).sorted().joinToString("_")
         }
 
+    fun markMessageSeen(conversationId: String, messageId: String, userId: String) {
+        val messageRef = db.collection("groupChats")
+            .document(conversationId)
+            .collection("messages")
+            .document(messageId)
+
+        messageRef.update("seenBy", FieldValue.arrayUnion(userId))
+            .addOnSuccessListener { Log.d("DEBUG_GROUP", "Message $messageId marked seen by $userId") }
+            .addOnFailureListener { e -> Log.e("DEBUG_GROUP", "Failed to mark seen: $e") }
+    }
+
         fun createGroupConversation(
             groupName: String,
             members: List<String>,
@@ -454,6 +484,8 @@ object FirebaseManager {
 
 
             val allMembers = (members + currentUserId).distinct()
+
+
 
 
             val groupConversation = mapOf(
@@ -467,7 +499,12 @@ object FirebaseManager {
             db.collection("conversation")
                 .add(groupConversation)
                 .addOnSuccessListener { doc ->
+                    Log.d("DEBUG_GROUP_MSG", "Group created with id=${doc.id} and name=$groupName")
+
                     onComplete(doc.id)
+                } . addOnFailureListener { e ->
+                    Log.e("DEBUG_GROUP_MSG", "Failed to create group: ${e.message}")
+
                 }
 
 

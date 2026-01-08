@@ -22,7 +22,15 @@ class ConversationListAdapter(private var conversationList: List<ConversationLis
     override fun onBindViewHolder(holder: ConversationListViewHolder, position: Int) {
         val conversation = conversationList[position]
         holder.binding.tvMessageIml.text = conversation.lastMessage
-        holder.binding.tvFriendName.text = conversation.friendUsername
+
+
+            if (conversation.conversationType == "group") {
+                holder.binding.tvFriendName.text = conversation.name
+            }
+        else {
+                holder.binding.tvFriendName.text = conversation.friendUsername
+        }
+
 
         holder.binding.conversationListCardView.setOnClickListener {
             onConversationClicked(conversation)

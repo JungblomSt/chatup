@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.chatup.FirebaseManager
 import com.example.chatup.data.ChatMessage
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.ListenerRegistration
 
 class GroupChatViewModel : ViewModel () {
@@ -45,16 +47,31 @@ class GroupChatViewModel : ViewModel () {
 
         Log.d("DEBUG_GROUP", "initGroupChat: conversationId=$convId with members=$members")
 
-        chatListener = FirebaseManager.groupChatSnapshotListener(
+        chatListener = FirebaseManager.snapShotListener(
             conversationId = conversationId,
             onUpdate = {messages ->
                 Log.d("DEBUG_GROUP", "Received ${messages.size} messages from Firestore")
+                Log.d("DEBUG_UI_SNAPSHOT", "Snapshot received, messages=${messages.size}")
+                messages.forEach { Log.d("DEBUG_GROUP_MSG", it.toString()) }
                 _groupChatMessage.postValue(messages)
             },
+
             chatIsOpened = {isGroupChatOpened()}
         )
 
     }
+//    private fun markMessagesAsSeenIfOpen(messages: List<ChatMessage>) {
+//        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+//
+//        if (!isGroupChatOpened()) return
+//
+//        messages.forEach { msg ->
+//            if (!msg.seenBy.contains(currentUserId)) {
+//                FirebaseManager.markMessageSeen(conversationId, msg.id, currentUserId)
+//            }
+//        }
+//    }
+
 
     fun sendGroupMessage (chatText : String) {
         if (!::conversationId.isInitialized) {
@@ -63,6 +80,7 @@ class GroupChatViewModel : ViewModel () {
         }
 
         Log.d("DEBUG_GROUP", "Sending message: '$chatText' to conversationId: $conversationId")
+
 
         FirebaseManager.sendGroupMessage(
             conversationId = conversationId,

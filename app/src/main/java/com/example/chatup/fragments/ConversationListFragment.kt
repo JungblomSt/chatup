@@ -33,6 +33,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
         adapter = ConversationListAdapter(emptyList()) { conversation ->
+            Log.d("DEBUG_CONV_LIST", "Clicked conversation ${conversation.conversationId}, type=${conversation.conversationType}, name='${conversation.name}'")
 
             val intent = Intent(requireContext(), ChatActivity::class.java)
 
@@ -46,6 +47,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
                     "chatPartnersId",
                     ArrayList(conversation.users)
                 )
+                Log.d("DEBUG_CONV_LIST", "Group chat: groupName='${conversation.name}', members=${conversation.users}")
 
             } else {
 
@@ -54,6 +56,8 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
                 intent.putExtra("userId", friendId)
                 intent.putExtra("userName", conversation.friendUsername ?: "Chat")
+                Log.d("DEBUG_CONV_LIST", "Private chat with friendId=$friendId, friendUsername='${conversation.friendUsername}'")
+
             }
 
             Log.d(

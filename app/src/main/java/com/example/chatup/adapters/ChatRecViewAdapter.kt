@@ -1,6 +1,7 @@
 package com.example.chatup.adapters
 
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -80,6 +81,8 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 //    }
 
     fun submitList(chatMessages: List<ChatMessage>) {
+        Log.d("DEBUG_UI_ADAPTER", "submitList called with ${chatMessages.size} messages")
+
         chatList = chatMessages
         notifyDataSetChanged()
     }

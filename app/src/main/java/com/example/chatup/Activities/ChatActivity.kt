@@ -41,6 +41,10 @@ class ChatActivity : AppCompatActivity() {
         val isGroup = intent.getBooleanExtra("isGroup", false)
         val groupName = intent.getStringExtra("groupName")
         val chatPartnersId = intent.getStringArrayListExtra("chatPartnersId")
+        Log.d("DEBUG_CHAT", "1onCreate: isGroup=$isGroup")
+        Log.d("DEBUG_CHAT", "1onCreate: groupName='$groupName'")
+        Log.d("DEBUG_CHAT", "1onCreate: otherUserId=$otherUserId")
+        Log.d("DEBUG_CHAT", "1onCreate: otherUserName='$otherUserName'")
 
         Log.d(
             "CHAT_ACTIVITY",
@@ -52,6 +56,11 @@ class ChatActivity : AppCompatActivity() {
             val conversationId = intent.getStringExtra("conversationId")
             val chatPartnersIds = intent.getStringArrayListExtra("chatPartnersId") ?: emptyList()
             val chatPartnersNames = intent.getStringArrayListExtra("chatPartnersNames") ?: emptyList()
+            Log.d("DEBUG_CHAT", "2onCreate: isGroup=$isGroup")
+            Log.d("DEBUG_CHAT", "2onCreate: conversationId=$conversationId")
+            Log.d("DEBUG_CHAT", "2onCreate: groupName='$groupName'")
+            Log.d("DEBUG_CHAT", "2onCreate: otherUserId=$otherUserId")
+            Log.d("DEBUG_CHAT", "2onCreate: otherUserName='$otherUserName'")
             startGroupChat(conversationId, groupName, chatPartnersIds, chatPartnersNames)
         } else{
             startPrivateChat(otherUserId,otherUserName)
@@ -101,16 +110,20 @@ class ChatActivity : AppCompatActivity() {
                 }
             }
 
+            chatViewModel.otherUserName.observe(this) { name ->
+                adapter.setChatUsers(isGroup = false, chatPartner = name )
+            }
+
             chatViewModel.chatMessage.observe(this) { chatMessages ->
-                adapter.submitList(chatMessages)
+                Log.d("DEBUG_UI", "chatMessage observer triggered, size=${chatMessages.size}")
+
+                adapter.submitList(chatMessages.toList())
                 if (chatMessages.isNotEmpty()) {
                     binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
                 }
             }
 
-            chatViewModel.otherUserName.observe(this) { name ->
-                adapter.setChatUsers(isGroup = false, chatPartner = name )
-            }
+
 
             binding.fabSendAc.setOnClickListener {
                 val sendChatText = binding.etMessageAc.text.toString()
@@ -161,24 +174,24 @@ class ChatActivity : AppCompatActivity() {
 
 
 
-        val chatPartners = mutableListOf<User>()
-        if (chatPartnersId.size == chatPartnersNames.size) {
-            for (i in chatPartnersId.indices) {
-                chatPartners.add(User(uid = chatPartnersId[i], username = chatPartnersNames[i]))
-            }
-        }
+//        val chatPartners = mutableListOf<User>()
+//        if (chatPartnersId.size == chatPartnersNames.size) {
+//            for (i in chatPartnersId.indices) {
+//                chatPartners.add(User(uid = chatPartnersId[i], username = chatPartnersNames[i]))
+//            }
+//        }
 
-//        adapter.setChatUsers(isGroup = true, users = chatPartnersId.mapIndexed { index, id ->
-//            User(uid = id, username = chatPartnersNames.getOrElse(index){"Unknown"})
-//        })
+        adapter.setChatUsers(isGroup = true, users = chatPartnersId.mapIndexed { index, id ->
+            User(uid = id, username = chatPartnersNames.getOrElse(index){"Unknown"})
+        })
 
-        adapter.setChatUsers(isGroup = true, users = chatPartners )
-
-
+//        adapter.setChatUsers(isGroup = true, users = chatPartners )
 
 
         groupChatViewModel.groupChatMessage.observe(this) {messages ->
-            adapter.submitList(messages)
+            Log.d("DEBUG_UI", "groupChatMessage observer triggered, size=${messages.size}")
+
+            adapter.submitList(messages.toList())
             if (messages.isNotEmpty()) {
                 binding.rvChatAc.scrollToPosition(messages.size -1)
             }

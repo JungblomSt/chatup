@@ -109,9 +109,8 @@ class ChatViewModel : ViewModel() {
         _otherUserId.value = otherUserId
         conversationId = FirebaseManager.createConversationId(otherUserId)
 
-        chatListener = FirebaseManager.privateChatSnapshotListener(
+        chatListener = FirebaseManager.snapShotListener(
             conversationId = conversationId,
-            otherUserId = otherUserId,
             onUpdate = { chatMessage ->
                 _chatMessage.postValue(chatMessage.toList())
             }, chatIsOpened = {

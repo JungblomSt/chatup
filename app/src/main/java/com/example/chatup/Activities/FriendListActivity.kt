@@ -72,10 +72,10 @@ class FriendListActivity : AppCompatActivity() {
 
 
         }
-        val groupName = binding.etSearchFriendAfl.text.toString()
+
 
         binding.fabStartGroupChatAfl.setOnClickListener {
-
+            val groupName = binding.etSearchFriendAfl.text.toString().trim()
             if (binding.etSearchFriendAfl.text.isBlank()) {
                 Toast.makeText(this, "Choose a group name", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -94,6 +94,8 @@ class FriendListActivity : AppCompatActivity() {
 
             usersViewModel.createGroup(groupName = groupName, selectedUserIds) { conversationId ->
                 Log.d("DEBUG_GROUP", "Created group conversationId = $conversationId")
+                Log.d("DEBUG_GROUP_CREATE", "Group created with id=$conversationId and name=$groupName")
+
 
 
                 val intent = Intent(this, ChatActivity::class.java)
