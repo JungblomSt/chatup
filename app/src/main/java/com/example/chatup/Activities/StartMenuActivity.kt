@@ -20,6 +20,7 @@ import androidx.core.view.GravityCompat
 import com.example.chatup.Activities.SettingsActivity
 import com.example.chatup.Activities.LoginActivity
 import com.example.chatup.Activities.ProfileActivity
+import com.example.chatup.Activities.SearchActivity
 
 class StartMenuActivity : AppCompatActivity() {
 
@@ -84,6 +85,11 @@ class StartMenuActivity : AppCompatActivity() {
                 R.id.menu_users -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     showUsers()
+                    true
+                }
+                R.id.menu_search -> {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    startActivity(Intent(this, SearchActivity::class.java))
                     true
                 }
                 R.id.menu_profile -> {
