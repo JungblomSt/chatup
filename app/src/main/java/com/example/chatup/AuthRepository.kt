@@ -8,8 +8,10 @@ import com.google.firebase.firestore.firestore
 
 class AuthRepository {
 
+    // ============== Firebase auth ==============
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    // ================ User registration ===============
     fun register(
         email: String,
         password: String,
@@ -42,7 +44,7 @@ class AuthRepository {
             }
     }
 
-
+    // =============== Send password and reset ==============
     fun sendPasswordReset(
         email: String,
         onResult: (Boolean, String?) -> Unit

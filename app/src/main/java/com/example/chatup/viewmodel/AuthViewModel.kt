@@ -11,12 +11,16 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 
 class AuthViewModel : ViewModel() {
+
+    // ============== Firebase auth ==============
     val auth = Firebase.auth
 
+    // ============== Repository and livedata ===============
     private val repository = AuthRepository()
     private val _resetPasswordResult = MutableLiveData<Result<String>>()
     val resetPasswordResult: LiveData<Result<String>> = _resetPasswordResult
 
+    // ============== User registration ==============
     fun register(
         email: String,
         password: String,
@@ -25,6 +29,7 @@ class AuthViewModel : ViewModel() {
         repository.register(email, password, callback)
     }
 
+    // ============= Login for email and password =============
     fun login(
         email: String,
         password: String,
@@ -36,10 +41,10 @@ class AuthViewModel : ViewModel() {
             .addOnFailureListener { onFailure(it) }
     }
 
+    // ============== Google sign-in ==============
     fun loginWithGoogle(idToken: String, onSuccess: () -> Unit,onFailure: (Exception) -> Unit){
 
         val credential = GoogleAuthProvider.getCredential(idToken,null)
-
 
         auth.signInWithCredential(credential).addOnSuccessListener {
             onSuccess()
@@ -48,10 +53,12 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    // ============== Sign out ==============
     fun signOut(){
         auth.signOut()
     }
 
+    // =============== Reset password ==============
     fun resetPassword(email: String) {
         if (email.isBlank()) {
             _resetPasswordResult.value = Result.failure(Exception("Enter email address"))
@@ -69,6 +76,7 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
-    fun getCurrentUser() = auth.currentUser
 
+    // ============== Get current user ==============
+    fun getCurrentUser() = auth.currentUser
 }
