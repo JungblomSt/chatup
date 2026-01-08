@@ -19,6 +19,7 @@ import android.content.Intent
 import androidx.core.view.GravityCompat
 import com.example.chatup.Activities.SettingsActivity
 import com.example.chatup.Activities.LoginActivity
+import com.example.chatup.Activities.ProfileActivity
 
 class StartMenuActivity : AppCompatActivity() {
 
@@ -85,6 +86,12 @@ class StartMenuActivity : AppCompatActivity() {
                     showUsers()
                     true
                 }
+                R.id.menu_profile -> {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                    true
+                }
+
 
                 else -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
