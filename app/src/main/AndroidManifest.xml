@@ -34,6 +34,9 @@
             android:name=".Activities.ProfileActivity"
             android:exported="false" />
         <activity
+            android:name=".Activities.SearchActivity"
+            android:exported="false" />
+        <activity
             android:name=".StartMenuActivity"
             android:exported="false" />
         <activity
