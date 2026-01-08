@@ -9,6 +9,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatup.adapters.ChatRecViewAdapter
+import com.example.chatup.data.User
 import com.example.chatup.databinding.ActivityChatBinding
 import com.example.chatup.viewmodel.ChatViewModel
 
@@ -34,10 +35,14 @@ class ChatActivity : AppCompatActivity() {
         val otherUserName = intent.getStringExtra("userName")
 
         val isGroup = intent.getBooleanExtra("isGroup", false)
+        val groupName = intent.getStringExtra("groupName")
+        val chatPartnersId = intent.getStringArrayListExtra("chatPartnersId")
 
         if (isGroup){
             val conversationId = intent.getStringExtra("conversationId")
-            startGroupChat(conversationId)
+            val chatPartnersIds = intent.getStringArrayListExtra("chatPartnersId") ?: emptyList()
+            val chatPartnersNames = intent.getStringArrayListExtra("chatPartnersNames") ?: emptyList()
+            startGroupChat(conversationId, groupName, chatPartnersIds, chatPartnersNames)
         } else{
             startPrivateChat(otherUserId,otherUserName)
         }
@@ -90,7 +95,7 @@ class ChatActivity : AppCompatActivity() {
             }
 
             chatViewModel.otherUserName.observe(this) { name ->
-                adapter.getChatPartnerName(name)
+                adapter.setChatUsers(isGroup = false, chatPartner = name )
             }
 
             binding.fabSendAc.setOnClickListener {
@@ -109,7 +114,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    fun startGroupChat (conversationId : String?) {
+    fun startGroupChat (conversationId : String?, groupName : String?, chatPartnersId : List<String>, chatPartnersNames : List<String>) {
 
         binding.etMessageAc.addTextChangedListener { editText ->
             if (editText.isNullOrBlank()) {
@@ -123,14 +128,31 @@ class ChatActivity : AppCompatActivity() {
             if (isTyping) {
                 binding.tvReceiverNameAc.text = "is typing..."
             } else {
-                binding.tvReceiverNameAc.text = "Group"
+                binding.tvReceiverNameAc.text = groupName
             }
         }
 
-
         chatViewModel.initGroupChat(convId = conversationId,
-            members = emptyList()
-            )
+            members = chatPartnersId
+        )
+
+
+
+        val chatPartners = mutableListOf<User>()
+        if (chatPartnersId.size == chatPartnersNames.size) {
+            for (i in chatPartnersId.indices) {
+                chatPartners.add(User(uid = chatPartnersId[i], username = chatPartnersNames[i]))
+            }
+        }
+
+//        adapter.setChatUsers(isGroup = true, users = chatPartnersId.mapIndexed { index, id ->
+//            User(uid = id, username = chatPartnersNames.getOrElse(index){"Unknown"})
+//        })
+
+        adapter.setChatUsers(isGroup = true, users = chatPartners )
+
+
+
 
         chatViewModel.chatMessage.observe(this) {messages ->
             adapter.submitList(messages)

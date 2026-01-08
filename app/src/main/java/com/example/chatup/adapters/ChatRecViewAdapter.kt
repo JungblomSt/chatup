@@ -7,6 +7,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatup.R
 import com.example.chatup.data.ChatMessage
+import com.example.chatup.data.User
 import com.example.chatup.databinding.ItemMessageReceivedBinding
 import com.example.chatup.databinding.ItemMessageSentBinding
 import com.google.android.material.transition.Hold
@@ -19,7 +20,9 @@ import java.util.Locale
 
 class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var chatPartnerName = ""
+    var isGroupChat = false
+    var chatPartnerName: String? = ""
+    var usersMap : Map<String, String?> = emptyMap()
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     var chatList = emptyList<ChatMessage>()
 
@@ -61,9 +64,20 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return timeStampFormatter.format(dateFormat)
     }
 
-    fun getChatPartnerName(otherUserName: String) {
-        chatPartnerName = otherUserName
+    fun setChatUsers (isGroup : Boolean,  chatPartner: String? = null, users : List<User>? = null ) {
+
+        isGroupChat = isGroup
+
+        if (isGroup && users != null) {
+            usersMap = users.associate { it.uid to it.username }
+        }else if (!isGroup && chatPartnerName != null ) {
+            chatPartnerName = chatPartner
+        }
     }
+
+//    fun getChatPartnerName(otherUserName: String) {
+//        chatPartnerName = otherUserName
+//    }
 
     fun submitList(chatMessages: List<ChatMessage>) {
         chatList = chatMessages
@@ -84,7 +98,7 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             holder.binding.ivCheckSentIms.isVisible = false
             holder.binding.ivCheckDeliveredIms.isVisible = false
 
-            val currentUser = Firebase.auth.currentUser?.uid ?: ""
+            val currentUser = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
             val isSeen = chatListMessage.seenBy.containsAll(chatListMessage.deliveredTo.filter { it != currentUser })
             val isDelivered = chatListMessage.deliveredTo.isNotEmpty() && !isSeen
@@ -112,8 +126,15 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         } else if (holder is MessageReceivedViewHolder) {
             holder.binding.tvMessageImr.text = chatListMessage.messages
             holder.binding.tvTimeStampImr.text = formatTimeStamp(chatListMessage.timeStamp)
-            holder.binding.tvFriendNameImr.text = chatPartnerName
+
+//            holder.binding.tvFriendNameImr.isVisible = true
+            holder.binding.tvFriendNameImr.text = if (isGroupChat) {
+                usersMap[chatListMessage.senderId] ?: "Unknown"
+            }else {
+                chatPartnerName
+            }
         }
+
 
     }
 

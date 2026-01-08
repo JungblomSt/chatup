@@ -81,14 +81,26 @@ class FriendListActivity : AppCompatActivity() {
                 }
 
                 val selectedUserIds = selectedUser.map {it.uid}
+                val selectedUsersName = selectedUser.map { it.username }
 
 
 
                 usersViewModel.createGroup(groupName, selectedUserIds) { conversationId ->
 
+                    if (conversationId.isNullOrBlank()) {
+                        return@createGroup
+                    }
+
+                    val chatPartnersUsers =selectedUserIds.mapIndexed { index, id ->
+                        User(uid = id, username = selectedUsersName.getOrElse(index){"Unknown"})
+                    }
+
                     val intent = Intent(this, ChatActivity::class.java)
                     intent.putExtra("conversationId", conversationId)
                     intent.putExtra("isGroup", true)
+                    intent.putExtra("groupName", groupName)
+                    intent.putExtra("chatPartnersId", ArrayList(selectedUserIds))
+                    intent.putStringArrayListExtra("chatPartnersNames", ArrayList(selectedUsersName))
 
                     startActivity(intent)
                 }

@@ -11,7 +11,7 @@ import com.google.firebase.firestore.ListenerRegistration
 
 class ChatViewModel : ViewModel() {
 
-    private var isGroupChat = false
+    private var isGroupChat : Boolean = false
     private var groupMembers : List<String> = emptyList()
 
     private var chatListener : ListenerRegistration? = null
@@ -66,6 +66,7 @@ class ChatViewModel : ViewModel() {
     }
 
     fun setTyping (isTyping : Boolean) {
+        if (!::conversationId.isInitialized) return
         FirebaseManager.setTyping(conversationId,isTyping)
 
     }
@@ -85,13 +86,17 @@ class ChatViewModel : ViewModel() {
     }
 
     fun initGroupChat (convId : String?, members : List<String>) {
-        conversationId = convId!!
+
+        if (convId == null) return
+
+        conversationId = convId
         groupMembers = members
         isGroupChat = true
 
         chatListener = FirebaseManager.snapShotListener(
             conversationId = conversationId,
-            onUpdate = {_chatMessage.postValue(it)},
+            onUpdate = { chatMessage ->
+                _chatMessage.postValue(chatMessage.toList())},
             chatIsOpened = {isChatOpened()}
         )
     }
@@ -139,7 +144,7 @@ class ChatViewModel : ViewModel() {
      * @param chatText The message to send.
      */
     fun sendMessage(chatText: String) {
-        val receiverId = _otherUserId.value ?: return
+
 
         if (isGroupChat){
             FirebaseManager.sendGroupMessage(
@@ -147,8 +152,10 @@ class ChatViewModel : ViewModel() {
                 chatText,
                 groupMembers
             )
-        }else
-         FirebaseManager.sendChatMessage(chatText, receiverId)
+        }else {
+            val receiverId = _otherUserId.value ?: return
+            FirebaseManager.sendChatMessage(chatText, receiverId)
+        }
     }
 
     override fun onCleared() {

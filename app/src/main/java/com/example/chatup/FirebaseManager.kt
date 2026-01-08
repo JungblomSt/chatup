@@ -215,8 +215,10 @@ object FirebaseManager {
                 val lastDoc = snapshot.documents.lastOrNull() ?: return@addSnapshotListener
                 val lastMessage = lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
 
+                val isGroupChat = lastMessage.receiverId.isBlank()
 
-                        if (lastMessage.receiverId == currentUserId
+
+                        if (isGroupChat
                             && !lastMessage.seenBy.contains(currentUserId)
                             && chatIsOpened()) {
 
@@ -291,7 +293,8 @@ object FirebaseManager {
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
 
         val groupMessageRef = db.collection("conversation")
-            .document(conversationId).collection("messages")
+            .document(conversationId)
+            .collection("messages")
             .document()
 
         val groupMessage = ChatMessage(
@@ -305,11 +308,11 @@ object FirebaseManager {
 
         db.collection("conversation")
             .document(conversationId)
-            .update(
+            .set(
                 mapOf(
                     "lastMessage" to chatText,
                     "lastUpdated" to System.currentTimeMillis()
-                )
+                ), SetOptions.merge()
             )
     }
 
@@ -336,7 +339,9 @@ object FirebaseManager {
 
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
 
+
         val allMembers = (members + currentUserId).distinct()
+
 
         val groupConversation = mapOf(
             "conversationType" to "group",
