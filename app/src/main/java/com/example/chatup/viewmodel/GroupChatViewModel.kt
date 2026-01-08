@@ -31,16 +31,24 @@ class GroupChatViewModel : ViewModel () {
 
     fun initGroupChat (convId : String?, members : List<String>) {
 
-        if (convId == null) return
+        if (convId == null) {
+            Log.e("DEBUG_GROUP", "initGroupChat: convId is null!")
+            return
+        }
 
         conversationId = convId
         groupMembers = members
 
+        Log.d("DEBUG_GROUP", "initGroupChat: conversationId set to $conversationId with members $members")
+
         chatListener?.remove()
 
-        chatListener = FirebaseManager.snapShotListener(
+        Log.d("DEBUG_GROUP", "initGroupChat: conversationId=$convId with members=$members")
+
+        chatListener = FirebaseManager.groupChatSnapshotListener(
             conversationId = conversationId,
             onUpdate = {messages ->
+                Log.d("DEBUG_GROUP", "Received ${messages.size} messages from Firestore")
                 _groupChatMessage.postValue(messages)
             },
             chatIsOpened = {isGroupChatOpened()}
@@ -53,6 +61,8 @@ class GroupChatViewModel : ViewModel () {
             Log.e("GROUP_VM", "GroupChatViewModel not initialized")
             return
         }
+
+        Log.d("DEBUG_GROUP", "Sending message: '$chatText' to conversationId: $conversationId")
 
         FirebaseManager.sendGroupMessage(
             conversationId = conversationId,

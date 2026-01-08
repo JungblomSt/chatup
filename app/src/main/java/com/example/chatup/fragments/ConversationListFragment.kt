@@ -2,6 +2,7 @@ package com.example.chatup.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.Button
@@ -32,17 +33,50 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
         adapter = ConversationListAdapter(emptyList()) { conversation ->
-            val currentUserId = Firebase.auth.currentUser?.uid
-            val friendId = conversation.users.firstOrNull { it != currentUserId }
 
-            if (friendId != null) {
-                val intent = Intent(requireContext(), ChatActivity::class.java)
+            val intent = Intent(requireContext(), ChatActivity::class.java)
+
+            intent.putExtra("conversationId", conversation.conversationId)
+            intent.putExtra("isGroup", conversation.conversationType == "group")
+
+            if (conversation.conversationType == "group") {
+
+                intent.putExtra("groupName", conversation.name)
+                intent.putStringArrayListExtra(
+                    "chatPartnersId",
+                    ArrayList(conversation.users)
+                )
+
+            } else {
+
+                val currentUserId = Firebase.auth.currentUser?.uid
+                val friendId = conversation.users.first { it != currentUserId }
+
                 intent.putExtra("userId", friendId)
-                // Om friendUsername saknas kan vi kanske behöva hämta det, men vi skickar med det vi har
                 intent.putExtra("userName", conversation.friendUsername ?: "Chat")
-                startActivity(intent)
             }
+
+            Log.d(
+                "OPEN_CHAT",
+                "Open chat: id=${conversation.conversationId}, type=${conversation.conversationType}"
+            )
+
+
+            startActivity(intent)
         }
+
+//        adapter = ConversationListAdapter(emptyList()) { conversation ->
+//            val currentUserId = Firebase.auth.currentUser?.uid
+//            val friendId = conversation.users.firstOrNull { it != currentUserId }
+//
+//            if (friendId != null) {
+//                val intent = Intent(requireContext(), ChatActivity::class.java)
+//                intent.putExtra("userId", friendId)
+//                // Om friendUsername saknas kan vi kanske behöva hämta det, men vi skickar med det vi har
+//                intent.putExtra("userName", conversation.friendUsername ?: "Chat")
+//                startActivity(intent)
+//            }
+//        }
 
         recycler.adapter = adapter
 

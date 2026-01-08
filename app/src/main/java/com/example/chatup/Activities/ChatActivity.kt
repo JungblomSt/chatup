@@ -42,6 +42,12 @@ class ChatActivity : AppCompatActivity() {
         val groupName = intent.getStringExtra("groupName")
         val chatPartnersId = intent.getStringArrayListExtra("chatPartnersId")
 
+        Log.d(
+            "CHAT_ACTIVITY",
+            "onCreate: isGroup=${intent.getBooleanExtra("isGroup", false)}, conversationId=${intent.getStringExtra("conversationId")}"
+        )
+
+
         if (isGroup){
             val conversationId = intent.getStringExtra("conversationId")
             val chatPartnersIds = intent.getStringArrayListExtra("chatPartnersId") ?: emptyList()
@@ -139,6 +145,13 @@ class ChatActivity : AppCompatActivity() {
 //                binding.tvReceiverNameAc.text = groupName
 //            }
 //        }
+
+        Log.d("DEBUG_GROUP", "startGroupChat called with conversationId = $conversationId")
+
+        if (conversationId == null) {
+            Log.e("DEBUG_GROUP", "conversationId is null!")
+            return
+        }
 
         binding.tvReceiverNameAc.text = groupName
 
