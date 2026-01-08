@@ -3,6 +3,7 @@ package com.example.chatup.Activities
 import android.R
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.CheckedTextView
 import android.widget.Toast
@@ -11,10 +12,13 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.chatup.data.User
 import com.example.chatup.databinding.ActivityFriendListBinding
 import com.example.chatup.viewmodel.ChatViewModel
+import com.example.chatup.viewmodel.GroupChatViewModel
 import com.example.chatup.viewmodel.UsersViewModel
+import kotlin.compareTo
 
 class FriendListActivity : AppCompatActivity() {
 
+    private lateinit var groupChatViewModel: GroupChatViewModel
     private lateinit var usersViewModel: UsersViewModel
     private lateinit var binding: ActivityFriendListBinding
     private lateinit var chatViewModel: ChatViewModel
@@ -59,59 +63,48 @@ class FriendListActivity : AppCompatActivity() {
 
 //            chatViewModel.setOtherUserId(selectedUser.uid)
 
-            if (checkedView.isChecked){
+            if (checkedView.isChecked) {
                 selectedUser.add(user)
-            }else {
+            } else {
                 selectedUser.remove(user)
 
             }
-            val groupName = binding.etSearchFriendAfl.text.toString()
-
-            binding.fabStartGroupChatAfl.setOnClickListener {
-
-                if (binding.etSearchFriendAfl.text.isBlank()){
-                    Toast.makeText(this,"Choose a group name", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-
-                }
-
-                if (selectedUser.size < 2 ) {
-                    Toast.makeText(this,"Choose 2 users for group chat", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                val selectedUserIds = selectedUser.map {it.uid}
-                val selectedUsersName = selectedUser.map { it.username }
 
 
+        }
+        val groupName = binding.etSearchFriendAfl.text.toString()
 
-                usersViewModel.createGroup(groupName, selectedUserIds) { conversationId ->
+        binding.fabStartGroupChatAfl.setOnClickListener {
 
-                    if (conversationId.isNullOrBlank()) {
-                        return@createGroup
-                    }
-
-                    val chatPartnersUsers =selectedUserIds.mapIndexed { index, id ->
-                        User(uid = id, username = selectedUsersName.getOrElse(index){"Unknown"})
-                    }
-
-                    val intent = Intent(this, ChatActivity::class.java)
-                    intent.putExtra("conversationId", conversationId)
-                    intent.putExtra("isGroup", true)
-                    intent.putExtra("groupName", groupName)
-                    intent.putExtra("chatPartnersId", ArrayList(selectedUserIds))
-                    intent.putStringArrayListExtra("chatPartnersNames", ArrayList(selectedUsersName))
-
-                    startActivity(intent)
-                }
-
+            if (binding.etSearchFriendAfl.text.isBlank()) {
+                Toast.makeText(this, "Choose a group name", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
 
             }
 
-//            val intent = Intent(this, ChatActivity::class.java)
-//            intent.putExtra("userId", user.uid)
-//            intent.putExtra("userName", user.username)
-//            startActivity(intent)
+            if (selectedUser.size < 2) {
+                Toast.makeText(this, "Choose 2 users for group chat", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val selectedUserIds = selectedUser.map { it.uid }
+            val selectedUsersName = selectedUser.map { it.username }
+
+
+
+            usersViewModel.createGroup(groupName = groupName, selectedUserIds) { conversationId ->
+                Log.d("DEBUG_GROUP", "Created group conversationId = $conversationId")
+
+
+                val intent = Intent(this, ChatActivity::class.java)
+                intent.putExtra("conversationId", conversationId)
+                intent.putExtra("isGroup", true)
+                intent.putExtra("groupName", groupName)
+                intent.putExtra("chatPartnersId", ArrayList(selectedUserIds))
+                intent.putStringArrayListExtra("chatPartnersNames", ArrayList(selectedUsersName))
+
+                startActivity(intent)
+            }
 
         }
 
@@ -119,20 +112,22 @@ class FriendListActivity : AppCompatActivity() {
     }
 
     fun loadUsers() {
-//        usersViewModel.users.observe(this) { userList ->
-//            friendList.clear()
-//            friendList.addAll(userList)
-//            adapter.clear()
-//            adapter.addAll(userList.map { it.username })
-//            adapter.notifyDataSetChanged()
-//        }
+        usersViewModel.getAllUsers()
 
-        chatViewModel.users.observe(this) { userList ->
+        usersViewModel.users.observe(this) { userList ->
             friendList.clear()
             friendList.addAll(userList)
             adapter.clear()
             adapter.addAll(userList.map { it.username })
             adapter.notifyDataSetChanged()
         }
+
+//        chatViewModel.users.observe(this) { userList ->
+//            friendList.clear()
+//            friendList.addAll(userList)
+//            adapter.clear()
+//            adapter.addAll(userList.map { it.username })
+//            adapter.notifyDataSetChanged()
+//        }
     }
 }

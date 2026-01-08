@@ -11,9 +11,6 @@ import com.google.firebase.firestore.ListenerRegistration
 
 class ChatViewModel : ViewModel() {
 
-    private var isGroupChat : Boolean = false
-    private var groupMembers : List<String> = emptyList()
-
     private var chatListener : ListenerRegistration? = null
 
     private var typingListener : ListenerRegistration? = null
@@ -85,21 +82,21 @@ class ChatViewModel : ViewModel() {
 
     }
 
-    fun initGroupChat (convId : String?, members : List<String>) {
-
-        if (convId == null) return
-
-        conversationId = convId
-        groupMembers = members
-        isGroupChat = true
-
-        chatListener = FirebaseManager.snapShotListener(
-            conversationId = conversationId,
-            onUpdate = { chatMessage ->
-                _chatMessage.postValue(chatMessage.toList())},
-            chatIsOpened = {isChatOpened()}
-        )
-    }
+//    fun initGroupChat (convId : String?, members : List<String>) {
+//
+//        if (convId == null) return
+//
+//        conversationId = convId
+//        groupMembers = members
+//        isGroupChat = true
+//
+//        chatListener = FirebaseManager.snapShotListener(
+//            conversationId = conversationId,
+//            onUpdate = { chatMessage ->
+//                _chatMessage.postValue(chatMessage.toList())},
+//            chatIsOpened = {isChatOpened()}
+//        )
+//    }
 
     /**
      * Init a chat session with a specific user.
@@ -108,6 +105,7 @@ class ChatViewModel : ViewModel() {
      * @param otherUserId The user ID of the chat partner.
      */
     fun initChat(otherUserId: String) {
+
         _otherUserId.value = otherUserId
         conversationId = FirebaseManager.createConversationId(otherUserId)
 
@@ -144,18 +142,10 @@ class ChatViewModel : ViewModel() {
      * @param chatText The message to send.
      */
     fun sendMessage(chatText: String) {
+        val receiverId = _otherUserId.value ?: return
 
+        FirebaseManager.sendChatMessage(chatText, receiverId)
 
-        if (isGroupChat){
-            FirebaseManager.sendGroupMessage(
-                conversationId,
-                chatText,
-                groupMembers
-            )
-        }else {
-            val receiverId = _otherUserId.value ?: return
-            FirebaseManager.sendChatMessage(chatText, receiverId)
-        }
     }
 
     override fun onCleared() {

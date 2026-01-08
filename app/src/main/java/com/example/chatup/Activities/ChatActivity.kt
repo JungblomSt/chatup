@@ -12,10 +12,13 @@ import com.example.chatup.adapters.ChatRecViewAdapter
 import com.example.chatup.data.User
 import com.example.chatup.databinding.ActivityChatBinding
 import com.example.chatup.viewmodel.ChatViewModel
+import com.example.chatup.viewmodel.GroupChatViewModel
 
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
+
+    private lateinit var groupChatViewModel: GroupChatViewModel
 
     private lateinit var chatViewModel: ChatViewModel
 
@@ -26,6 +29,7 @@ class ChatActivity : AppCompatActivity() {
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
+        groupChatViewModel = ViewModelProvider(this)[GroupChatViewModel::class.java]
         adapter = ChatRecViewAdapter()
 
         binding.rvChatAc.layoutManager = LinearLayoutManager(this)
@@ -51,7 +55,11 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        chatViewModel.setChatOpened(true)
+        if (intent.getBooleanExtra("isGroup", false)) {
+            groupChatViewModel.setGroupChatOpened(true)
+        } else {
+            chatViewModel.setChatOpened(true)
+        }
     }
 
     /**
@@ -116,23 +124,25 @@ class ChatActivity : AppCompatActivity() {
 
     fun startGroupChat (conversationId : String?, groupName : String?, chatPartnersId : List<String>, chatPartnersNames : List<String>) {
 
-        binding.etMessageAc.addTextChangedListener { editText ->
-            if (editText.isNullOrBlank()) {
-                chatViewModel.setTyping(false)
-            } else {
-                chatViewModel.setTyping(true)
-            }
-        }
+//        binding.etMessageAc.addTextChangedListener { editText ->
+//            if (editText.isNullOrBlank()) {
+//                chatViewModel.setTyping(false)
+//            } else {
+//                chatViewModel.setTyping(true)
+//            }
+//        }
 
-        chatViewModel.isTyping.observe(this) { isTyping ->
-            if (isTyping) {
-                binding.tvReceiverNameAc.text = "is typing..."
-            } else {
-                binding.tvReceiverNameAc.text = groupName
-            }
-        }
+//        chatViewModel.isTyping.observe(this) { isTyping ->
+//            if (isTyping) {
+//                binding.tvReceiverNameAc.text = "is typing..."
+//            } else {
+//                binding.tvReceiverNameAc.text = groupName
+//            }
+//        }
 
-        chatViewModel.initGroupChat(convId = conversationId,
+        binding.tvReceiverNameAc.text = groupName
+
+        groupChatViewModel.initGroupChat(convId = conversationId,
             members = chatPartnersId
         )
 
@@ -154,7 +164,7 @@ class ChatActivity : AppCompatActivity() {
 
 
 
-        chatViewModel.chatMessage.observe(this) {messages ->
+        groupChatViewModel.groupChatMessage.observe(this) {messages ->
             adapter.submitList(messages)
             if (messages.isNotEmpty()) {
                 binding.rvChatAc.scrollToPosition(messages.size -1)
@@ -164,7 +174,7 @@ class ChatActivity : AppCompatActivity() {
         binding.fabSendAc.setOnClickListener {
             val sendChatText = binding.etMessageAc.text.toString()
             if (sendChatText.isNotBlank()) {
-                chatViewModel.sendMessage(sendChatText)
+                groupChatViewModel.sendGroupMessage(sendChatText)
                 binding.etMessageAc.text.clear()
                 Log.d("!!!", "Sent GROUP Chat = $sendChatText")
             }
@@ -173,9 +183,14 @@ class ChatActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
-        chatViewModel.setTyping(false)
-        chatViewModel.setChatOpened(false)
         super.onStop()
+
+        if (intent.getBooleanExtra("isGroup", false)) {
+            groupChatViewModel.setGroupChatOpened(false)
+        } else {
+            chatViewModel.setChatOpened(false)
+            chatViewModel.setTyping(false)
+        }
     }
 
 }

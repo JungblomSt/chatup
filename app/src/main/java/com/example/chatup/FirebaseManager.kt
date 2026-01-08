@@ -36,6 +36,11 @@ object FirebaseManager {
                 }
 
                 conversations?.documents?.forEach { conversationDoc ->
+
+                    if (conversationDoc.getString("conversationType") == "group") {
+                        return@forEach
+                    }
+
                     val conversationId = conversationDoc.id
 
                     db.collection("conversation")
@@ -99,7 +104,7 @@ object FirebaseManager {
     }
 
     // todo lägg till komentarer
-    fun setTyping (conversationId: String, isTyping : Boolean) {
+    fun setTyping(conversationId: String, isTyping: Boolean) {
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
 
         db.collection("conversation")
@@ -109,19 +114,23 @@ object FirebaseManager {
 
     // todo lägg till komentarer
 
-    fun typingSnapShotListener (conversationId: String, friendId : String, onTyping : (Boolean) -> Unit) : ListenerRegistration {
+    fun typingSnapShotListener(
+        conversationId: String,
+        friendId: String,
+        onTyping: (Boolean) -> Unit
+    ): ListenerRegistration {
 
-       return db.collection("conversation")
+        return db.collection("conversation")
             .document(conversationId)
-            .addSnapshotListener { snapshot , e ->
-                if (e != null){
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
                     e.message?.let { Log.e("!!!", it) }
                     return@addSnapshotListener
                 }
-                    val typing = snapshot?.get("typing") as? Map<* , *> ?: return@addSnapshotListener
-                    val isTyping = typing[friendId] as? Boolean ?: false
+                val typing = snapshot?.get("typing") as? Map<*, *> ?: return@addSnapshotListener
+                val isTyping = typing[friendId] as? Boolean ?: false
 
-                    onTyping(isTyping)
+                onTyping(isTyping)
 
             }
 
@@ -169,9 +178,21 @@ object FirebaseManager {
      * @param onUpdate Callback invoked whenever messages are added, modified, or removed
      *                 in this conversation. Returns a List<ChatMessage> representing the current messages.
      */
-    fun snapShotListener(conversationId: String, onUpdate: (List<ChatMessage>) -> Unit, chatIsOpened : () -> Boolean) : ListenerRegistration? {
+    fun snapShotListener(
+        conversationId: String,
+        onUpdate: (List<ChatMessage>) -> Unit,
+        chatIsOpened: () -> Boolean
+    ): ListenerRegistration? {
+
+        val conversationRef = db.collection("conversation").document(conversationId)
 
         val currentUserId = Firebase.auth.currentUser?.uid ?: return null
+
+        var isGroupChat = false
+
+        conversationRef.get().addOnSuccessListener { convSnapshot ->
+            isGroupChat = convSnapshot.getString("conversationType") == "group"
+        }
 
         return db.collection("conversation")
             .document(conversationId)
@@ -190,174 +211,197 @@ object FirebaseManager {
                 }
                 onUpdate(chatMessages)
 
-                snapshot.documents.forEach() {doc ->
+                snapshot.documents.forEach() { doc ->
                     val message = doc.toObject(ChatMessage::class.java) ?: return@forEach
 
-                    if (!message.deliveredTo.contains(currentUserId)) {
-                        doc.reference.update("deliveredTo",
-                            FieldValue.arrayUnion(currentUserId))
+                    // gör en check för race quota här men få det att funka först
+
+                    if (!isGroupChat && !message.deliveredTo.contains(currentUserId)) {
+                        doc.reference.update(
+                            "deliveredTo",
+                            FieldValue.arrayUnion(currentUserId)
+                        )
                     }
 
                     if (chatIsOpened() && !message.seenBy.contains(currentUserId)) {
-                        doc.reference.update("seenBy",
-                            FieldValue.arrayUnion(currentUserId))
+                        doc.reference.update(
+                            "seenBy",
+                            FieldValue.arrayUnion(currentUserId)
+                        )
                     }
-//                    if (message.receiverId == currentUserId
-//                        && message.delivered
-//                        && !message.seen &&
-//                        chatIsOpened()) {
-//
-//                        doc.reference.update("seen", true)
-//                    }
+
 
                 }
 
                 val lastDoc = snapshot.documents.lastOrNull() ?: return@addSnapshotListener
-                val lastMessage = lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
+                val lastMessage =
+                    lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
 
-                val isGroupChat = lastMessage.receiverId.isBlank()
 
+                if (isGroupChat
+                    && !lastMessage.seenBy.contains(currentUserId)
+                    && chatIsOpened()
+                ) {
 
-                        if (isGroupChat
-                            && !lastMessage.seenBy.contains(currentUserId)
-                            && chatIsOpened()) {
+                    lastDoc.reference.update(
+                        "seenBy",
+                        FieldValue.arrayUnion(currentUserId)
+                    )
 
-                            lastDoc.reference.update(
-                                "seenBy",
-                                FieldValue.arrayUnion(currentUserId)
+                    db.collection("conversation")
+                        .document(conversationId)
+                        .update(
+                            mapOf(
+                                "lastMessageSeen" to true,
+                                "lastUpdated" to System.currentTimeMillis()
                             )
+                        )
+                }
 
-                            db.collection("conversation")
-                                .document(conversationId)
-                                .update(
-                                    mapOf ("lastMessageSeen" to true,
-                                        "lastUpdated" to System.currentTimeMillis()))
-                        }
 
             }
     }
 
 
-    /**
-     * Sends a chat message to a specific user.
-     * Ensures the sender is authenticated.
-     * Creates or updates the conversation metadata.
-     * Stores the message inside the conversation's messages collection.
-     *
-     * @param chatText The message content that will be sent.
-     * @param receiverId The unique user ID (uid) of the message receiver.
-     *
-     */
-    fun sendChatMessage(chatText: String, receiverId: String) {
 
-        currentUser = Firebase.auth.currentUser ?: return
+        /**
+         * Sends a chat message to a specific user.
+         * Ensures the sender is authenticated.
+         * Creates or updates the conversation metadata.
+         * Stores the message inside the conversation's messages collection.
+         *
+         * @param chatText The message content that will be sent.
+         * @param receiverId The unique user ID (uid) of the message receiver.
+         *
+         */
+        fun sendChatMessage(chatText: String, receiverId: String) {
 
-        val conversationId = getConversationId(currentUser.uid, receiverId)
+            currentUser = Firebase.auth.currentUser ?: return
 
-        val chatMessageRef = db.collection("conversation")
-            .document(conversationId)
-            .collection("messages")
-            .document()
+            val conversationId = getConversationId(currentUser.uid, receiverId)
 
-        val chatMessage = ChatMessage(
-            senderId = currentUser.uid,
-            receiverId = receiverId,
-            messages = chatText,
-            timeStamp = System.currentTimeMillis(),
-            deliveredTo = emptyList(),
-            seenBy = listOf(currentUser.uid)
+            val chatMessageRef = db.collection("conversation")
+                .document(conversationId)
+                .collection("messages")
+                .document()
+
+            val chatMessage = ChatMessage(
+                senderId = currentUser.uid,
+                receiverId = receiverId,
+                messages = chatText,
+                timeStamp = System.currentTimeMillis(),
+                deliveredTo = emptyList(),
+                seenBy = listOf(currentUser.uid)
 //            delivered = false,
 //            seen = false
-        )
-
-        chatMessageRef.set(chatMessage)
-
-        // Update or create conversation metadata
-        db.collection("conversation")
-            .document(conversationId)
-            .set(
-                mapOf(
-                    "users" to listOf(currentUser.uid, receiverId),
-                    "lastMessage" to chatText,
-                    "lastUpdated" to System.currentTimeMillis(),
-                    "lastMessageId" to chatMessageRef.id,
-                    "lastMessageDelivered" to false,
-                    "lastMessageSeen" to false
-                ),
-                SetOptions.merge()
             )
 
-    }
+            chatMessageRef.set(chatMessage)
 
-    fun sendGroupMessage (conversationId: String, chatText: String, members: List<String>) {
-        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+            // Update or create conversation metadata
+            db.collection("conversation")
+                .document(conversationId)
+                .set(
+                    mapOf(
+                        "users" to listOf(currentUser.uid, receiverId),
+                        "lastMessage" to chatText,
+                        "lastUpdated" to System.currentTimeMillis(),
+                        "lastMessageId" to chatMessageRef.id,
+                        "lastMessageDelivered" to false,
+                        "lastMessageSeen" to false
+                    ),
+                    SetOptions.merge()
+                )
 
-        val groupMessageRef = db.collection("conversation")
-            .document(conversationId)
-            .collection("messages")
-            .document()
+        }
 
-        val groupMessage = ChatMessage(
-            senderId = currentUserId,
-            messages = chatText,
-            deliveredTo = emptyList(),
-            seenBy = listOf(currentUserId)
-        )
+        fun sendGroupMessage(conversationId: String, chatText: String, members: List<String>) {
+            val currentUserId = Firebase.auth.currentUser?.uid ?: return
 
-        groupMessageRef.set(groupMessage)
+            val groupMessageRef = db.collection("conversation")
+                .document(conversationId)
+                .collection("messages")
+                .document()
 
-        db.collection("conversation")
-            .document(conversationId)
-            .set(
-                mapOf(
-                    "lastMessage" to chatText,
-                    "lastUpdated" to System.currentTimeMillis()
-                ), SetOptions.merge()
+            val groupMessage = ChatMessage(
+                senderId = currentUserId,
+                messages = chatText,
+                receiverId = null,
+                timeStamp = System.currentTimeMillis(),
+                deliveredTo = emptyList(),
+                seenBy = listOf(currentUserId)
             )
+
+            groupMessageRef.set(groupMessage)
+
+            db.collection("conversation")
+                .document(conversationId)
+                .update(
+                    mapOf(
+                        "lastMessage" to chatText,
+                        "lastMessageId" to groupMessageRef.id,
+                        "lastMessageSeen" to false,
+                        "lastUpdated" to System.currentTimeMillis()
+                    )
+                )
+
+//        db.collection("conversation")
+//            .document(conversationId)
+//            .set(
+//                mapOf(
+//                    "lastMessage" to chatText,
+//                    "lastUpdated" to System.currentTimeMillis()
+//                ), SetOptions.merge()
+//            )
+        }
+
+        /**
+         * Creates a unique and consistent conversation ID for a chat between two users.
+         * The two user IDs are sorted alphabetically so the order is always the same, no matter which user sends or receives a message.
+         * The sorted IDs are then joined into a single string using an underscore.
+         *
+         * @param user1Id the first user ID
+         * @param user2Id the second user ID
+         */
+        fun getConversationId(user1Id: String, user2Id: String): String {
+            return listOf(user1Id, user2Id).sorted().joinToString("_")
+        }
+
+        // todo lägg till komentarer
+        fun createConversationId(user2Id: String): String {
+            currentUser = Firebase.auth.currentUser ?: return ""
+            val user1Id: String = currentUser.uid
+            return listOf(user1Id, user2Id).sorted().joinToString("_")
+        }
+
+        fun createGroupConversation(
+            groupName: String,
+            members: List<String>,
+            onComplete: (String) -> Unit
+        ) {
+
+            val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+
+            val allMembers = (members + currentUserId).distinct()
+
+
+            val groupConversation = mapOf(
+                "conversationType" to "group",
+                "name" to groupName,
+                "users" to allMembers,
+                "lastMessage" to "",
+                "lastUpdated" to System.currentTimeMillis()
+            )
+
+            db.collection("conversation")
+                .add(groupConversation)
+                .addOnSuccessListener { doc ->
+                    onComplete(doc.id)
+                }
+
+
+        }
+
+
     }
-
-    /**
-     * Creates a unique and consistent conversation ID for a chat between two users.
-     * The two user IDs are sorted alphabetically so the order is always the same, no matter which user sends or receives a message.
-     * The sorted IDs are then joined into a single string using an underscore.
-     *
-     * @param user1Id the first user ID
-     * @param user2Id the second user ID
-     */
-    fun getConversationId(user1Id: String, user2Id: String): String {
-        return listOf(user1Id, user2Id).sorted().joinToString("_")
-    }
-
-    // todo lägg till komentarer
-    fun createConversationId(user2Id: String): String {
-        currentUser = Firebase.auth.currentUser ?: return ""
-        val user1Id: String = currentUser.uid
-        return listOf(user1Id, user2Id).sorted().joinToString("_")
-    }
-
-    fun createGroupConversation (groupName: String, members : List<String>, onComplete : (String) -> Unit ) {
-
-        val currentUserId = Firebase.auth.currentUser?.uid ?: return
-
-
-        val allMembers = (members + currentUserId).distinct()
-
-
-        val groupConversation = mapOf(
-            "conversationType" to "group",
-            "name" to groupName,
-            "users" to allMembers,
-            "lastMessage" to "",
-            "lastUpdated" to System.currentTimeMillis()
-        )
-
-        db.collection("conversation")
-            .add(groupConversation)
-            .addOnSuccessListener { doc ->
-                onComplete(doc.id)
-            }
-
-
-    }
-
-}
