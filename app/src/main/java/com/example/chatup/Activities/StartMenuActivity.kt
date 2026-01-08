@@ -22,13 +22,16 @@ import com.example.chatup.Activities.LoginActivity
 
 class StartMenuActivity : AppCompatActivity() {
 
+    // ============== UI components ==============
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toolbar: Toolbar
 
+    // ============== Viewmodels ==============
     private lateinit var auth: AuthViewModel
     private lateinit var chatViewModel: ChatViewModel
 
+    // =============== Lifecycle ==============
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.start_menu_activity)
@@ -91,6 +94,7 @@ class StartMenuActivity : AppCompatActivity() {
         }
     }
 
+    // ============== Show fragments with conversations ==============
     private fun showConversations() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.conversationListContainer, ConversationListFragment())
@@ -98,6 +102,7 @@ class StartMenuActivity : AppCompatActivity() {
         findViewById<FrameLayout>(R.id.conversationListContainer).visibility = View.VISIBLE
     }
 
+    // ============= Show fragment with users ==============
     private fun showUsers() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.usersContainer, UsersFragment())
@@ -105,6 +110,7 @@ class StartMenuActivity : AppCompatActivity() {
         findViewById<FrameLayout>(R.id.usersContainer).visibility = View.VISIBLE
     }
 
+    // ============== Lifecycle onStart =============
     override fun onStart() {
         super.onStart()
         chatViewModel.checkDeliveredMessage()

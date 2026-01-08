@@ -12,13 +12,16 @@ import com.example.chatup.databinding.ItemConversationListLayoutBinding
 class ConversationListAdapter(private var conversationList: List<ConversationList>,  private val onConversationClicked: (ConversationList) -> Unit) :
     RecyclerView.Adapter<ConversationListAdapter.ConversationListViewHolder>(){
 
+    // ============== ViewHolder reference for layouts ==============
     inner class ConversationListViewHolder (val binding : ItemConversationListLayoutBinding) : RecyclerView.ViewHolder (binding.root)
 
+    // ============== Create ViewHolder and inflates layout ==============
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationListViewHolder {
         val binding = ItemConversationListLayoutBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return ConversationListViewHolder(binding)
     }
 
+    // ============== Bind data for ViewHolder ==============
     override fun onBindViewHolder(holder: ConversationListViewHolder, position: Int) {
         val conversation = conversationList[position]
         holder.binding.tvMessageIml.text = conversation.lastMessage
@@ -53,6 +56,7 @@ class ConversationListAdapter(private var conversationList: List<ConversationLis
         }
     }
 
+    // ============== Function help for timestamp ==============
     private fun TimeStamp(timestamp: Long): String {
         if (timestamp == 0L) return ""
         val dateFormat = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
@@ -60,8 +64,10 @@ class ConversationListAdapter(private var conversationList: List<ConversationLis
         return dateFormat.format(date)
     }
 
+    // ============== Returns number of objects in list ==============
     override fun getItemCount() = conversationList.size
 
+    // ============== Updates adapter data and notify RecyclerView ==============
     fun update(newConvList: List<ConversationList>) {
         conversationList = newConvList
         notifyDataSetChanged()
