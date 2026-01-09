@@ -39,48 +39,7 @@ A simple, real-time messaging application built with Kotlin and Firebase for And
 ---
 
 ## 📂 Project Structure
-
-com.example.chatup
-│
-├── activities
-│ ├── StartMenuActivity.kt
-│ ├── ChatActivity.kt
-│ ├── MainActivity.kt
-│ ├── LoginActivity.kt
-│ ├── RegisterActivity.kt
-│ └── SettingsActivity.kt
-│
-├── fragments
-│ ├── ConversationListFragment.kt
-│ ├── UsersFragment.kt
-│ └── ProfileFragment.kt
-│
-├── adapters
-│ ├── ConversationListAdapter.kt
-│ ├── UserAdapter.kt
-│ └── ChatRecyclerViewAdapter.kt
-│
-├── viewmodel
-│ ├── AuthViewModel.kt
-│ ├── ChatViewModel.kt
-│ ├── ConversationListViewModel.kt
-│ └── UsersViewModel.kt
-│
-├── data
-│ ├── User.kt
-│ ├── ChatMessage.kt
-│ └── ConversationList.kt
-│
-├── repository
-│ └── AuthRepository.kt
-│
-├── utils
-│ ├── TimeUtils.kt
-│ └── Constants.kt
-│
-└── firebase
-└── FirebaseManager.kt
-
+![Project structure](structure.png)
 ---
 
 ## 🛠️ Usage
