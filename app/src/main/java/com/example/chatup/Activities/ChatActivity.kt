@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.chatup.R
 import com.example.chatup.adapters.ChatRecViewAdapter
 import com.example.chatup.data.User
 import com.example.chatup.databinding.ActivityChatBinding
@@ -33,13 +34,11 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
         groupChatViewModel = ViewModelProvider(this)[GroupChatViewModel::class.java]
         usersViewModel = ViewModelProvider(this)[UsersViewModel::class.java]
 
         adapter = ChatRecViewAdapter()
-
 
         binding.rvChatAc.layoutManager = LinearLayoutManager(this)
         binding.rvChatAc.adapter = adapter
@@ -78,8 +77,10 @@ class ChatActivity : AppCompatActivity() {
             startPrivateChat(otherUserId, otherUserName)
         }
 
+        binding.btnBackAc.setOnClickListener {
+            finish()
+        }
     }
-
 
     override fun onStart() {
         super.onStart()
@@ -99,7 +100,6 @@ class ChatActivity : AppCompatActivity() {
 
     }
 
-
     /**
      * Initializes the chat if a valid user ID is provided.
      * Sets up LiveData observers and handles sending messages.
@@ -107,59 +107,68 @@ class ChatActivity : AppCompatActivity() {
      * @param otherUserId The user ID of the chat partner.
      */
     private fun startPrivateChat(otherUserId: String?, otherUserName: String?) {
-        if (otherUserId == null) {
-            Log.e("DEBUG_PRIVATE", "conversationId is null!")
-            return
-        }
+        if (otherUserId != null) {
 
-        chatViewModel.setOtherUserId(otherUserId)
-        chatViewModel.initChat(otherUserId)
-        chatViewModel.setOtherUserName(otherUserName)
 
-        binding.etMessageAc.addTextChangedListener { editText ->
-            if (editText.isNullOrBlank()) {
-                chatViewModel.setTyping(false)
-            } else {
-                chatViewModel.setTyping(true)
+            chatViewModel.setOtherUserId(otherUserId)
+            chatViewModel.initChat(otherUserId)
+            chatViewModel.setOtherUserName(otherUserName)
+
+            binding.tvReceiverNameAc.text = otherUserName
+
+            binding.etMessageAc.addTextChangedListener { editText ->
+                if (editText.isNullOrBlank()) {
+                    chatViewModel.setTyping(false)
+                } else {
+                    chatViewModel.setTyping(true)
+                }
             }
-        }
 
-        chatViewModel.isTyping.observe(this) { isTyping ->
-            if (isTyping) {
-                binding.tvReceiverNameAc.text = "$otherUserName is typing..."
-            } else {
-                binding.tvReceiverNameAc.text = otherUserName
+            chatViewModel.isTyping.observe(this) { isTyping ->
+                if (isTyping) {
+                    binding.tvIsTextingAc.setText(getString(R.string.is_typing, otherUserName))
+                } else {
+                    binding.tvIsTextingAc.setText("")
+                }
             }
-        }
 
-        chatViewModel.otherUserName.observe(this) { name ->
-            adapter.setChatUsers(isGroup = false, chatPartner = name)
-        }
-
-        chatViewModel.chatMessage.observe(this) { chatMessages ->
-            Log.d("DEBUG_UI", "chatMessage observer triggered, size=${chatMessages.size}")
-
-            adapter.submitList(chatMessages.toList())
-            if (chatMessages.isNotEmpty()) {
-                binding.rvChatAc.scrollToPosition(chatMessages.size - 1)
+            chatViewModel.otherUserName.observe(this) { name ->
+                adapter.setChatUsers(isGroup = false, chatPartner = name)
             }
-        }
 
-
-
-        binding.fabSendAc.setOnClickListener {
-            val sendChatText = binding.etMessageAc.text.toString()
-            if (sendChatText.isNotBlank()) {
-                chatViewModel.sendMessage(sendChatText)
-                binding.etMessageAc.text.clear()
-                Log.d("!!!", "Sent Chat = $sendChatText")
+            chatViewModel.chatMessage.observe(this) { chatMessages ->
+                adapter.submitList(chatMessages)
+                if (chatMessages.isNotEmpty()) {
+                    binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
+                }
             }
+
+
+
+            binding.fabSendAc.setOnClickListener {
+                val sendChatText = binding.etMessageAc.text.toString()
+                if (sendChatText.isNotBlank()) {
+                    chatViewModel.sendMessage(sendChatText)
+                    binding.etMessageAc.text.clear()
+                    Log.d("!!!", "Sent Chat = $sendChatText")
+                }
+            }
+
+        } else {
+            Toast.makeText(this, R.string.wrong, Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, FriendListActivity::class.java)
+            startActivity(intent)
         }
 
 
     }
 
-    fun startGroupChat(conversationId: String?, groupName: String?, chatPartnersId: List<String>) {
+
+    fun startGroupChat(
+        conversationId: String?,
+        groupName: String?,
+        chatPartnersId: List<String>
+    ) {
         if (conversationId == null) {
             Log.e("DEBUG_GROUP", "conversationId is null!")
             return
@@ -212,6 +221,7 @@ class ChatActivity : AppCompatActivity() {
                 Log.d("!!!", "Sent GROUP Chat = $sendChatText")
             }
         }
+
     }
 
     override fun onStop() {
@@ -224,5 +234,5 @@ class ChatActivity : AppCompatActivity() {
             chatViewModel.setTyping(false)
         }
     }
-
 }
+

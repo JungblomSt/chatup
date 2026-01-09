@@ -17,13 +17,19 @@ import kotlinx.coroutines.launch
 
 class ConversationListViewModel : ViewModel() {
 
-    private var conversationListener: ListenerRegistration? = null
+
+
+    // ============== Variables for Firestore and Auth ==============
+    private var conversationListener : ListenerRegistration? = null
     private val db = Firebase.firestore
     private val auth = Firebase.auth
+
+    // ============== LiveData ===============
     private val _conversationList = MutableLiveData<List<ConversationList>>()
     val conversationList: LiveData<List<ConversationList>> = _conversationList
 
-    fun getAllCurrentUserConversationLists() {
+    // ============== Functions to get all users ==============
+    fun getAllCurrentUserConversationLists(){
         val currentUserId = auth.currentUser?.uid ?: return
 
         conversationListener?.remove()
@@ -93,7 +99,8 @@ class ConversationListViewModel : ViewModel() {
 
     }
 
-    private suspend fun getUsers(): List<User> {
+    // ============= Gets all users except the current one ==============
+    private suspend fun getUsers(): List<User>{
         val currentUserId = auth.currentUser?.uid
 
         val usersSnapshot = db.collection("users").get().await()

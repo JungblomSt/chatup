@@ -6,19 +6,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.chatup.FirebaseManager
 import com.example.chatup.data.User
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.firestore
 
 class UsersViewModel : ViewModel() {
 
+    // ============== Livedata ==============
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> = _users
 
-
+    // ============== Data ==================
     private var originalUserList = listOf<User>()
 
-
+    // ============== Fetch users ===========
     fun getAllUsers() {
         FirebaseManager.getAllUsers({ userList ->
             originalUserList = userList

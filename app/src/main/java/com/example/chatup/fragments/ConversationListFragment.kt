@@ -17,20 +17,22 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
+
+    // ============== Variables ============
     private lateinit var conversationListViewModel: ConversationListViewModel
     private lateinit var adapter: ConversationListAdapter
 
+    // ============== Fragment view create ==============
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         conversationListViewModel = ViewModelProvider(this)[ConversationListViewModel::class.java]
 
         val recycler = view.findViewById<RecyclerView>(R.id.conversationListRecycler)
-        val btnUsers = view.findViewById<Button>(R.id.btnUsers)
-        val btnProfile = view.findViewById<Button>(R.id.btnProfile)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
+        // ============== Initilize adapter and click =========
         adapter = ConversationListAdapter(emptyList()) { conversation ->
             Log.d("DEBUG_CONV_LIST", "Clicked conversation ${conversation.conversationId}, type=${conversation.conversationType}, name='${conversation.name}'")
 
@@ -74,12 +76,10 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         }
 
         conversationListViewModel.getAllCurrentUserConversationLists()
-
     }
-
+    // ============== Update conversationlist =============
     override fun onResume() {
         super.onResume()
         conversationListViewModel.getAllCurrentUserConversationLists()
     }
-
 }

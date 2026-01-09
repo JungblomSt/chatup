@@ -15,9 +15,10 @@ class ConversationListAdapter(
 ) :
     RecyclerView.Adapter<ConversationListAdapter.ConversationListViewHolder>() {
 
-    inner class ConversationListViewHolder(val binding: ItemConversationListLayoutBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    // ============== ViewHolder reference for layouts ==============
+    inner class ConversationListViewHolder (val binding : ItemConversationListLayoutBinding) : RecyclerView.ViewHolder (binding.root)
 
+    // ============== Create ViewHolder and inflates layout ==============
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationListViewHolder {
         val binding = ItemConversationListLayoutBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -27,10 +28,12 @@ class ConversationListAdapter(
         return ConversationListViewHolder(binding)
     }
 
+    // ============== Bind data for ViewHolder ==============
     override fun onBindViewHolder(holder: ConversationListViewHolder, position: Int) {
         val conversation = conversationList[position]
         holder.binding.tvMessageIml.text = conversation.lastMessage
-
+        holder.binding.tvFriendName.text = conversation.friendUsername
+        holder.binding.tvTimeStamp.text = TimeStamp(conversation.lastUpdated)
 
         if (conversation.conversationType == "group") {
             holder.binding.tvFriendName.text = conversation.name
@@ -65,19 +68,29 @@ class ConversationListAdapter(
                 }
 
             }
+            holder.binding.conversationListCardView.setOnClickListener {
+                onConversationClicked(conversation)
+            }
+
+            holder.binding.ivCheckSentIcl.isVisible = false
+            holder.binding.ivCheckDeliveredIcl.isVisible = false
+
 
         }
-
-
-        holder.binding.conversationListCardView.setOnClickListener {
-            onConversationClicked(conversation)
-        }
-
-
     }
 
+    // ============== Function help for timestamp ==============
+    private fun TimeStamp(timestamp: Long): String {
+        if (timestamp == 0L) return ""
+        val dateFormat = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+        val date = java.util.Date(timestamp)
+        return dateFormat.format(date)
+    }
+
+    // ============== Returns number of objects in list ==============
     override fun getItemCount() = conversationList.size
 
+    // ============== Updates adapter data and notify RecyclerView ==============
     fun update(newConvList: List<ConversationList>) {
         conversationList = newConvList
         notifyDataSetChanged()

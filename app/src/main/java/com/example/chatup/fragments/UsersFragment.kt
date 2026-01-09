@@ -3,32 +3,28 @@ package com.example.chatup.fragments
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatup.R
 import com.example.chatup.Activities.ChatActivity
-import com.example.chatup.Activities.MainActivity
 import com.example.chatup.adapters.UserAdapter
 import com.example.chatup.viewmodel.UsersViewModel
 
-class UsersFragment : Fragment(R.layout.fragment_user) {
+class UsersFragment : Fragment(R.layout.fragment_users_list) {
 
+    // ============== ViewModel and Adapter ==============
     private lateinit var userViewModel: UsersViewModel
     private lateinit var adapter: UserAdapter
 
+    // ============== Starts when fragment view creats ================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         userViewModel = ViewModelProvider(this)[UsersViewModel::class.java]
 
         val recycler = view.findViewById<RecyclerView>(R.id.usersRecycler)
-        //val searchView = view.findViewById<SearchView>(R.id.searchView)
-        //val btnChats = view.findViewById<Button>(R.id.btnChats)
-       // val btnProfile = view.findViewById<Button>(R.id.btnProfile)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
@@ -42,17 +38,5 @@ class UsersFragment : Fragment(R.layout.fragment_user) {
 
         userViewModel.users.observe(viewLifecycleOwner) { adapter.update(it) }
         userViewModel.getAllUsers()
-
-       // searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-        //    override fun onQueryTextSubmit(query: String?): Boolean {
-        //        userViewModel.searchUsers(query ?: "")
-        //        return true
-        //    }
-        //    override fun onQueryTextChange(newText: String?): Boolean {
-        //        userViewModel.searchUsers(newText ?: "")
-        //        return true
-       //     }
-      //  })
-
     }
 }

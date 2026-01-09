@@ -30,7 +30,6 @@
             android:id="@+id/userProfileImage"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_android_black_24dp"
             android:background="@drawable/background_circle"
             android:scaleType="centerCrop"
             android:layout_marginEnd="12dp"
@@ -43,10 +42,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Chatname"
-            android:textColor="#FAF8F4"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/dark"
+            android:textSize="16sp"
+            android:textStyle="normal"
+            android:fontFamily="@font/lunasima"
             android:layout_marginStart="10dp"
             app:layout_constraintStart_toEndOf="@id/userProfileImage"
             app:layout_constraintTop_toTopOf="@id/userProfileImage"
@@ -54,41 +53,42 @@
             android:maxLines="1"
             android:ellipsize="end"/>
 
+            <TextView
+                android:id="@+id/tv_time_stamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/dark"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="@id/iv_check_delivered_icl"
+                app:layout_constraintTop_toTopOf="@id/tv_friendName"
+                android:maxLines="1"
+                android:text="MM:DD\nHH:MM" />
+
         <TextView
             android:id="@+id/tv_message_iml"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textColor="#B3B1B1"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:fontFamily="sans-serif"
             android:maxLines="1"
             android:ellipsize="end"
-            android:layout_marginTop="4dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginStart="2dp"
             android:layout_marginBottom="10dp"
+            android:layout_marginEnd="6dp"
             app:layout_constraintStart_toStartOf="@id/tv_friendName"
             app:layout_constraintTop_toBottomOf="@id/tv_friendName"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iv_check_sent_icl"
             tools:text="Message" />
-
-        <TextView
-            android:id="@+id/tv_time_stamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tv_friendName"
-            android:maxLines="1"
-            tools:text="MM:DD\nHH:MM" />
 
         <ImageView
             android:id="@+id/iv_check_sent_icl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/iv_check_delivered_icl"
+            android:visibility="visible"
             android:src="@drawable/outline_check_small_24"/>
 
         <ImageView
@@ -96,15 +96,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/iv_check_sent_icl"
-            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="visible"
             android:src="@drawable/outline_check_small_24"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#2F6B4F"
+        android:background="#90C595"
         android:layout_gravity="bottom" />
     </android.widget.FrameLayout>
 

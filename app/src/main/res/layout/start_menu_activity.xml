@@ -1,11 +1,10 @@
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/middark">
+    android:background="#FAF8F4">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,38 +13,38 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="70dp"
+            app:title=" "
             android:background="@color/mid"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:title="ChatUp"
-            app:titleTextColor="@color/white">
+            app:titleTextColor="@color/white"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-
+            <ImageView
+                android:id="@+id/logo_toolbar_conversationlist"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/icon_green_with_text"/>
         </androidx.appcompat.widget.Toolbar>
 
         <TextView
             android:id="@+id/tv_conversations_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Konversationer"
-            android:textColor="@color/white"
+            android:text="@string/conversations"
+            android:textColor="@color/dark"
             android:textSize="20sp"
-            android:textStyle="bold"
+            android:fontFamily="@font/lunasima"
+            android:textStyle="normal"
             android:layout_marginTop="10dp"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:paddingBottom="2dp"
-            android:paddingStart="15dp"/>
+            android:paddingStart="10dp"/>
 
         <FrameLayout
             android:id="@+id/conversationListContainer"
@@ -56,27 +55,28 @@
             app:layout_constraintBottom_toTopOf="@id/usersContainer"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.6"/>
+            app:layout_constraintHeight_percent="0.5"/>
 
         <FrameLayout
             android:id="@+id/usersContainer"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             app:layout_constraintTop_toBottomOf="@id/conversationListContainer"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.4"/>
+            app:layout_constraintHeight_percent="0.5"/>
 
-        <FrameLayout
-            android:id="@+id/fragmentContainer"
+        <View
+            android:id="@+id/bottomBar"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            android:layout_height="10dp"
+            android:background="@color/mid"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <Button
             android:id="@+id/btn_group_chat"
@@ -98,7 +98,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:menu="@menu/drawer_menu"
-        app:itemIconTint="@color/mid"
-        app:itemTextColor="@color/mid"/>
+        app:itemIconTint="@color/dark"
+        app:itemTextColor="@color/dark"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>

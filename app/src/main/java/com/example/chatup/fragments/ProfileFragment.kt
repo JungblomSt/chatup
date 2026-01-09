@@ -52,13 +52,15 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
             if (newUsername.isNotBlank()) {
                 profileViewModel.updateUserProfile(newUsername, if (newImageUrl.isNotBlank()) newImageUrl else null)
-                Toast.makeText(requireContext(), "Profil uppdaterad!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),
+                    getString(R.string.profile_updated), Toast.LENGTH_SHORT).show()
                 
                  if (newImageUrl.isNotBlank()) {
                     Glide.with(this).load(newImageUrl).into(ivProfileImage)
                 }
             } else {
-                Toast.makeText(requireContext(), "Användarnamn får inte vara tomt", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),
+                    getString(R.string.username_empty), Toast.LENGTH_SHORT).show()
             }
         }
 
