@@ -17,10 +17,10 @@ import com.example.chatup.viewmodel.UsersViewModel
 import kotlin.compareTo
 
 class FriendListActivity : AppCompatActivity() {
-
-    private lateinit var groupChatViewModel: GroupChatViewModel
     private lateinit var usersViewModel: UsersViewModel
+
     private lateinit var binding: ActivityFriendListBinding
+
     private lateinit var chatViewModel: ChatViewModel
 
     private lateinit var adapter: ArrayAdapter<String>
@@ -34,19 +34,14 @@ class FriendListActivity : AppCompatActivity() {
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
         usersViewModel = ViewModelProvider(this)[UsersViewModel::class.java]
 
-        chatViewModel.loadAllUsers()
 
-        initAdapter()
         loadUsers()
+        initAdapter()
+        selectUsersForGroupChat()
 
 
     }
 
-    /*
-    Todo ändra " temporärt innan vi lägger till vänner via email lägg till alla i register "
-
-    TODO Lägga till att man lägger till vänner via ex email istället för att hämta all users ifrån db
-          */
     private fun initAdapter() {
         adapter = ArrayAdapter(
             this,
@@ -55,13 +50,17 @@ class FriendListActivity : AppCompatActivity() {
         )
         binding.lvFriendsListAfl.adapter = adapter
 
+    }
+
+    private fun selectUsersForGroupChat()  {
+
         val selectedUser = mutableListOf<User>()
 
         binding.lvFriendsListAfl.setOnItemClickListener { _, view, pos, _ ->
+
+
             val user = friendList[pos]
             val checkedView = view as CheckedTextView
-
-//            chatViewModel.setOtherUserId(selectedUser.uid)
 
             if (checkedView.isChecked) {
                 selectedUser.add(user)
@@ -69,33 +68,38 @@ class FriendListActivity : AppCompatActivity() {
                 selectedUser.remove(user)
 
             }
-
-
         }
 
+        startGroupChat(selectedUser)
+
+    }
+
+    private fun startGroupChat(selectedUsers: MutableList<User>) {
 
         binding.fabStartGroupChatAfl.setOnClickListener {
+
             val groupName = binding.etSearchFriendAfl.text.toString().trim()
+
             if (binding.etSearchFriendAfl.text.isBlank()) {
                 Toast.makeText(this, "Choose a group name", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
 
             }
 
-            if (selectedUser.size < 2) {
+            if (selectedUsers.size < 2) {
                 Toast.makeText(this, "Choose 2 users for group chat", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val selectedUserIds = selectedUser.map { it.uid }
-//            val selectedUsersName = selectedUser.map { it.username }
-
+            val selectedUserIds = selectedUsers.map { it.uid }
 
 
             usersViewModel.createGroup(groupName = groupName, selectedUserIds) { conversationId ->
                 Log.d("DEBUG_GROUP", "Created group conversationId = $conversationId")
-                Log.d("DEBUG_GROUP_CREATE", "Group created with id=$conversationId and name=$groupName")
-
+                Log.d(
+                    "DEBUG_GROUP_CREATE",
+                    "Group created with id=$conversationId and name=$groupName"
+                )
 
 
                 val intent = Intent(this, ChatActivity::class.java)
@@ -103,14 +107,11 @@ class FriendListActivity : AppCompatActivity() {
                 intent.putExtra("isGroup", true)
                 intent.putExtra("groupName", groupName)
                 intent.putExtra("chatPartnersId", ArrayList(selectedUserIds))
-//                intent.putStringArrayListExtra("chatPartnersNames", ArrayList(selectedUsersName))
 
                 startActivity(intent)
             }
 
         }
-
-
     }
 
     fun loadUsers() {
@@ -123,13 +124,5 @@ class FriendListActivity : AppCompatActivity() {
             adapter.addAll(userList.map { it.username })
             adapter.notifyDataSetChanged()
         }
-
-//        chatViewModel.users.observe(this) { userList ->
-//            friendList.clear()
-//            friendList.addAll(userList)
-//            adapter.clear()
-//            adapter.addAll(userList.map { it.username })
-//            adapter.notifyDataSetChanged()
-//        }
     }
 }

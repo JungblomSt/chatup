@@ -15,15 +15,15 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.launch
 
-class ConversationListViewModel : ViewModel(){
+class ConversationListViewModel : ViewModel() {
 
-    private var conversationListener : ListenerRegistration? = null
+    private var conversationListener: ListenerRegistration? = null
     private val db = Firebase.firestore
     private val auth = Firebase.auth
     private val _conversationList = MutableLiveData<List<ConversationList>>()
     val conversationList: LiveData<List<ConversationList>> = _conversationList
 
-    fun getAllCurrentUserConversationLists(){
+    fun getAllCurrentUserConversationLists() {
         val currentUserId = auth.currentUser?.uid ?: return
 
         conversationListener?.remove()
@@ -46,15 +46,10 @@ class ConversationListViewModel : ViewModel(){
                         val usersInConversation = doc.get("users") as? List<String> ?: emptyList()
                         val conversationId = doc.id
 
-//                        val conversation = doc.toObject(ConversationList::class.java)
-//                            ?.copy(conversationId = doc.id)
-//                            ?: return@mapNotNull null
-
 
 
                         if (!usersInConversation.contains(currentUserId)) return@mapNotNull null
 
-//                        if (!conversation.users.contains(currentUserId)) return@mapNotNull null
 
                         // Defaultvärden från Firestore
                         val lastMessage = doc.getString("lastMessage") ?: ""
@@ -71,19 +66,11 @@ class ConversationListViewModel : ViewModel(){
                         } else {
                             groupName
                         }
-                        Log.d("DEBUG_CONV_LIST", "Processing conversation $conversationId, type=$conversationType, users=$usersInConversation, name='$groupName'")
+                        Log.d(
+                            "DEBUG_CONV_LIST",
+                            "Processing conversation $conversationId, type=$conversationType, users=$usersInConversation, name='$groupName'"
+                        )
 
-//                        if (conversation.conversationType == "private"){
-//                            val friendId = conversation.users.first { it != currentUserId }
-//                            val friend = users.firstOrNull { it.uid == friendId }
-//                                ?: return@mapNotNull null
-//
-//                            conversation.friendUsername = friend.username ?: ""
-//
-//                        } else {
-//                            conversation.friendUsername = conversation.name
-//                        }
-//                        conversation
 
                         ConversationList(
                             conversationId = conversationId,
@@ -98,9 +85,6 @@ class ConversationListViewModel : ViewModel(){
                         )
                     }
 
-
-
-
                     Log.d("DEBUG_CONV_LIST", "Posting ${convList.size} conversations to LiveData")
 
                     _conversationList.postValue(convList)
@@ -109,7 +93,7 @@ class ConversationListViewModel : ViewModel(){
 
     }
 
-    private suspend fun getUsers(): List<User>{
+    private suspend fun getUsers(): List<User> {
         val currentUserId = auth.currentUser?.uid
 
         val usersSnapshot = db.collection("users").get().await()

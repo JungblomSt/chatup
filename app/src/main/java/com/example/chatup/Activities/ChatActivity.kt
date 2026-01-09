@@ -14,6 +14,8 @@ import com.example.chatup.databinding.ActivityChatBinding
 import com.example.chatup.viewmodel.ChatViewModel
 import com.example.chatup.viewmodel.GroupChatViewModel
 import com.example.chatup.viewmodel.UsersViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ChatActivity : AppCompatActivity() {
@@ -36,41 +38,8 @@ class ChatActivity : AppCompatActivity() {
         groupChatViewModel = ViewModelProvider(this)[GroupChatViewModel::class.java]
         usersViewModel = ViewModelProvider(this)[UsersViewModel::class.java]
 
-        val usersMap = mutableMapOf<String, String>()
-
-        FirebaseFirestore.getInstance().collection("users")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val users = snapshot.documents.mapNotNull { doc ->
-                    val user = doc.toObject(User::class.java)?.copy(uid = doc.id)
-                    user
-                }
-
-                // Logga alla användare
-                users.forEach { Log.d("DEBUG_USERS_MAP_TEST", "User loaded: ${it.uid} -> ${it.username}") }
-
-                // Bygg map
-                users.forEach { usersMap[it.uid] = it.username ?: "Unknown" }
-
-                Log.d("DEBUG_USERS_MAP_TEST", "UsersMap built: $usersMap")
-
-                // 2️⃣ Observa groupChatMessage och logga namn för varje meddelande
-                groupChatViewModel.groupChatMessage.observe(this) { messages ->
-                    messages.forEachIndexed { index, msg ->
-                        val name = usersMap[msg.senderId] ?: "Unknown"
-                        Log.d("DEBUG_ADAPTER_TEST", "Position $index senderId=${msg.senderId} -> name=$name")
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("DEBUG_USERS_MAP_TEST", "Failed to load users", e)
-            }
-
         adapter = ChatRecViewAdapter()
 
-//        adapter = ChatRecViewAdapter { senderId ->
-//            groupChatViewModel.getUsernameFor(senderId)
-//        }
 
         binding.rvChatAc.layoutManager = LinearLayoutManager(this)
         binding.rvChatAc.adapter = adapter
@@ -94,7 +63,6 @@ class ChatActivity : AppCompatActivity() {
         if (isGroup){
             val conversationId = intent.getStringExtra("conversationId")
             val chatPartnersIds = intent.getStringArrayListExtra("chatPartnersId") ?: emptyList()
-//            val chatPartnersNames = intent.getStringArrayListExtra("chatPartnersNames") ?: emptyList()
             Log.d("DEBUG_CHAT", "2onCreate: isGroup=$isGroup")
             Log.d("DEBUG_CHAT", "2onCreate: conversationId=$conversationId")
             Log.d("DEBUG_CHAT", "2onCreate: groupName='$groupName'")
@@ -107,14 +75,34 @@ class ChatActivity : AppCompatActivity() {
 
     }
 
+
     override fun onStart() {
         super.onStart()
+
+        val otherUserId = intent.getStringExtra("userId") ?: return
         if (intent.getBooleanExtra("isGroup", false)) {
             groupChatViewModel.setGroupChatOpened(true)
-        } else {
-            chatViewModel.setChatOpened(true)
+            val conversationId = intent.getStringExtra("conversationId")
+            if (conversationId != null) {
+                groupChatViewModel.markLastSeen(conversationId)
+            }
+            else{
+                chatViewModel.setConversationId( otherUserId)
+                chatViewModel.setOtherUserId(otherUserId)
+
+                chatViewModel.conversationId.observe(this) { conversationId ->
+                    if (conversationId != null) {
+                        chatViewModel.markChatAsSeen(conversationId)
+                        chatViewModel.checkDeliveredMessage(conversationId)
+                    }
+                }
+            }
         }
+
+
     }
+
+
 
     /**
      * Initializes the chat if a valid user ID is provided.
@@ -122,12 +110,11 @@ class ChatActivity : AppCompatActivity() {
      *
      * @param otherUserId The user ID of the chat partner.
      */
-    private fun startChat(otherUserId: String?, otherUserName : String?) {
-
-    }
-
     private fun startPrivateChat(otherUserId: String?, otherUserName: String?) {
-        if (otherUserId != null) {
+        if (otherUserId == null) {
+            Log.e("DEBUG_PRIVATE", "conversationId is null!")
+            return
+        }
 
             chatViewModel.setOtherUserId(otherUserId)
             chatViewModel.initChat(otherUserId)
@@ -173,11 +160,7 @@ class ChatActivity : AppCompatActivity() {
                 }
             }
 
-        } else {
-            Toast.makeText(this, "Something is wrong ", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, FriendListActivity::class.java)
-            startActivity(intent)
-        }
+
     }
 
     fun startGroupChat(conversationId: String?, groupName: String?, chatPartnersId: List<String>) {
@@ -186,12 +169,28 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
+                binding.etMessageAc.addTextChangedListener { editText ->
+            if (editText.isNullOrBlank()) {
+                chatViewModel.setTyping(false)
+            } else {
+                chatViewModel.setTyping(true)
+            }
+        }
+
+        chatViewModel.isTyping.observe(this) { isTyping ->
+            if (isTyping) {
+                binding.tvReceiverNameAc.text = "is typing..."
+            } else {
+                binding.tvReceiverNameAc.text = groupName
+            }
+        }
+
         binding.tvReceiverNameAc.text = groupName
 
-        // Initiera gruppchat i viewmodel
+
         groupChatViewModel.initGroupChat(convId = conversationId, members = chatPartnersId)
 
-        // Gör adaptern till en gruppchatt
+
         adapter.isGroupChat = true
 
         groupChatViewModel.usersMap.observe(this){ map ->
@@ -200,20 +199,6 @@ class ChatActivity : AppCompatActivity() {
         }
 
 
-//        // Hämta användarnamn via usersViewModel
-//        usersViewModel.users.observe(this) { userList ->
-//            // Fyll usersMap med UID -> username
-//            val map = userList.associate { it.uid to it.username }
-//            adapter.updateUsersMap(map)
-//            Log.d("DEBUG_USERS_MAP!!", "Loaded usersMap: ${adapter.usersMap}")
-//
-//
-//
-//            // Re-bind adaptern så namnen visas
-//            adapter.notifyDataSetChanged()
-//        }
-
-        // Observera gruppchattmeddelanden
         groupChatViewModel.groupChatMessage.observe(this) { messages ->
             Log.d("DEBUG_UI!!", "groupChatMessage observer triggered, size=${messages.size}")
             adapter.submitList(messages.toList())
@@ -222,7 +207,7 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        // Skicka meddelande
+
         binding.fabSendAc.setOnClickListener {
             val sendChatText = binding.etMessageAc.text.toString()
             if (sendChatText.isNotBlank()) {
@@ -232,92 +217,6 @@ class ChatActivity : AppCompatActivity() {
             }
         }
     }
-
-
-//    fun startGroupChat (conversationId : String?, groupName : String?, chatPartnersId : List<String>) {
-//
-////        binding.etMessageAc.addTextChangedListener { editText ->
-////            if (editText.isNullOrBlank()) {
-////                chatViewModel.setTyping(false)
-////            } else {
-////                chatViewModel.setTyping(true)
-////            }
-////        }
-//
-////        chatViewModel.isTyping.observe(this) { isTyping ->
-////            if (isTyping) {
-////                binding.tvReceiverNameAc.text = "is typing..."
-////            } else {
-////                binding.tvReceiverNameAc.text = groupName
-////            }
-////        }
-//
-//        Log.d("DEBUG_GROUP", "startGroupChat called with conversationId = $conversationId")
-//
-//        if (conversationId == null) {
-//            Log.e("DEBUG_GROUP", "conversationId is null!")
-//            return
-//        }
-//
-//
-//
-//        binding.tvReceiverNameAc.text = groupName
-//
-//        groupChatViewModel.initGroupChat(convId = conversationId,
-//            members = chatPartnersId
-//        )
-//
-////
-////        val chatPartnersUsers = chatPartnersId.mapIndexed { index, id ->
-////            User(uid = id, username = chatPartnersNames.getOrElse(index) { "Unknown" })
-////        }
-////        adapter.setChatUsers(isGroup = true, users = chatPartnersUsers)
-////
-////        // Logga för debug
-////        chatPartnersUsers.forEach { user ->
-////            Log.d("DEBUG_TEST_USERS", "uid=${user.uid}, username=${user.username}")
-////        }
-//
-////        val chatPartners = mutableListOf<User>()
-////        if (chatPartnersId.size == chatPartnersNames.size) {
-////            for (i in chatPartnersId.indices) {
-////                chatPartners.add(User(uid = chatPartnersId[i], username = chatPartnersNames[i]))
-////            }
-////        }
-//
-//        Log.d("DEBUG_GROUP_CHAT", "IDs: $chatPartnersId")
-////        Log.d("DEBUG_GROUP_CHAT", "Names: $chatPartnersNames")
-//        Log.d("DEBUG_GROUP_CHAT", "IDs size: ${chatPartnersId.size}")
-////        Log.d("DEBUG_GROUP_CHAT", "Names size: ${chatPartnersNames.size}")
-//
-//
-////        adapter.setChatUsers(isGroup = true, users = chatPartnersId.mapIndexed { index, id ->
-////            User(uid = id, username = chatPartnersNames.getOrElse(index){"Unknown"})
-////        })
-//
-////        adapter.setChatUsers(isGroup = true, users = chatPartners )
-//
-//
-//
-//        groupChatViewModel.groupChatMessage.observe(this) {messages ->
-//            Log.d("DEBUG_UI", "groupChatMessage observer triggered, size=${messages.size}")
-//
-//            adapter.submitList(messages.toList())
-//            if (messages.isNotEmpty()) {
-//                binding.rvChatAc.scrollToPosition(messages.size -1)
-//            }
-//        }
-//
-//        binding.fabSendAc.setOnClickListener {
-//            val sendChatText = binding.etMessageAc.text.toString()
-//            if (sendChatText.isNotBlank()) {
-//                groupChatViewModel.sendGroupMessage(sendChatText)
-//                binding.etMessageAc.text.clear()
-//                Log.d("!!!", "Sent GROUP Chat = $sendChatText")
-//            }
-//        }
-//
-//    }
 
     override fun onStop() {
         super.onStop()

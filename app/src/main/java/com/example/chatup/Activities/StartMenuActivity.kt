@@ -89,8 +89,4 @@ class StartMenuActivity : AppCompatActivity() {
         findViewById<FrameLayout>(R.id.usersContainer).visibility = View.VISIBLE
     }
 
-    override fun onStart() {
-        super.onStart()
-        chatViewModel.checkDeliveredMessage()
-    }
 }

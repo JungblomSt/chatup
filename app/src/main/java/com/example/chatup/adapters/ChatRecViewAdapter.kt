@@ -16,8 +16,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ChatRecViewAdapter (private val getUsername: ((String) -> String)? = null) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
+class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var isGroupChat = false
     var chatPartnerName: String? = ""
@@ -74,20 +73,16 @@ class ChatRecViewAdapter (private val getUsername: ((String) -> String)? = null)
         }
     }
 
-//    fun getChatPartnerName(otherUserName: String) {
-//        chatPartnerName = otherUserName
-//    }
 
     fun updateUsersMap(newUsersMap: Map<String, String?>) {
         Log.d("DEBUG_ADAPTER!!", "setUsersMap called with $newUsersMap")
         usersMap = newUsersMap
-        notifyDataSetChanged() // tvingar ombindning så namn dyker upp
+        notifyDataSetChanged()
     }
 
 
     fun submitList(chatMessages: List<ChatMessage>) {
         Log.d("DEBUG_UI_ADAPTER", "submitList called with ${chatMessages.size} messages")
-
         chatList = chatMessages
         notifyDataSetChanged()
     }
@@ -106,28 +101,35 @@ class ChatRecViewAdapter (private val getUsername: ((String) -> String)? = null)
             holder.binding.ivCheckSentIms.isVisible = false
             holder.binding.ivCheckDeliveredIms.isVisible = false
 
-            val currentUser = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-            val isSeen = chatListMessage.seenBy.containsAll(chatListMessage.deliveredTo.filter { it != currentUser })
-            val isDelivered = chatListMessage.deliveredTo.isNotEmpty() && !isSeen
+            val otherUsersDeliveredTo = chatListMessage.deliveredTo.filter { it != chatListMessage.senderId }
+            val otherUsersSeenBy = chatListMessage.seenBy.filter { it != chatListMessage.senderId }
 
-            when {
-                isSeen -> {
-                    holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.seen_outline_check_small_24)
-                    holder.binding.ivCheckSentIms.setImageResource(R.drawable.seen_outline_check_small_24)
-                    holder.binding.ivCheckSentIms.isVisible = true
-                    holder.binding.ivCheckDeliveredIms.isVisible = true
 
-                }
-                isDelivered -> {
-                    holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.outline_check_small_24)
-                    holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
-                    holder.binding.ivCheckDeliveredIms.isVisible = true
-                    holder.binding.ivCheckSentIms.isVisible = true
-                }
-                else -> {
-                    holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
-                    holder.binding.ivCheckSentIms.isVisible = true
+            val isSeen = otherUsersDeliveredTo.isNotEmpty() && otherUsersDeliveredTo.all { otherUsersSeenBy.contains(it) }
+
+
+            val isDelivered = otherUsersDeliveredTo.isNotEmpty() && !isSeen
+
+            if (!isGroupChat){
+                when {
+                    isSeen -> {
+                        holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.seen_outline_check_small_24)
+                        holder.binding.ivCheckSentIms.setImageResource(R.drawable.seen_outline_check_small_24)
+                        holder.binding.ivCheckSentIms.isVisible = true
+                        holder.binding.ivCheckDeliveredIms.isVisible = true
+
+                    }
+                    isDelivered -> {
+                        holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.outline_check_small_24)
+                        holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
+                        holder.binding.ivCheckDeliveredIms.isVisible = true
+                        holder.binding.ivCheckSentIms.isVisible = true
+                    }
+                    else -> {
+                        holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
+                        holder.binding.ivCheckSentIms.isVisible = true
+                    }
                 }
             }
 
@@ -135,7 +137,6 @@ class ChatRecViewAdapter (private val getUsername: ((String) -> String)? = null)
             holder.binding.tvMessageImr.text = chatListMessage.messages
             holder.binding.tvTimeStampImr.text = formatTimeStamp(chatListMessage.timeStamp)
 
-//            holder.binding.tvFriendNameImr.isVisible = true
 
                 val senderName = if (isGroupChat) usersMap[chatListMessage.senderId] else chatPartnerName
                 Log.d("DEBUG_ADAPTER", "Position $position senderId=${chatListMessage.senderId} -> name=$senderName")
@@ -144,13 +145,6 @@ class ChatRecViewAdapter (private val getUsername: ((String) -> String)? = null)
             }
                 holder.binding.tvFriendNameImr.text = senderName ?: "unknown"
 
-//            holder.binding.tvFriendNameImr.text = if (isGroupChat) {
-//                usersMap[chatListMessage.senderId]
-//                    ?: getUsername?.invoke(chatListMessage.senderId)
-//                    ?: "Unknown"
-//            }else {
-//                chatPartnerName
-//            }
         }
 
 

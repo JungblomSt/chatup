@@ -10,33 +10,37 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.ListenerRegistration
 
-class GroupChatViewModel : ViewModel () {
+class GroupChatViewModel : ViewModel() {
 
-    private lateinit var conversationId : String
+    private lateinit var conversationId: String
 
-    private lateinit var groupMembers : List<String>
-
-//    private val usersMap = mutableMapOf<String, String>()
+    private lateinit var groupMembers: List<String>
 
     private val _usersMap = MutableLiveData<Map<String, String>>(emptyMap())
+
     val usersMap: LiveData<Map<String, String>> get() = _usersMap
 
-    private var chatListener : ListenerRegistration? = null
+    private var chatListener: ListenerRegistration? = null
 
     private val _groupChatMessage = MutableLiveData<List<ChatMessage>>()
-    val groupChatMessage : LiveData<List<ChatMessage>> get() = _groupChatMessage
+
+    val groupChatMessage: LiveData<List<ChatMessage>> get() = _groupChatMessage
 
     private val _chatIsOpened = MutableLiveData<Boolean>()
 
-    fun setGroupChatOpened (isOpened : Boolean) {
+    fun setGroupChatOpened(isOpened: Boolean) {
         _chatIsOpened.value = isOpened
     }
 
-    private fun isGroupChatOpened () : Boolean {
+    private fun isGroupChatOpened(): Boolean {
         return _chatIsOpened.value == true
     }
 
-    fun initGroupChat (convId : String?, members : List<String>) {
+    fun markLastSeen(conversationId: String) {
+        FirebaseManager.markLastMessageSeen(conversationId)
+    }
+
+    fun initGroupChat(convId: String?, members: List<String>) {
 
         if (convId == null) {
             Log.e("DEBUG_GROUP", "initGroupChat: convId is null!")
@@ -48,7 +52,10 @@ class GroupChatViewModel : ViewModel () {
 
         loadUsersMap()
 
-        Log.d("DEBUG_GROUP", "initGroupChat: conversationId set to $conversationId with members $members")
+        Log.d(
+            "DEBUG_GROUP",
+            "initGroupChat: conversationId set to $conversationId with members $members"
+        )
 
         chatListener?.remove()
 
@@ -56,28 +63,24 @@ class GroupChatViewModel : ViewModel () {
 
         chatListener = FirebaseManager.snapShotListener(
             conversationId = conversationId,
-            onUpdate = {messages ->
+            onUpdate = { messages ->
                 Log.d("DEBUG_GROUP", "Received ${messages.size} messages from Firestore")
                 Log.d("DEBUG_UI_SNAPSHOT", "Snapshot received, messages=${messages.size}")
                 messages.forEach { Log.d("DEBUG_GROUP_MSG", it.toString()) }
                 _groupChatMessage.postValue(messages)
             },
 
-            chatIsOpened = {isGroupChatOpened()}
+            chatIsOpened = { isGroupChatOpened() }
         )
 
     }
-
-//    fun getUsernameFor(uid: String): String {
-//        return usersMap[uid] ?: "Unknown"
-//    }
 
 
     private fun loadUsersMap() {
         FirebaseManager.getAllUsers(
             onComplete = { users ->
-                val map: Map <String, String> = users.associate { user ->
-                    Pair(user.uid.toString(), user.username.toString() ?: "Unknown" )
+                val map: Map<String, String> = users.associate { user ->
+                    Pair(user.uid, user.username.toString())
                 }
                 _usersMap.postValue(map)
                 Log.d("DEBUG_USERS_MAP", "Loaded usersMap: $map")
@@ -89,20 +92,7 @@ class GroupChatViewModel : ViewModel () {
     }
 
 
-//    private fun markMessagesAsSeenIfOpen(messages: List<ChatMessage>) {
-//        val currentUserId = Firebase.auth.currentUser?.uid ?: return
-//
-//        if (!isGroupChatOpened()) return
-//
-//        messages.forEach { msg ->
-//            if (!msg.seenBy.contains(currentUserId)) {
-//                FirebaseManager.markMessageSeen(conversationId, msg.id, currentUserId)
-//            }
-//        }
-//    }
-
-
-    fun sendGroupMessage (chatText : String) {
+    fun sendGroupMessage(chatText: String) {
         if (!::conversationId.isInitialized) {
             Log.e("GROUP_VM", "GroupChatViewModel not initialized")
             return
@@ -124,8 +114,5 @@ class GroupChatViewModel : ViewModel () {
         chatListener = null
         super.onCleared()
     }
-
-
-
 
 }
