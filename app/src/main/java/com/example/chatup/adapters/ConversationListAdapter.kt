@@ -46,6 +46,7 @@ class ConversationListAdapter(
             holder.binding.ivCheckSentIcl.isVisible = false
             holder.binding.ivCheckDeliveredIcl.isVisible = false
 
+
             when {
                 conversation.lastMessageSeen -> {
                     holder.binding.ivCheckDeliveredIcl.setImageResource(R.drawable.seen_outline_check_small_24)
@@ -68,14 +69,12 @@ class ConversationListAdapter(
                 }
 
             }
-            holder.binding.conversationListCardView.setOnClickListener {
-                onConversationClicked(conversation)
-            }
-
-            holder.binding.ivCheckSentIcl.isVisible = false
-            holder.binding.ivCheckDeliveredIcl.isVisible = false
 
 
+        }
+
+        holder.binding.conversationListCardView.setOnClickListener {
+            onConversationClicked(conversation)
         }
     }
 

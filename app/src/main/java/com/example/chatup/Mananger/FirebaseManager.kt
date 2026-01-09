@@ -1,4 +1,4 @@
-package com.example.chatup
+package com.example.chatup.Mananger
 
 import android.util.Log
 import com.example.chatup.data.ChatMessage
@@ -6,11 +6,10 @@ import com.example.chatup.data.User
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
+import kotlin.collections.get
 
 object FirebaseManager {
 
@@ -25,111 +24,102 @@ object FirebaseManager {
      */
     private lateinit var currentUser: FirebaseUser
 
-
-    fun markDeliveredPrivateChats(conversationId: String) {
+    fun markPrivateChatDelivered ()  {
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+        db.collection("conversation")
+            .whereArrayContains("users", currentUserId)
+            .addSnapshotListener { conversations, e ->
+                if (e != null) {
+                    Log.e("!!!", "Failed to listen to conversations: ${e.message}")
+                    return@addSnapshotListener
+                }
+
+                conversations?.documents?.forEach { conversationDoc ->
+                    val conversationId = conversationDoc.id
+
+                    db.collection("conversation")
+                        .document(conversationId)
+                        .collection("messages")
+                        .whereEqualTo("receiverId", currentUserId)
+                        .whereEqualTo("delivered", false)
+                        .get()
+                        .addOnSuccessListener{ messages ->
+
+                            messages?.documents?.forEach { msg ->
+                                msg.reference.update("delivered", true)
+                                    .addOnSuccessListener {
+                                        Log.d("!!!", "Delivered marked for message ${msg.id}")
+                                    }
+                                    .addOnFailureListener { e3 ->
+                                        Log.e("!!!", "Failed to mark delivered: ${e3.message}")
+                                    }
+                                val lastMessageId = conversationDoc.getString("lastMessageId")
+
+                                if (msg.id == lastMessageId){
+                                    conversationDoc.reference.update(
+                                        mapOf ("lastMessageDelivered" to true,
+                                            "lastUpdated" to System.currentTimeMillis()))
+                                }
+                            }
+                        }
+                }
+            }
+
+    }
+
+    fun markMessageSeen ( conversationId: String  ,chatIsOpened : () -> Boolean) {
+
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+        Log.e("!!!", "Failed to open check mark seen in firebase")
+
+        Log.d("IS_OPEN VALUE 3", "$chatIsOpened")
+
 
         db.collection("conversation")
             .document(conversationId)
             .collection("messages")
-            .whereNotEqualTo(
-                "senderId",
-                currentUserId
-            )
-            .get()
-            .addOnSuccessListener { messages ->
-                messages.documents.forEach { msgDoc ->
-                    val message = msgDoc.toObject(ChatMessage::class.java) ?: return@forEach
+            .orderBy("timeStamp")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("!!!", e.message.toString())
+                    return@addSnapshotListener
+                }
 
-                    if (!message.deliveredTo.contains(currentUserId)) {
-                        msgDoc.reference.update(
-                            "deliveredTo",
-                            FieldValue.arrayUnion(currentUserId)
-                        )
+                if (snapshot == null) return@addSnapshotListener
+
+
+                snapshot.documents.forEach {doc ->
+                    val message = doc.toObject(ChatMessage::class.java) ?: return@forEach
+
+                    if (message.receiverId == currentUserId
+                        && message.delivered
+                        && !message.seen &&
+                        chatIsOpened()) {
+
+                        doc.reference.update("seen", true)
                     }
 
                 }
 
-            }
-            .addOnFailureListener { e ->
-                Log.e("FirebaseManager", "Failed to mark delivered: ${e.message}")
-            }
-    }
-
-    fun markSeenPrivateChat(conversationId: String) {
-        val currentUserId = Firebase.auth.currentUser?.uid ?: return
-
-        val messagesRef = db.collection("conversation")
-            .document(conversationId)
-            .collection("messages")
-
-        messagesRef.get().addOnSuccessListener { snapshot ->
-            snapshot.documents.forEach { doc ->
-                val message = doc.toObject(ChatMessage::class.java) ?: return@forEach
+                val lastDoc = snapshot.documents.lastOrNull() ?: return@addSnapshotListener
+                val lastMessage = lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
 
 
-                if (message.senderId == currentUserId) return@forEach
+                if (lastMessage.receiverId == currentUserId
+                    && lastMessage.delivered && !lastMessage.seen
+                    && chatIsOpened()) {
 
+                    lastDoc.reference.update("seen", true)
 
-                if (!message.seenBy.contains(currentUserId)) {
-                    doc.reference.update(
-                        "seenBy",
-                        FieldValue.arrayUnion(currentUserId)
-                    )
-                }
-            }
-
-
-            val lastMessageDoc = snapshot.documents.lastOrNull()
-            lastMessageDoc?.reference?.update(
-                "lastMessageSeen",
-                true
-            )
-
-
-            db.collection("conversation")
-                .document(conversationId)
-                .update(
-                    mapOf(
-                        "lastMessageSeen" to true,
-                        "lastUpdated" to System.currentTimeMillis()
-                    )
-                )
-        }
-    }
-
-
-    fun markLastMessageSeen(conversationId: String) {
-        val currentUserId = Firebase.auth.currentUser?.uid ?: return
-
-        db.collection("conversation")
-            .document(conversationId)
-            .collection("messages")
-            .orderBy("timeStamp", Query.Direction.DESCENDING)
-            .limit(1)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val lastMessageDoc = snapshot.documents.firstOrNull() ?: return@addOnSuccessListener
-                val message =
-                    lastMessageDoc.toObject(ChatMessage::class.java) ?: return@addOnSuccessListener
-
-
-                if (!message.seenBy.contains(currentUserId)) {
-                    lastMessageDoc.reference.update(
-                        "seenBy",
-                        FieldValue.arrayUnion(currentUserId)
-                    )
+                    db.collection("conversation")
+                        .document(conversationId)
+                        .update(
+                            mapOf ("lastMessageSeen" to true,
+                                "lastUpdated" to System.currentTimeMillis()))
                 }
 
-
-                db.collection("conversation")
-                    .document(conversationId)
-                    .update(
-                        mapOf(
-                            "lastMessageSeen" to true,
-                            "lastUpdated" to System.currentTimeMillis()
-                        )
-                    )
             }
     }
 
@@ -201,10 +191,6 @@ object FirebaseManager {
             }
     }
 
-
-    // todo Uppdatera komentarer
-
-
     /**
      * Sets up a real-time listener for messages in a specific conversation.
      *
@@ -215,19 +201,12 @@ object FirebaseManager {
      */
     fun snapShotListener(
         conversationId: String,
-        onUpdate: (List<ChatMessage>) -> Unit,
-        chatIsOpened: () -> Boolean
+        onUpdate: (List<ChatMessage>) -> Unit, chatIsOpened : () -> Boolean
     ): ListenerRegistration? {
 
-        val conversationRef = db.collection("conversation").document(conversationId)
 
         val currentUserId = Firebase.auth.currentUser?.uid ?: return null
 
-        var isGroupChat = false
-
-        conversationRef.get().addOnSuccessListener { convSnapshot ->
-            isGroupChat = convSnapshot.getString("conversationType") == "group"
-        }
 
         return db.collection("conversation")
             .document(conversationId)
@@ -248,8 +227,39 @@ object FirebaseManager {
                 }
                 onUpdate(chatMessages)
 
+                snapshot.documents.forEach {doc ->
+                    val message = doc.toObject(ChatMessage::class.java) ?: return@forEach
+
+                    if (message.receiverId == currentUserId
+                        && message.delivered
+                        && !message.seen &&
+                        chatIsOpened()) {
+
+                        doc.reference.update("seen", true)
+                    }
+
+                }
+
+                val lastDoc = snapshot.documents.lastOrNull() ?: return@addSnapshotListener
+                val lastMessage = lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
+
+
+                if (lastMessage.receiverId == currentUserId
+                    && lastMessage.delivered && !lastMessage.seen
+                    && chatIsOpened()) {
+
+                    lastDoc.reference.update("seen", true)
+
+                    db.collection("conversation")
+                        .document(conversationId)
+                        .update(
+                            mapOf ("lastMessageSeen" to true,
+                                "lastUpdated" to System.currentTimeMillis()))
+                }
 
             }
+
+
 
 
     }
@@ -282,11 +292,14 @@ object FirebaseManager {
             receiverId = receiverId,
             messages = chatText,
             timeStamp = System.currentTimeMillis(),
-            deliveredTo = emptyList(),
-            seenBy = emptyList()
+            delivered = false,
+            seen = false
         )
 
         chatMessageRef.set(chatMessage)
+            .addOnSuccessListener {
+                Log.d("MSG_SEND", "Message sent id=${chatMessageRef.id}")
+
 
         // Update or create conversation metadata
         db.collection("conversation")
@@ -303,6 +316,11 @@ object FirebaseManager {
                 SetOptions.merge()
             )
 
+            }.addOnFailureListener {
+                Log.d(
+                    "CONV_UPDATE",
+                    "Conversation updated: delivered=false, seen=false, sender=${currentUser.uid}")
+            }
     }
 
     fun sendGroupMessage(conversationId: String, chatText: String, members: List<String>) {
@@ -319,8 +337,8 @@ object FirebaseManager {
             messages = chatText,
             receiverId = null,
             timeStamp = System.currentTimeMillis(),
-            deliveredTo = emptyList(),
-            seenBy = emptyList()
+            delivered = false,
+            seen = false
         )
 
         groupMessageRef.set(groupMessage)
@@ -362,6 +380,7 @@ object FirebaseManager {
         val user1Id: String = currentUser.uid
         return listOf(user1Id, user2Id).sorted().joinToString("_")
     }
+
 
 
     fun createGroupConversation(

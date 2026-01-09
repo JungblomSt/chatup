@@ -4,10 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.chatup.FirebaseManager
+import com.example.chatup.Mananger.FirebaseManager
 import com.example.chatup.data.ChatMessage
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.google.firebase.firestore.ListenerRegistration
 
 class GroupChatViewModel : ViewModel() {
@@ -34,10 +32,6 @@ class GroupChatViewModel : ViewModel() {
 
     private fun isGroupChatOpened(): Boolean {
         return _chatIsOpened.value == true
-    }
-
-    fun markLastSeen(conversationId: String) {
-        FirebaseManager.markLastMessageSeen(conversationId)
     }
 
     fun initGroupChat(convId: String?, members: List<String>) {
@@ -68,9 +62,7 @@ class GroupChatViewModel : ViewModel() {
                 Log.d("DEBUG_UI_SNAPSHOT", "Snapshot received, messages=${messages.size}")
                 messages.forEach { Log.d("DEBUG_GROUP_MSG", it.toString()) }
                 _groupChatMessage.postValue(messages)
-            },
-
-            chatIsOpened = { isGroupChatOpened() }
+            },chatIsOpened = {isGroupChatOpened()}
         )
 
     }

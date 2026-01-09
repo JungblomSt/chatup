@@ -102,25 +102,26 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             holder.binding.ivCheckDeliveredIms.isVisible = false
 
 
-            val otherUsersDeliveredTo = chatListMessage.deliveredTo.filter { it != chatListMessage.senderId }
-            val otherUsersSeenBy = chatListMessage.seenBy.filter { it != chatListMessage.senderId }
+//            val otherUsersDeliveredTo = chatListMessage.deliveredTo.filter { it != chatListMessage.senderId }
+//
+//            val otherUsersSeenBy = chatListMessage.seenBy.filter { it != chatListMessage.senderId }
+//
+//
+//            val isSeen = otherUsersDeliveredTo.isNotEmpty() && otherUsersDeliveredTo.all { otherUsersSeenBy.contains(it) }
 
 
-            val isSeen = otherUsersDeliveredTo.isNotEmpty() && otherUsersDeliveredTo.all { otherUsersSeenBy.contains(it) }
-
-
-            val isDelivered = otherUsersDeliveredTo.isNotEmpty() && !isSeen
+//            val isDelivered = otherUsersDeliveredTo.isNotEmpty() && !isSeen
 
             if (!isGroupChat){
                 when {
-                    isSeen -> {
+                    chatListMessage.seen -> {
                         holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.seen_outline_check_small_24)
                         holder.binding.ivCheckSentIms.setImageResource(R.drawable.seen_outline_check_small_24)
                         holder.binding.ivCheckSentIms.isVisible = true
                         holder.binding.ivCheckDeliveredIms.isVisible = true
 
                     }
-                    isDelivered -> {
+                    chatListMessage.delivered -> {
                         holder.binding.ivCheckDeliveredIms.setImageResource(R.drawable.outline_check_small_24)
                         holder.binding.ivCheckSentIms.setImageResource(R.drawable.outline_check_small_24)
                         holder.binding.ivCheckDeliveredIms.isVisible = true

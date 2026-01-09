@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.chatup.FirebaseManager
+import com.example.chatup.Mananger.FirebaseManager
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.data.User
 import com.google.firebase.firestore.ListenerRegistration
@@ -34,13 +34,6 @@ class ChatViewModel : ViewModel() {
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> get() = _users
 
-    /**
-     * Sets the current conversation ID.
-     * This is now LiveData and can be observed in the Activity.
-     */
-    fun setConversationId(otherUserId: String) {
-        _conversationId.value = FirebaseManager.createConversationId( otherUserId)
-    }
 
     fun setOtherUserName(otherUserName: String?) {
         _otherUserName.value = otherUserName ?: ""
@@ -51,12 +44,14 @@ class ChatViewModel : ViewModel() {
     }
 
     fun setChatOpened(isOpened: Boolean) {
-        _chatOpened.value = isOpened
+        Log.d("IS_OPEN VALUE ", "$isOpened")
+        _chatOpened.postValue(isOpened)
     }
 
     fun isChatOpened(): Boolean {
         return _chatOpened.value == true
     }
+
 
     fun setTyping(isTyping: Boolean) {
         _conversationId.value?.let { conversationId ->
@@ -69,17 +64,20 @@ class ChatViewModel : ViewModel() {
      * Starts listening to messages and typing status.
      */
     fun initChat(otherUserId: String) {
+
+
         _otherUserId.value = otherUserId
 
         _conversationId.value = FirebaseManager.createConversationId( otherUserId)
 
+        _conversationId.value ?: return
 
+        FirebaseManager.markMessageSeen(conversationId = conversationId.value!! ,chatIsOpened = {isChatOpened()})
         chatListener = FirebaseManager.snapShotListener(
             conversationId = _conversationId.value!!,
             onUpdate = { messages ->
                 _chatMessage.postValue(messages.toList())
-            },
-            chatIsOpened = { isChatOpened() }
+            }, chatIsOpened = {isChatOpened()}
         )
 
 
@@ -99,20 +97,12 @@ class ChatViewModel : ViewModel() {
         FirebaseManager.sendChatMessage(chatText, receiverId)
     }
 
-    /**
-     * Marks all messages in this conversation as seen by the current user
-     * and updates delivered/seen state for UI.
-     */
-    fun markChatAsSeen(conversationId: String) {
-        FirebaseManager.markSeenPrivateChat(conversationId)
-        FirebaseManager.markDeliveredPrivateChats(conversationId)
-    }
 
     /**
      * Checks messages for delivery status (for the current user)
      */
-    fun checkDeliveredMessage(conversationId: String) {
-        FirebaseManager.markDeliveredPrivateChats(conversationId)
+    fun checkDeliveredMessage() {
+        FirebaseManager.markPrivateChatDelivered()
     }
 
     /**

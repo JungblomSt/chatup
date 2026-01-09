@@ -85,18 +85,7 @@ class ChatActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        val otherUserId = intent.getStringExtra("userId") ?: return
-
-        chatViewModel.setConversationId(otherUserId)
-        chatViewModel.setOtherUserId(otherUserId)
-
-        chatViewModel.conversationId.observe(this) { conversationId ->
-            if (conversationId != null) {
-                chatViewModel.markChatAsSeen(conversationId)
-                chatViewModel.checkDeliveredMessage(conversationId)
-            }
-        }
-
+        chatViewModel.setChatOpened(true)
 
     }
 
@@ -116,22 +105,6 @@ class ChatActivity : AppCompatActivity() {
 
             binding.tvReceiverNameAc.text = otherUserName
 
-            binding.etMessageAc.addTextChangedListener { editText ->
-                if (editText.isNullOrBlank()) {
-                    chatViewModel.setTyping(false)
-                } else {
-                    chatViewModel.setTyping(true)
-                }
-            }
-
-            chatViewModel.isTyping.observe(this) { isTyping ->
-                if (isTyping) {
-                    binding.tvIsTextingAc.setText(getString(R.string.is_typing, otherUserName))
-                } else {
-                    binding.tvIsTextingAc.setText("")
-                }
-            }
-
             chatViewModel.otherUserName.observe(this) { name ->
                 adapter.setChatUsers(isGroup = false, chatPartner = name)
             }
@@ -142,7 +115,6 @@ class ChatActivity : AppCompatActivity() {
                     binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
                 }
             }
-
 
 
             binding.fabSendAc.setOnClickListener {
@@ -162,6 +134,7 @@ class ChatActivity : AppCompatActivity() {
 
 
     }
+
 
 
     fun startGroupChat(
@@ -184,9 +157,9 @@ class ChatActivity : AppCompatActivity() {
 
         chatViewModel.isTyping.observe(this) { isTyping ->
             if (isTyping) {
-                binding.tvReceiverNameAc.text = "is typing..."
+                binding.tvIsTextingAc.setText(getString(R.string.is_typing))
             } else {
-                binding.tvReceiverNameAc.text = groupName
+                binding.tvIsTextingAc.setText("")
             }
         }
 
