@@ -34,7 +34,7 @@ class ConversationListAdapter(
 
         if (conversation.conversationType == "group") {
             holder.binding.tvFriendName.text = conversation.name
-                
+
             holder.binding.ivCheckSentIcl.isVisible = false
             holder.binding.ivCheckDeliveredIcl.isVisible = false
         } else {

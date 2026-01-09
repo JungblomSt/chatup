@@ -35,7 +35,7 @@ object FirebaseManager {
             .whereNotEqualTo(
                 "senderId",
                 currentUserId
-            ) // Endast meddelanden som inte skickats av currentUser
+            )
             .get()
             .addOnSuccessListener { messages ->
                 messages.documents.forEach { msgDoc ->
@@ -47,7 +47,9 @@ object FirebaseManager {
                             FieldValue.arrayUnion(currentUserId)
                         )
                     }
+
                 }
+
             }
             .addOnFailureListener { e ->
                 Log.e("FirebaseManager", "Failed to mark delivered: ${e.message}")
@@ -111,7 +113,7 @@ object FirebaseManager {
                 val message =
                     lastMessageDoc.toObject(ChatMessage::class.java) ?: return@addOnSuccessListener
 
-                // Lägg bara till användaren i seenBy om hen inte redan finns där
+
                 if (!message.seenBy.contains(currentUserId)) {
                     lastMessageDoc.reference.update(
                         "seenBy",
@@ -119,7 +121,7 @@ object FirebaseManager {
                     )
                 }
 
-                // Sätt alltid lastMessageSeen till true för att uppdatera UI
+
                 db.collection("conversation")
                     .document(conversationId)
                     .update(
@@ -282,8 +284,6 @@ object FirebaseManager {
             timeStamp = System.currentTimeMillis(),
             deliveredTo = emptyList(),
             seenBy = emptyList()
-//            delivered = false,
-//            seen = false
         )
 
         chatMessageRef.set(chatMessage)

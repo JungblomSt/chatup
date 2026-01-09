@@ -141,7 +141,7 @@ class ChatActivity : AppCompatActivity() {
 
             adapter.submitList(chatMessages.toList())
             if (chatMessages.isNotEmpty()) {
-                binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
+                binding.rvChatAc.scrollToPosition(chatMessages.size - 1)
             }
         }
 
@@ -190,7 +190,7 @@ class ChatActivity : AppCompatActivity() {
         adapter.isGroupChat = true
 
         groupChatViewModel.usersMap.observe(this) { map ->
-            Log.d("DEBUG_USERS_MAP!!", "Observer triggered: $map")  // <— alltid logga så du ser det
+            Log.d("DEBUG_USERS_MAP!!", "Observer triggered: $map")
             adapter.updateUsersMap(map)
         }
 
