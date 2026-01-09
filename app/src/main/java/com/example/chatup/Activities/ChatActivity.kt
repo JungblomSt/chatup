@@ -56,11 +56,16 @@ class ChatActivity : AppCompatActivity() {
 
         Log.d(
             "CHAT_ACTIVITY",
-            "onCreate: isGroup=${intent.getBooleanExtra("isGroup", false)}, conversationId=${intent.getStringExtra("conversationId")}"
+            "onCreate: isGroup=${
+                intent.getBooleanExtra(
+                    "isGroup",
+                    false
+                )
+            }, conversationId=${intent.getStringExtra("conversationId")}"
         )
 
 
-        if (isGroup){
+        if (isGroup) {
             val conversationId = intent.getStringExtra("conversationId")
             val chatPartnersIds = intent.getStringArrayListExtra("chatPartnersId") ?: emptyList()
             Log.d("DEBUG_CHAT", "2onCreate: isGroup=$isGroup")
@@ -69,8 +74,8 @@ class ChatActivity : AppCompatActivity() {
             Log.d("DEBUG_CHAT", "2onCreate: otherUserId=$otherUserId")
             Log.d("DEBUG_CHAT", "2onCreate: otherUserName='$otherUserName'")
             startGroupChat(conversationId, groupName, chatPartnersIds)
-        } else{
-            startPrivateChat(otherUserId,otherUserName)
+        } else {
+            startPrivateChat(otherUserId, otherUserName)
         }
 
     }
@@ -80,28 +85,19 @@ class ChatActivity : AppCompatActivity() {
         super.onStart()
 
         val otherUserId = intent.getStringExtra("userId") ?: return
-        if (intent.getBooleanExtra("isGroup", false)) {
-            groupChatViewModel.setGroupChatOpened(true)
-            val conversationId = intent.getStringExtra("conversationId")
-            if (conversationId != null) {
-                groupChatViewModel.markLastSeen(conversationId)
-            }
-            else{
-                chatViewModel.setConversationId( otherUserId)
-                chatViewModel.setOtherUserId(otherUserId)
 
-                chatViewModel.conversationId.observe(this) { conversationId ->
-                    if (conversationId != null) {
-                        chatViewModel.markChatAsSeen(conversationId)
-                        chatViewModel.checkDeliveredMessage(conversationId)
-                    }
-                }
+        chatViewModel.setConversationId(otherUserId)
+        chatViewModel.setOtherUserId(otherUserId)
+
+        chatViewModel.conversationId.observe(this) { conversationId ->
+            if (conversationId != null) {
+                chatViewModel.markChatAsSeen(conversationId)
+                chatViewModel.checkDeliveredMessage(conversationId)
             }
         }
 
 
     }
-
 
 
     /**
@@ -116,49 +112,49 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
-            chatViewModel.setOtherUserId(otherUserId)
-            chatViewModel.initChat(otherUserId)
-            chatViewModel.setOtherUserName(otherUserName)
+        chatViewModel.setOtherUserId(otherUserId)
+        chatViewModel.initChat(otherUserId)
+        chatViewModel.setOtherUserName(otherUserName)
 
-            binding.etMessageAc.addTextChangedListener { editText ->
-                if (editText.isNullOrBlank()) {
-                    chatViewModel.setTyping(false)
-                } else {
-                    chatViewModel.setTyping(true)
-                }
+        binding.etMessageAc.addTextChangedListener { editText ->
+            if (editText.isNullOrBlank()) {
+                chatViewModel.setTyping(false)
+            } else {
+                chatViewModel.setTyping(true)
             }
+        }
 
-            chatViewModel.isTyping.observe(this) { isTyping ->
-                if (isTyping) {
-                    binding.tvReceiverNameAc.text = "$otherUserName is typing..."
-                } else {
-                    binding.tvReceiverNameAc.text = otherUserName
-                }
+        chatViewModel.isTyping.observe(this) { isTyping ->
+            if (isTyping) {
+                binding.tvReceiverNameAc.text = "$otherUserName is typing..."
+            } else {
+                binding.tvReceiverNameAc.text = otherUserName
             }
+        }
 
-            chatViewModel.otherUserName.observe(this) { name ->
-                adapter.setChatUsers(isGroup = false, chatPartner = name )
+        chatViewModel.otherUserName.observe(this) { name ->
+            adapter.setChatUsers(isGroup = false, chatPartner = name)
+        }
+
+        chatViewModel.chatMessage.observe(this) { chatMessages ->
+            Log.d("DEBUG_UI", "chatMessage observer triggered, size=${chatMessages.size}")
+
+            adapter.submitList(chatMessages.toList())
+            if (chatMessages.isNotEmpty()) {
+                binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
             }
+        }
 
-            chatViewModel.chatMessage.observe(this) { chatMessages ->
-                Log.d("DEBUG_UI", "chatMessage observer triggered, size=${chatMessages.size}")
 
-                adapter.submitList(chatMessages.toList())
-                if (chatMessages.isNotEmpty()) {
-                    binding.rvChatAc.scrollToPosition(chatMessages.size - 1) // scroll to last chatMessage
-                }
+
+        binding.fabSendAc.setOnClickListener {
+            val sendChatText = binding.etMessageAc.text.toString()
+            if (sendChatText.isNotBlank()) {
+                chatViewModel.sendMessage(sendChatText)
+                binding.etMessageAc.text.clear()
+                Log.d("!!!", "Sent Chat = $sendChatText")
             }
-
-
-
-            binding.fabSendAc.setOnClickListener {
-                val sendChatText = binding.etMessageAc.text.toString()
-                if (sendChatText.isNotBlank()) {
-                    chatViewModel.sendMessage(sendChatText)
-                    binding.etMessageAc.text.clear()
-                    Log.d("!!!", "Sent Chat = $sendChatText")
-                }
-            }
+        }
 
 
     }
@@ -169,7 +165,7 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
-                binding.etMessageAc.addTextChangedListener { editText ->
+        binding.etMessageAc.addTextChangedListener { editText ->
             if (editText.isNullOrBlank()) {
                 chatViewModel.setTyping(false)
             } else {
@@ -193,7 +189,7 @@ class ChatActivity : AppCompatActivity() {
 
         adapter.isGroupChat = true
 
-        groupChatViewModel.usersMap.observe(this){ map ->
+        groupChatViewModel.usersMap.observe(this) { map ->
             Log.d("DEBUG_USERS_MAP!!", "Observer triggered: $map")  // <— alltid logga så du ser det
             adapter.updateUsersMap(map)
         }

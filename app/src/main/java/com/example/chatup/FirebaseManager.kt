@@ -32,7 +32,10 @@ object FirebaseManager {
         db.collection("conversation")
             .document(conversationId)
             .collection("messages")
-            .whereNotEqualTo("senderId", currentUserId) // Endast meddelanden som inte skickats av currentUser
+            .whereNotEqualTo(
+                "senderId",
+                currentUserId
+            ) // Endast meddelanden som inte skickats av currentUser
             .get()
             .addOnSuccessListener { messages ->
                 messages.documents.forEach { msgDoc ->
@@ -94,7 +97,6 @@ object FirebaseManager {
     }
 
 
-
     fun markLastMessageSeen(conversationId: String) {
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
 
@@ -106,26 +108,28 @@ object FirebaseManager {
             .get()
             .addOnSuccessListener { snapshot ->
                 val lastMessageDoc = snapshot.documents.firstOrNull() ?: return@addOnSuccessListener
-                val message = lastMessageDoc.toObject(ChatMessage::class.java) ?: return@addOnSuccessListener
+                val message =
+                    lastMessageDoc.toObject(ChatMessage::class.java) ?: return@addOnSuccessListener
 
+                // Lägg bara till användaren i seenBy om hen inte redan finns där
                 if (!message.seenBy.contains(currentUserId)) {
                     lastMessageDoc.reference.update(
                         "seenBy",
                         FieldValue.arrayUnion(currentUserId)
                     )
-
-                    db.collection("conversation")
-                        .document(conversationId)
-                        .update(
-                            mapOf(
-                                "lastMessageSeen" to true,
-                                "lastUpdated" to System.currentTimeMillis()
-                            )
-                        )
                 }
+
+                // Sätt alltid lastMessageSeen till true för att uppdatera UI
+                db.collection("conversation")
+                    .document(conversationId)
+                    .update(
+                        mapOf(
+                            "lastMessageSeen" to true,
+                            "lastUpdated" to System.currentTimeMillis()
+                        )
+                    )
             }
     }
-
 
 
     // todo lägg till komentarer
