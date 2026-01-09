@@ -97,8 +97,6 @@ class StartMenuActivity : AppCompatActivity() {
                     startActivity(Intent(this, ProfileActivity::class.java))
                     true
                 }
-
-
                 else -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
