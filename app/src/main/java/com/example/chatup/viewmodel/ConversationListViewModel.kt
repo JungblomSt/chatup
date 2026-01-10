@@ -17,8 +17,6 @@ import kotlinx.coroutines.launch
 
 class ConversationListViewModel : ViewModel() {
 
-
-
     // ============== Variables for Firestore and Auth ==============
     private var conversationListener : ListenerRegistration? = null
     private val db = Firebase.firestore
@@ -38,11 +36,8 @@ class ConversationListViewModel : ViewModel() {
             .orderBy("lastUpdated", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, e ->
                 if (e != null || snapshot == null) {
-                    Log.e("DEBUG_CONV_LIST", "Snapshot error: ${e?.message}")
                     return@addSnapshotListener
                 }
-
-                Log.d("DEBUG_CONV_LIST", "Snapshot received with ${snapshot.size()} documents")
 
                 viewModelScope.launch {
                     val users = getUsers()
@@ -52,19 +47,13 @@ class ConversationListViewModel : ViewModel() {
                         val usersInConversation = doc.get("users") as? List<String> ?: emptyList()
                         val conversationId = doc.id
 
-
-
                         if (!usersInConversation.contains(currentUserId)) return@mapNotNull null
 
-
-                        // Defaultvärden från Firestore
                         val lastMessage = doc.getString("lastMessage") ?: ""
                         val lastMessageSeen = doc.getBoolean("lastMessageSeen") ?: false
                         val lastMessageDelivered = doc.getBoolean("lastMessageDelivered") ?: false
                         val lastUpdated = doc.getLong("lastUpdated") ?: 0L
                         val groupName = doc.getString("name") ?: ""
-                        Log.d("DEBUG_CONV_LIST", "Conversation ${doc.id} has name='$groupName'")
-
 
                         val friendUsername = if (conversationType == "private") {
                             val friendId = usersInConversation.firstOrNull { it != currentUserId }
@@ -72,11 +61,6 @@ class ConversationListViewModel : ViewModel() {
                         } else {
                             groupName
                         }
-                        Log.d(
-                            "DEBUG_CONV_LIST",
-                            "Processing conversation $conversationId, type=$conversationType, users=$usersInConversation, name='$groupName'"
-                        )
-
 
                         ConversationList(
                             conversationId = conversationId,
@@ -90,13 +74,9 @@ class ConversationListViewModel : ViewModel() {
                             name = groupName
                         )
                     }
-
-                    Log.d("DEBUG_CONV_LIST", "Posting ${convList.size} conversations to LiveData")
-
                     _conversationList.postValue(convList)
                 }
             }
-
     }
 
     // ============= Gets all users except the current one ==============
@@ -108,10 +88,6 @@ class ConversationListViewModel : ViewModel() {
             val user = doc.toObject(User::class.java)?.copy(uid = doc.id)
             if (user?.uid != currentUserId) user else null
         }
-
         return users
     }
-
-
-
 }
