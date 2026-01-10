@@ -34,12 +34,9 @@ class FriendListActivity : AppCompatActivity() {
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
         usersViewModel = ViewModelProvider(this)[UsersViewModel::class.java]
 
-
         loadUsers()
         initAdapter()
         selectUsersForGroupChat()
-
-
     }
 
     private fun initAdapter() {
@@ -49,7 +46,6 @@ class FriendListActivity : AppCompatActivity() {
             friendList.map { it.username}
         )
         binding.lvFriendsListAfl.adapter = adapter
-
     }
 
     private fun selectUsersForGroupChat()  {
@@ -58,7 +54,6 @@ class FriendListActivity : AppCompatActivity() {
 
         binding.lvFriendsListAfl.setOnItemClickListener { _, view, pos, _ ->
 
-
             val user = friendList[pos]
             val checkedView = view as CheckedTextView
 
@@ -66,12 +61,10 @@ class FriendListActivity : AppCompatActivity() {
                 selectedUser.add(user)
             } else {
                 selectedUser.remove(user)
-
             }
         }
 
         startGroupChat(selectedUser)
-
     }
 
     private fun startGroupChat(selectedUsers: MutableList<User>) {
@@ -83,7 +76,6 @@ class FriendListActivity : AppCompatActivity() {
             if (binding.etSearchFriendAfl.text.isBlank()) {
                 Toast.makeText(this, "Choose a group name", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
-
             }
 
             if (selectedUsers.size < 2) {
@@ -93,14 +85,12 @@ class FriendListActivity : AppCompatActivity() {
 
             val selectedUserIds = selectedUsers.map { it.uid }
 
-
             usersViewModel.createGroup(groupName = groupName, selectedUserIds) { conversationId ->
                 Log.d("DEBUG_GROUP", "Created group conversationId = $conversationId")
                 Log.d(
                     "DEBUG_GROUP_CREATE",
                     "Group created with id=$conversationId and name=$groupName"
                 )
-
 
                 val intent = Intent(this, ChatActivity::class.java)
                 intent.putExtra("conversationId", conversationId)
@@ -110,7 +100,6 @@ class FriendListActivity : AppCompatActivity() {
 
                 startActivity(intent)
             }
-
         }
     }
 

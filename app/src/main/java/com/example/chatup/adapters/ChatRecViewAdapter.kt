@@ -73,13 +73,11 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-
     fun updateUsersMap(newUsersMap: Map<String, String?>) {
         Log.d("DEBUG_ADAPTER!!", "setUsersMap called with $newUsersMap")
         usersMap = newUsersMap
         notifyDataSetChanged()
     }
-
 
     fun submitList(chatMessages: List<ChatMessage>) {
         Log.d("DEBUG_UI_ADAPTER", "submitList called with ${chatMessages.size} messages")
@@ -147,8 +145,6 @@ class ChatRecViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 holder.binding.tvFriendNameImr.text = senderName ?: "unknown"
 
         }
-
-
     }
 
     override fun getItemCount(): Int {

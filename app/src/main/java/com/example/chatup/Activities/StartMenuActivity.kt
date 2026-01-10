@@ -37,33 +37,38 @@ class StartMenuActivity : AppCompatActivity() {
     private lateinit var auth: AuthViewModel
     private lateinit var chatViewModel: ChatViewModel
 
-    // =============== Lifecycle ==============
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = StartMenuActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // ============== ViewModels =============
         auth = ViewModelProvider(this)[AuthViewModel::class.java]
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
 
+        // ============== Toolbar and navigation setup ==============
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigationView)
 
+        // ============== Hamburger menu toggle ==============
         val toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         toggle.drawerArrowDrawable.color = Color.WHITE
 
+        // ============== Set user email in navigation drawer header =============
         val headerViewHamburgerMenu = navigationView.getHeaderView(0)
         val tvMail = headerViewHamburgerMenu.findViewById<TextView>(R.id.tv_email)
         tvMail.text = auth.getCurrentUser()?.email ?: getString(R.string.no_email)
 
+        // ============== Load default fragments ==============
         showConversations()
         showUsers()
 
+        // ============== Handle navigation drawer menu click =============
         navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
 
@@ -109,6 +114,7 @@ class StartMenuActivity : AppCompatActivity() {
             }
         }
 
+        // ============== Start group chat ==============
         binding.btnGroupChat.setOnClickListener {
             val intent = Intent(this, FriendListActivity::class.java)
             startActivity(intent)
