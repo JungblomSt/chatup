@@ -11,7 +11,6 @@ import com.example.chatup.data.ConversationList
 
 class ConversationsRecViewAdapter : RecyclerView.Adapter<ConversationsRecViewAdapter.ConversationsViewHolder>() {
 
-    // Todo se över namnet "conversations" om det är tydligt nog eller blandas ihop med en chat conversation
 
     private var conversationsList: List<ConversationList> = emptyList()
 
@@ -29,7 +28,6 @@ class ConversationsRecViewAdapter : RecyclerView.Adapter<ConversationsRecViewAda
     ) {
         val conversation = conversationsList[position]
 
-        //holder.binding.tvFriendName.text = conversation.username
         holder.binding.tvMessageIml.text = conversation.lastMessage
     }
 

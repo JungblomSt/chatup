@@ -1,5 +1,6 @@
 package com.example.chatup
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -15,16 +16,19 @@ import com.example.chatup.viewmodel.AuthViewModel
 import com.example.chatup.viewmodel.ChatViewModel
 import com.google.android.material.navigation.NavigationView
 import android.widget.TextView
-import android.content.Intent
 import androidx.core.view.GravityCompat
 import com.example.chatup.Activities.SettingsActivity
 import com.example.chatup.Activities.LoginActivity
 import com.example.chatup.Activities.ProfileActivity
 import com.example.chatup.Activities.SearchActivity
+import com.example.chatup.Activities.FriendListActivity
+import com.example.chatup.databinding.StartMenuActivityBinding
 
 class StartMenuActivity : AppCompatActivity() {
 
     // ============== UI components ==============
+
+    private lateinit var binding : StartMenuActivityBinding
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toolbar: Toolbar
@@ -36,7 +40,8 @@ class StartMenuActivity : AppCompatActivity() {
     // =============== Lifecycle ==============
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.start_menu_activity)
+        binding = StartMenuActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         auth = ViewModelProvider(this)[AuthViewModel::class.java]
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
@@ -103,6 +108,11 @@ class StartMenuActivity : AppCompatActivity() {
                 }
             }
         }
+
+        binding.btnGroupChat.setOnClickListener {
+            val intent = Intent(this, FriendListActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     // ============== Show fragments with conversations ==============
@@ -121,9 +131,10 @@ class StartMenuActivity : AppCompatActivity() {
         findViewById<FrameLayout>(R.id.usersContainer).visibility = View.VISIBLE
     }
 
-    // ============== Lifecycle onStart =============
     override fun onStart() {
         super.onStart()
         chatViewModel.checkDeliveredMessage()
     }
+
+
 }

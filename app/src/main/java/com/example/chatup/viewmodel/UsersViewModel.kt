@@ -4,16 +4,10 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.chatup.Mananger.FirebaseManager
 import com.example.chatup.data.User
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.firestore
 
 class UsersViewModel : ViewModel() {
-
-    // ============== Firebase ==============
-    private val db = Firebase.firestore
-    private val auth = Firebase.auth
 
     // ============== Livedata ==============
     private val _users = MutableLiveData<List<User>>()
@@ -24,19 +18,12 @@ class UsersViewModel : ViewModel() {
 
     // ============== Fetch users ===========
     fun getAllUsers() {
-        val currentUserId = auth.currentUser?.uid
-        Log.d("UsersViewModel", "getAllUsers: Fetching users from Firestore")
-
-        db.collection("users")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val userList = snapshot.documents.mapNotNull { doc ->
-                    val user = doc.toObject(User::class.java)?.copy(uid = doc.id)
-                    if (user?.uid != currentUserId) user else null
-                }
-                originalUserList = userList
-                _users.value = userList
-            }
+        FirebaseManager.getAllUsers({ userList ->
+            originalUserList = userList
+            _users.value = userList
+        }, { e ->
+            Log.e("!!!", e.message.toString())
+        })
     }
 
     fun searchUsers(query: String) {
@@ -50,5 +37,17 @@ class UsersViewModel : ViewModel() {
             }
             _users.value = filteredList
         }
+    }
+
+    fun createGroup (
+        groupName : String,
+        members : List<String>,
+        onComplete : (String) -> Unit
+    ) {
+        FirebaseManager.createGroupConversation(
+            groupName = groupName,
+            members = members,
+            onComplete = onComplete
+        )
     }
 }

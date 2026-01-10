@@ -4,136 +4,116 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.chatup.FirebaseManager
+import com.example.chatup.Mananger.FirebaseManager
 import com.example.chatup.data.ChatMessage
 import com.example.chatup.data.User
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.google.firebase.firestore.ListenerRegistration
 
 class ChatViewModel : ViewModel() {
 
-    private var chatListener : ListenerRegistration? = null
 
-    private var typingListener : ListenerRegistration? = null
+    private var chatListener: ListenerRegistration? = null
+    private var typingListener: ListenerRegistration? = null
 
-    private var _chatOpened = MutableLiveData<Boolean>()
+    private val _chatOpened = MutableLiveData<Boolean>()
 
-    private var _isTyping = MutableLiveData<Boolean>()
+    private val _isTyping = MutableLiveData<Boolean>()
+    val isTyping: LiveData<Boolean> get() = _isTyping
 
-    val isTyping : LiveData<Boolean> get() = _isTyping
-
-    private var _otherUserName = MutableLiveData<String>()
-
+    private val _otherUserName = MutableLiveData<String>()
     val otherUserName: LiveData<String> get() = _otherUserName
 
-    /**
-     * The unique ID of the current conversation.
-     * This is generated based on the logged-in user and the selected chat partner.
-     */
-    private lateinit var conversationId : String
+    private val _conversationId = MutableLiveData<String>()
+    val conversationId: LiveData<String> get() = _conversationId
 
-    /**
-     * Holds the user ID of the person the current user is chatting with.
-     */
-    private var _otherUserId = MutableLiveData<String>()
-    val otherUserId: LiveData<String> get() = _otherUserId
+    private val _otherUserId = MutableLiveData<String>()
 
-    /**
-     * Holds the list of chat messages for the current conversation.
-     * The UI observes this to update the RecyclerView.
-     */
     private val _chatMessage = MutableLiveData<List<ChatMessage>>()
     val chatMessage: LiveData<List<ChatMessage>> get() = _chatMessage
 
-    /**
-     * Holds a list of all registered users.
-     */
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> get() = _users
 
-    fun checkDeliveredMessage() {
-        FirebaseManager.markDelivered()
-    }
 
-    fun setChatOpened (isOpened : Boolean) {
-        _chatOpened.value = isOpened
-    }
-
-    fun isChatOpened () : Boolean {
-        return _chatOpened.value == true
-    }
-
-    fun setTyping (isTyping : Boolean) {
-        FirebaseManager.setTyping(conversationId,isTyping)
-
-    }
-
-
-    /**
-     * Collects all users from Firestore via FirebaseManager.
-     * Updates LiveData so the UI can display the user list.
-     */
-    fun loadAllUsers() {
-        FirebaseManager.getAllUsers({ userList ->
-            _users.value = userList
-        }, { e ->
-            Log.e("!!!", e.message.toString())
-        })
-
-    }
-
-    /**
-     * Init a chat session with a specific user.
-     * Creates a unique conversation ID and starts listening for real-time message updates from Firestore.
-     *
-     * @param otherUserId The user ID of the chat partner.
-     */
-    fun initChat(otherUserId: String) {
-        _otherUserId.value = otherUserId
-        conversationId = FirebaseManager.createConversationId(otherUserId)
-
-        chatListener = FirebaseManager.snapShotListener(conversationId = conversationId,
-        onUpdate = { chatMessage ->
-            _chatMessage.postValue(chatMessage.toList())
-        }, chatIsOpened = {isChatOpened()
-        } )
-
-        typingListener = FirebaseManager.typingSnapShotListener(conversationId, otherUserId){
-            _isTyping.value = it
-        }
-
-    }
-
-    fun setOtherUserName (otherUserName : String?) {
+    fun setOtherUserName(otherUserName: String?) {
         _otherUserName.value = otherUserName ?: ""
     }
 
-    /**
-     * Sets the ID of the user the current user wants to chat with.
-     *
-     * @param userId Selected Chat partners user's ID "otherUserId".
-     */
     fun setOtherUserId(userId: String) {
         _otherUserId.value = userId
     }
 
+    fun setChatOpened(isOpened: Boolean) {
+        Log.d("IS_OPEN VALUE ", "$isOpened")
+        _chatOpened.postValue(isOpened)
+    }
+
+    fun isChatOpened(): Boolean {
+        return _chatOpened.value == true
+    }
+
+
+    fun setTyping(isTyping: Boolean) {
+        _conversationId.value?.let { conversationId ->
+            FirebaseManager.setTyping(conversationId, isTyping)
+        }
+    }
+
     /**
-     * Sends a chat message to the selected user.
-     *
-     * @param chatText The message to send.
+     * Initializes chat for a specific user.
+     * Starts listening to messages and typing status.
+     */
+    fun initChat(otherUserId: String) {
+
+
+        _otherUserId.value = otherUserId
+
+        _conversationId.value = FirebaseManager.createConversationId( otherUserId)
+
+        _conversationId.value ?: return
+
+        FirebaseManager.markMessageSeen(conversationId = conversationId.value!! ,chatIsOpened = {isChatOpened()})
+        chatListener = FirebaseManager.snapShotListener(
+            conversationId = _conversationId.value!!,
+            onUpdate = { messages ->
+                _chatMessage.postValue(messages.toList())
+            }, chatIsOpened = {isChatOpened()}
+        )
+
+
+        typingListener = FirebaseManager.typingSnapShotListener(
+            _conversationId.value!!,
+            otherUserId
+        ) { typing ->
+            _isTyping.value = typing
+        }
+    }
+
+    /**
+     * Sends a message to the other user.
      */
     fun sendMessage(chatText: String) {
         val receiverId = _otherUserId.value ?: return
-         FirebaseManager.sendChatMessage(chatText, receiverId)
+        FirebaseManager.sendChatMessage(chatText, receiverId)
     }
 
+
+    /**
+     * Checks messages for delivery status (for the current user)
+     */
+    fun checkDeliveredMessage() {
+        FirebaseManager.markPrivateChatDelivered()
+    }
+
+    /**
+     * Clears listeners when ViewModel is destroyed
+     */
     override fun onCleared() {
-        typingListener?.remove()
-        typingListener = null
         chatListener?.remove()
         chatListener = null
+        typingListener?.remove()
+        typingListener = null
         super.onCleared()
-
     }
+
 }

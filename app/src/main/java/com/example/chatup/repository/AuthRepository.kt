@@ -1,4 +1,4 @@
-package com.example.chatup
+package com.example.chatup.repository
 
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase

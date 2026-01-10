@@ -1,4 +1,4 @@
-package com.example.chatup
+package com.example.chatup.Mananger
 
 import android.util.Log
 import com.example.chatup.data.ChatMessage
@@ -9,6 +9,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
+import kotlin.collections.get
 
 object FirebaseManager {
 
@@ -23,7 +24,7 @@ object FirebaseManager {
      */
     private lateinit var currentUser: FirebaseUser
 
-    fun markDelivered ()  {
+    fun markPrivateChatDelivered ()  {
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
 
         db.collection("conversation")
@@ -67,82 +68,16 @@ object FirebaseManager {
 
     }
 
-    // todo lägg till komentarer
-    fun setTyping (conversationId: String, isTyping : Boolean) {
+    fun markMessageSeen ( conversationId: String  ,chatIsOpened : () -> Boolean) {
+
         val currentUserId = Firebase.auth.currentUser?.uid ?: return
 
+        Log.e("!!!", "Failed to open check mark seen in firebase")
+
+        Log.d("IS_OPEN VALUE 3", "$chatIsOpened")
+
+
         db.collection("conversation")
-            .document(conversationId)
-            .update("typing.$currentUserId", isTyping)
-    }
-
-    // todo lägg till komentarer
-
-    fun typingSnapShotListener (conversationId: String, friendId : String, onTyping : (Boolean) -> Unit) : ListenerRegistration {
-
-       return db.collection("conversation")
-            .document(conversationId)
-            .addSnapshotListener { snapshot , e ->
-                if (e != null){
-                    e.message?.let { Log.e("!!!", it) }
-                    return@addSnapshotListener
-                }
-                    val typing = snapshot?.get("typing") as? Map<* , *> ?: return@addSnapshotListener
-                    val isTyping = typing[friendId] as? Boolean ?: false
-
-                    onTyping(isTyping)
-
-            }
-
-
-    }
-
-    /**
-     * Fetches all users from the Firestore 'users' collection.
-     * This function is used to display a list of all users for starting new conversations.
-     *
-     * @param onComplete Callback invoked when the list of users has been successfully fetched.
-     *                   Returns a List<User> containing all users in the database.
-     * @param onException Callback invoked if there is an error while fetching users.
-     *                    Returns the Exception for logging or UI handling.
-     */
-    fun getAllUsers(onComplete: (List<User>) -> Unit, onException: (Exception) -> Unit) {
-
-        val currentUserId = Firebase.auth.currentUser?.uid
-
-        db.collection("users")
-            .get()
-            .addOnSuccessListener { snapshots ->
-                val userList = snapshots.documents.mapNotNull { doc ->
-                    doc.toObject(User::class.java)?.copy(uid = doc.id)
-                }.filter { user ->
-                    user.uid != currentUserId
-                }
-
-                onComplete(userList)
-
-            }.addOnFailureListener { e ->
-                onException(e)
-            }
-    }
-
-
-    // todo Uppdatera komentarer
-
-
-    /**
-     * Sets up a real-time listener for messages in a specific conversation.
-     *
-     * @param conversationId The Firestore document ID representing the conversation.
-     *                       Used to locate the correct subcollection of messages.
-     * @param onUpdate Callback invoked whenever messages are added, modified, or removed
-     *                 in this conversation. Returns a List<ChatMessage> representing the current messages.
-     */
-    fun snapShotListener(conversationId: String, onUpdate: (List<ChatMessage>) -> Unit, chatIsOpened : () -> Boolean) : ListenerRegistration? {
-
-        val currentUserId = Firebase.auth.currentUser?.uid ?: return null
-
-        return db.collection("conversation")
             .document(conversationId)
             .collection("messages")
             .orderBy("timeStamp")
@@ -154,12 +89,8 @@ object FirebaseManager {
 
                 if (snapshot == null) return@addSnapshotListener
 
-                val chatMessages = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(ChatMessage::class.java)
-                }
-                onUpdate(chatMessages)
 
-                snapshot.documents.forEach() {doc ->
+                snapshot.documents.forEach {doc ->
                     val message = doc.toObject(ChatMessage::class.java) ?: return@forEach
 
                     if (message.receiverId == currentUserId
@@ -176,20 +107,161 @@ object FirebaseManager {
                 val lastMessage = lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
 
 
-                        if (lastMessage.receiverId == currentUserId
-                            && lastMessage.delivered && !lastMessage.seen
-                            && chatIsOpened()) {
+                if (lastMessage.receiverId == currentUserId
+                    && lastMessage.delivered && !lastMessage.seen
+                    && chatIsOpened()) {
 
-                            lastDoc.reference.update("seen", true)
+                    lastDoc.reference.update("seen", true)
 
-                            db.collection("conversation")
-                                .document(conversationId)
-                                .update(
-                                    mapOf ("lastMessageSeen" to true,
-                                        "lastUpdated" to System.currentTimeMillis()))
-                        }
+                    db.collection("conversation")
+                        .document(conversationId)
+                        .update(
+                            mapOf ("lastMessageSeen" to true,
+                                "lastUpdated" to System.currentTimeMillis()))
+                }
 
             }
+    }
+
+
+    // todo lägg till komentarer
+    fun setTyping(conversationId: String, isTyping: Boolean) {
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+        db.collection("conversation")
+            .document(conversationId)
+            .update("typing.$currentUserId", isTyping)
+    }
+
+    // todo lägg till komentarer
+
+    fun typingSnapShotListener(
+        conversationId: String,
+        friendId: String,
+        onTyping: (Boolean) -> Unit
+    ): ListenerRegistration {
+
+        return db.collection("conversation")
+            .document(conversationId)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    e.message?.let { Log.e("!!!", it) }
+                    return@addSnapshotListener
+                }
+                val typing = snapshot?.get("typing") as? Map<*, *> ?: return@addSnapshotListener
+                val isTyping = typing[friendId] as? Boolean ?: false
+
+                onTyping(isTyping)
+
+            }
+
+    }
+
+
+    /**
+     * Fetches all users from the Firestore 'users' collection.
+     * This function is used to display a list of all users for starting new conversations.
+     *
+     * @param onComplete Callback invoked when the list of users has been successfully fetched.
+     *                   Returns a List<User> containing all users in the database.
+     * @param onException Callback invoked if there is an error while fetching users.
+     *                    Returns the Exception for logging or UI handling.
+     */
+    fun getAllUsers(onComplete: (List<User>) -> Unit, onException: (Exception) -> Unit) {
+
+        val currentUserId = Firebase.auth.currentUser?.uid
+
+        Log.d("FirebaseManager", "Fetching users from Firestore. CurrentUserId=$currentUserId")
+
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { snapshots ->
+                val userList = snapshots.documents.mapNotNull { doc ->
+                    val user = doc.toObject(User::class.java)?.copy(uid = doc.id)
+                    if (user?.uid != currentUserId) user else null
+                }
+                Log.d("FirebaseManager", "Fetched users: ${userList.map { it.username }}")
+
+                onComplete(userList)
+
+            }.addOnFailureListener { e ->
+                Log.e("FirebaseManager", "Failed to fetch users", e)
+
+                onException(e)
+            }
+    }
+
+    /**
+     * Sets up a real-time listener for messages in a specific conversation.
+     *
+     * @param conversationId The Firestore document ID representing the conversation.
+     *                       Used to locate the correct subcollection of messages.
+     * @param onUpdate Callback invoked whenever messages are added, modified, or removed
+     *                 in this conversation. Returns a List<ChatMessage> representing the current messages.
+     */
+    fun snapShotListener(
+        conversationId: String,
+        onUpdate: (List<ChatMessage>) -> Unit, chatIsOpened : () -> Boolean
+    ): ListenerRegistration? {
+
+
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return null
+
+
+        return db.collection("conversation")
+            .document(conversationId)
+            .collection("messages")
+            .orderBy("timeStamp")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("!!!", e.message.toString())
+                    return@addSnapshotListener
+                }
+
+                if (snapshot == null) return@addSnapshotListener
+
+                val chatMessages = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(ChatMessage::class.java)?.apply {
+                        id = doc.id
+                    }
+                }
+                onUpdate(chatMessages)
+
+                snapshot.documents.forEach {doc ->
+                    val message = doc.toObject(ChatMessage::class.java) ?: return@forEach
+
+                    if (message.receiverId == currentUserId
+                        && message.delivered
+                        && !message.seen &&
+                        chatIsOpened()) {
+
+                        doc.reference.update("seen", true)
+                    }
+
+                }
+
+                val lastDoc = snapshot.documents.lastOrNull() ?: return@addSnapshotListener
+                val lastMessage = lastDoc.toObject(ChatMessage::class.java) ?: return@addSnapshotListener
+
+
+                if (lastMessage.receiverId == currentUserId
+                    && lastMessage.delivered && !lastMessage.seen
+                    && chatIsOpened()) {
+
+                    lastDoc.reference.update("seen", true)
+
+                    db.collection("conversation")
+                        .document(conversationId)
+                        .update(
+                            mapOf ("lastMessageSeen" to true,
+                                "lastUpdated" to System.currentTimeMillis()))
+                }
+
+            }
+
+
+
+
     }
 
 
@@ -215,6 +287,7 @@ object FirebaseManager {
             .document()
 
         val chatMessage = ChatMessage(
+            id = chatMessageRef.id,
             senderId = currentUser.uid,
             receiverId = receiverId,
             messages = chatText,
@@ -224,6 +297,9 @@ object FirebaseManager {
         )
 
         chatMessageRef.set(chatMessage)
+            .addOnSuccessListener {
+                Log.d("MSG_SEND", "Message sent id=${chatMessageRef.id}")
+
 
         // Update or create conversation metadata
         db.collection("conversation")
@@ -239,6 +315,50 @@ object FirebaseManager {
                 ),
                 SetOptions.merge()
             )
+
+            }.addOnFailureListener {
+                Log.d(
+                    "CONV_UPDATE",
+                    "Conversation updated: delivered=false, seen=false, sender=${currentUser.uid}")
+            }
+    }
+
+    fun sendGroupMessage(conversationId: String, chatText: String, members: List<String>) {
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+        val groupMessageRef = db.collection("conversation")
+            .document(conversationId)
+            .collection("messages")
+            .document()
+
+        val groupMessage = ChatMessage(
+            id = groupMessageRef.id,
+            senderId = currentUserId,
+            messages = chatText,
+            receiverId = null,
+            timeStamp = System.currentTimeMillis(),
+            delivered = false,
+            seen = false
+        )
+
+        groupMessageRef.set(groupMessage)
+
+        db.collection("conversation")
+            .document(conversationId)
+            .update(
+                mapOf(
+                    "lastMessage" to chatText,
+                    "lastMessageId" to groupMessageRef.id,
+                    "lastMessageSeen" to false,
+                    "lastUpdated" to System.currentTimeMillis()
+                )
+            ).addOnSuccessListener { Log.d("DEBUG_GROUP_MSG", "Conversation updated successfully") }
+            .addOnFailureListener { e ->
+                Log.e(
+                    "DEBUG_GROUP_MSG",
+                    "Failed to update conversation: ${e.message}"
+                )
+            }
 
     }
 
@@ -261,4 +381,39 @@ object FirebaseManager {
         return listOf(user1Id, user2Id).sorted().joinToString("_")
     }
 
+
+
+    fun createGroupConversation(
+        groupName: String,
+        members: List<String>,
+        onComplete: (String) -> Unit
+    ) {
+
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+
+
+        val allMembers = (members + currentUserId).distinct()
+
+
+        val groupConversation = mapOf(
+            "conversationType" to "group",
+            "name" to groupName,
+            "users" to allMembers,
+            "lastMessage" to "",
+            "lastUpdated" to System.currentTimeMillis()
+        )
+
+        db.collection("conversation")
+            .add(groupConversation)
+            .addOnSuccessListener { doc ->
+                Log.d("DEBUG_GROUP_MSG", "Group created with id=${doc.id} and name=$groupName")
+
+                onComplete(doc.id)
+            }.addOnFailureListener { e ->
+                Log.e("DEBUG_GROUP_MSG", "Failed to create group: ${e.message}")
+
+            }
+
+
+    }
 }
